@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/source/*.jpg
+data/source/*.png
+data/source/*.tif
+data/source/*.tiff
+data/models/
+data/processed/
+data/measurements/
+output/
+*.egg-info/
+dist/
+build/
+.DS_Store
+Thumbs.db
