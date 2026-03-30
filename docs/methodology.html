@@ -211,6 +211,53 @@
     constraint document.
   </p>
 
+  <h2>Cloth Draping Distortion Analysis</h2>
+  <p>
+    The nose-to-chin measurement in Study 1 (9.91 cm) exceeded the expected range
+    (7.0&ndash;9.5 cm). The standard explanation is that cloth draping over a supine face
+    elongates vertical measurements. We tested this quantitatively with a 2D physics
+    simulation.
+  </p>
+
+  <h3>Simulation method</h3>
+  <p>
+    A chain of 200 connected points (representing the cloth cross-section) was draped
+    over an ellipsoidal face profile (110 mm semi-major axis, 25 mm depth). The cloth
+    relaxed under gravity with spring constraints maintaining segment lengths, and
+    collision detection preventing face penetration. After 3000 iterations of relaxation,
+    the vertical distance along the cloth surface was compared to the true face dimension.
+  </p>
+
+  <figure>
+    <img src="images/draping_simulation.png" alt="Cloth draping simulation cross-section and distortion factors">
+    <figcaption>
+      Left: cloth (blue) draped over face cross-section (gold). Right: measured distortion
+      factors for vertical measurements. All factors are ~1.0 &mdash; the simple ellipsoid
+      model predicts minimal vertical distortion.
+    </figcaption>
+  </figure>
+
+  <h3>Result: minimal distortion</h3>
+  <p>
+    The simulation found a mean vertical distortion factor of <strong>0.994&times;</strong> &mdash;
+    essentially no distortion. The cloth conforms closely to the ellipsoidal face, and the
+    vertical distance along the cloth surface nearly equals the vertical distance on the face.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">Honest Assessment</p>
+    <p>
+      The simple ellipsoid model does <strong>not</strong> explain the Study 1 nose-to-chin
+      outlier (9.91 cm vs expected 7.0&ndash;9.5 cm). A more complex face geometry (with
+      a protruding chin, deep nasolabial folds, or non-uniform cloth stiffness) might
+      produce greater distortion, but this basic simulation suggests the &ldquo;cloth
+      draping adds ~2 cm&rdquo; explanation requires more complex physics than a simple
+      ellipsoid model provides. Study 2&rsquo;s nose-to-chin (7.09 cm) is well within range,
+      suggesting the Study 1 outlier may reflect landmark detection error rather than
+      draping distortion.
+    </p>
+  </div>
+
 </main>
 
 <footer>
