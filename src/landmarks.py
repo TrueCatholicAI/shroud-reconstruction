@@ -268,71 +268,188 @@ def save_landmarks(landmarks: dict, name: str = "landmarks"):
     return path
 
 
+def _load_enrie_face() -> np.ndarray | None:
+    """Load the Enrie 1931 face image (the actual Shroud photograph).
+
+    The Enrie negative is inverted to create a positive-like image
+    since face detectors are trained on normal photographs.
+
+    IMPORTANT: We deliberately do NOT use the Holy Face 1909 reproduction
+    because it is a devotional artistic copy, not the actual Shroud data.
+    Using it would introduce exactly the artistic bias this project
+    exists to eliminate.
+    """
+    source_dir = PROJECT_ROOT / "data" / "source"
+
+    # Primary source: Enrie 1931 high-res face (photographic negative)
+    enrie_path = source_dir / "enrie_1931_face_hires.jpg"
+    if not enrie_path.exists():
+        print(f"  Enrie source image not found at: {enrie_path}")
+        return None
+
+    img = cv2.imread(str(enrie_path))
+    if img is None:
+        print(f"  Failed to load: {enrie_path}")
+        return None
+
+    print(f"  Loaded Enrie 1931 negative: {img.shape}")
+
+    # Extract face region (same logic as depth_map.py)
+    h, w = img.shape[:2]
+    aspect = h / w if w > 0 else 1
+    if aspect > 1.1:
+        margin_x = int(w * 0.05)
+        margin_y = int(h * 0.05)
+        face = img[margin_y:h - margin_y, margin_x:w - margin_x]
+    else:
+        face = img
+
+    # Convert to grayscale and invert (negative -> positive)
+    gray = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+    positive = cv2.bitwise_not(gray)
+
+    # Save the raw positive for reference
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(PROCESSED_DIR / "enrie_positive_raw.png"), positive)
+
+    return positive
+
+
+def _preprocess_enrie_for_detection(positive: np.ndarray) -> list[tuple[str, np.ndarray]]:
+    """Create multiple preprocessed versions of the Enrie positive for detection.
+
+    The Shroud image has heavy cloth texture noise that confuses face detectors.
+    We try several preprocessing strategies to help the detector find the face
+    while preserving the actual Shroud geometry.
+
+    Returns list of (name, rgb_image) tuples to try.
+    """
+    versions = []
+
+    # Version 1: CLAHE contrast enhancement
+    clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(positive)
+    versions.append(("clahe", cv2.cvtColor(enhanced, cv2.COLOR_GRAY2RGB)))
+
+    # Version 2: Gaussian blur to reduce cloth texture + CLAHE
+    blurred = cv2.GaussianBlur(positive, (15, 15), 0)
+    enhanced2 = clahe.apply(blurred)
+    versions.append(("blur15_clahe", cv2.cvtColor(enhanced2, cv2.COLOR_GRAY2RGB)))
+
+    # Version 3: Stronger blur (21px) + CLAHE
+    blurred21 = cv2.GaussianBlur(positive, (21, 21), 0)
+    enhanced3 = clahe.apply(blurred21)
+    versions.append(("blur21_clahe", cv2.cvtColor(enhanced3, cv2.COLOR_GRAY2RGB)))
+
+    # Version 4: Bilateral filter (edge-preserving smoothing) + CLAHE
+    bilateral = cv2.bilateralFilter(positive, 11, 75, 75)
+    enhanced4 = clahe.apply(bilateral)
+    versions.append(("bilateral_clahe", cv2.cvtColor(enhanced4, cv2.COLOR_GRAY2RGB)))
+
+    # Version 5: Heavy blur (31px) + histogram equalization (last resort)
+    blurred31 = cv2.GaussianBlur(positive, (31, 31), 0)
+    equalized = cv2.equalizeHist(blurred31)
+    versions.append(("blur31_histeq", cv2.cvtColor(equalized, cv2.COLOR_GRAY2RGB)))
+
+    return versions
+
+
 def run_landmark_detection():
-    """Full landmark detection pipeline."""
+    """Full landmark detection pipeline.
+
+    Uses the Enrie 1931 photograph (inverted negative -> positive) as the
+    source image. Does NOT use the Holy Face 1909 devotional reproduction.
+    """
     print("=== Shroud Facial Landmark Detection ===\n")
+    print("Source: Enrie 1931 photograph (NOT Holy Face 1909 reproduction)")
+    print("Reason: Holy Face is an artistic copy that introduces bias.\n")
 
     if not MODEL_PATH.exists():
         print(f"Model not found at {MODEL_PATH}")
         print("Run: python -c \"import requests; open('data/models/face_landmarker.task','wb').write(requests.get('https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task').content)\"")
         return None
 
-    # Try Holy Face 1909 image first (best for landmark detection)
-    # then fall back to face_crop from depth map pipeline
-    source_dir = PROJECT_ROOT / "data" / "source"
-    holy_face_path = source_dir / "holy_face_1909.jpg"
+    # Load the actual Enrie Shroud photograph
+    positive = _load_enrie_face()
+    if positive is None:
+        print("Cannot proceed without Enrie source image.")
+        return None
 
-    if holy_face_path.exists():
-        print("Using Holy Face 1909 image (best detection results)...")
-        full_img = cv2.imread(str(holy_face_path))
-        # Haar cascade detected face at x=799, y=998, w=2505, h=2505
-        x, y, w_box, h_box = 799, 998, 2505, 2505
-        pad = 200
-        x1 = max(0, x - pad)
-        y1 = max(0, y - pad)
-        x2 = min(full_img.shape[1], x + w_box + pad)
-        y2 = min(full_img.shape[0], y + h_box + pad)
-        face_img = full_img[y1:y2, x1:x2]
-        # Save as working face crop
-        cv2.imwrite(str(PROCESSED_DIR / "face_crop.png"), face_img)
-    else:
-        face_path = PROCESSED_DIR / "face_crop.png"
-        if not face_path.exists():
-            print("No face image found. Run depth_map.py first or download holy_face_1909.jpg.")
-            return None
-        face_img = cv2.imread(str(face_path))
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loaded face image: {face_img.shape}")
+    # Save the positive as the working face crop (replaces any old Holy Face crop)
+    face_rgb = cv2.cvtColor(positive, cv2.COLOR_GRAY2BGR)
+    cv2.imwrite(str(PROCESSED_DIR / "face_crop.png"), face_rgb)
+    print(f"  Saved Enrie positive as face_crop.png: {positive.shape}")
 
-    # Detect landmarks
-    print("Running MediaPipe FaceLandmarker...")
-    landmarks = detect_landmarks(face_img)
+    # Try detection on multiple preprocessed versions
+    print("\nRunning MediaPipe FaceLandmarker on Enrie positive...")
+    print("(Trying multiple preprocessing strategies for cloth texture noise)\n")
 
+    preprocessed_versions = _preprocess_enrie_for_detection(positive)
+
+    landmarks = None
+    successful_preproc = None
+
+    for preproc_name, preproc_img in preprocessed_versions:
+        print(f"  Trying preprocessing: {preproc_name}...")
+        # Save each preprocessed version for inspection
+        cv2.imwrite(
+            str(PROCESSED_DIR / f"enrie_preproc_{preproc_name}.png"),
+            preproc_img,
+        )
+
+        result = detect_landmarks(preproc_img)
+        if result is not None:
+            landmarks = result
+            successful_preproc = preproc_name
+            print(f"  SUCCESS with {preproc_name}!")
+            break
+        else:
+            print(f"  No face detected with {preproc_name}")
+
+    # Also try the depth map as a last resort (it's already smoothed)
     if landmarks is None:
-        print("\nLandmark detection failed. Trying with depth map image...")
+        print("\n  Trying depth map image (already smoothed)...")
         depth_path = PROCESSED_DIR / "depth_map.png"
         if depth_path.exists():
             depth_img = cv2.imread(str(depth_path))
-            print("Retrying with depth map image...")
             landmarks = detect_landmarks(depth_img)
+            if landmarks is not None:
+                successful_preproc = "depth_map"
+                print("  SUCCESS with depth map!")
 
     if landmarks is None:
-        print("\nLandmark detection failed on all inputs.")
-        print("This is not unexpected -- the Shroud image is very different from typical photos.")
-        print("We may need to try alternative approaches (manual annotation, Dlib HOG, etc.)")
+        print("\n  RESULT: Landmark detection failed on all Enrie preprocessing variants.")
+        print("  This is not unexpected -- the Shroud image is very different from typical photos.")
+        print("  Next steps to try:")
+        print("    - Dlib HOG face detector (different architecture)")
+        print("    - Manual landmark annotation (guided by depth map features)")
+        print("    - Hybrid: use depth map peaks to seed approximate landmark positions")
         return None
 
     print(f"\nDetected {landmarks['num_landmarks']} landmarks")
     print(f"Key landmarks found: {len(landmarks['key_landmarks'])}")
+    print(f"Successful preprocessing: {successful_preproc}")
 
     # Save landmarks
     save_landmarks(landmarks)
 
-    # Draw visualization
-    vis = draw_landmarks(face_img, landmarks)
+    # Draw visualization on the Enrie positive
+    vis = draw_landmarks(face_rgb, landmarks)
     vis_path = PROCESSED_DIR / "landmarks_overlay.png"
     cv2.imwrite(str(vis_path), vis)
     print(f"Saved landmark overlay: {vis_path}")
+
+    # Also save overlay on the preprocessed version that worked
+    if successful_preproc and successful_preproc != "depth_map":
+        for name, img in preprocessed_versions:
+            if name == successful_preproc:
+                vis2 = draw_landmarks(img, landmarks)
+                vis2_path = PROCESSED_DIR / "landmarks_overlay_preprocessed.png"
+                cv2.imwrite(str(vis2_path), vis2)
+                print(f"Saved preprocessed overlay: {vis2_path}")
+                break
 
     return landmarks
 
