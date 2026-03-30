@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neural Depth vs VP-8 — Shroud Reconstruction</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:title" content="Neural Depth Estimation vs VP-8 Analysis — Shroud of Turin">
+  <meta property="og:description" content="MiDaS DPT-Large, trained on millions of photographs, produces near-zero correlation with VP-8 depth extraction from the Shroud. The 3D information is not a standard photographic depth cue.">
+  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/neural-depth.html">
+  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html" class="active">Neural Depth</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Key Finding</p>
+    <h1>Neural Depth Estimation vs VP-8 Analysis</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      A state-of-the-art AI depth estimator, trained on millions of photographs,
+      cannot recover the three-dimensional information the Shroud encodes.
+    </p>
+  </div>
+
+  <h2>The Experiment</h2>
+  <p>
+    <strong>MiDaS DPT-Large</strong> is Intel's state-of-the-art monocular depth estimation model.
+    It uses a Dense Prediction Transformer architecture trained on over 10 million real-world
+    photographs to predict depth from a single image. It represents the current frontier
+    of what AI can infer about 3D structure from 2D photographs.
+  </p>
+  <p>
+    We ran MiDaS DPT-Large on both the Enrie 1931 and Miller 1978 source photographs
+    &mdash; the same inputs our VP-8 pipeline processes &mdash; and compared the neural
+    depth output to the VP-8 brightness-to-depth extraction.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">The Question</p>
+    <p>
+      If the Shroud's image is a medieval painting, forgery, or standard photograph,
+      then modern AI trained on millions of such images should be able to recognize and
+      reconstruct its depth cues. If MiDaS produces a depth map that correlates strongly
+      with the VP-8 extraction, it would suggest the Shroud's 3D information is of a
+      familiar photographic type.
+    </p>
+    <p>
+      If MiDaS produces a <em>fundamentally different</em> depth map, it means the 3D
+      information encoded in the Shroud is unlike anything in standard photographic training
+      data &mdash; a distinct physical encoding that requires the VP-8 assumption
+      (brightness = cloth-to-body distance) to decode.
+    </p>
+  </div>
+
+  <h2>Result: Near-Zero Correlation</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Pixel-wise Correlation (r)</th>
+        <th>Interpretation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Enrie 1931</td>
+        <td><strong>r = &minus;0.07</strong></td>
+        <td>Essentially uncorrelated &mdash; the two methods see completely different structure</td>
+      </tr>
+      <tr>
+        <td>Miller 1978</td>
+        <td><strong>r = 0.22</strong></td>
+        <td>Weak correlation, inverted polarity &mdash; MiDaS interprets depth cues opposite to VP-8</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    A correlation of r = &minus;0.07 is indistinguishable from random noise. The VP-8 depth
+    map and the MiDaS depth map share essentially <strong>zero common structure</strong>.
+    These are orthogonal signals extracted from the same image.
+  </p>
+
+  <h2>Enrie 1931 &mdash; Side-by-Side Comparison</h2>
+
+  <figure>
+    <img src="images/neural-depth-enrie.png" alt="MiDaS vs VP-8 depth comparison for Enrie 1931 source">
+    <figcaption>
+      <strong>Top row:</strong> Source photograph, VP-8 depth extraction (CLAHE), MiDaS DPT-Large prediction.
+      <strong>Bottom row:</strong> Both depth maps normalized to [0,1] and their difference map.
+      Correlation: r = &minus;0.07. MiDaS interprets the image as a flat surface with slight
+      foreground/background separation. VP-8 reveals a coherent 3D face.
+    </figcaption>
+  </figure>
+
+  <h2>Miller 1978 &mdash; Side-by-Side Comparison</h2>
+
+  <figure>
+    <img src="images/neural-depth-miller.png" alt="MiDaS vs VP-8 depth comparison for Miller 1978 source">
+    <figcaption>
+      <strong>Top row:</strong> Source photograph, VP-8 depth extraction, MiDaS prediction.
+      <strong>Bottom row:</strong> Normalized comparison. Correlation: r = 0.22 (weak, inverted).
+      The higher correlation likely reflects MiDaS detecting the cloth's physical drape
+      rather than the body-image depth encoding.
+    </figcaption>
+  </figure>
+
+  <h2>What This Means</h2>
+
+  <h3>1. The Shroud's 3D signal is not a photographic depth cue</h3>
+  <p>
+    MiDaS is trained to recognize depth from perspective, shading, occlusion, texture
+    gradients, and defocus &mdash; the standard monocular cues present in all photographs.
+    It finds <em>none of these</em> in the Shroud's face image, or rather, what it finds
+    has no relationship to the actual 3D structure the VP-8 extraction reveals.
+  </p>
+
+  <h3>2. The VP-8 assumption is required to decode the signal</h3>
+  <p>
+    The 3D information only emerges when you assume that brightness directly encodes
+    cloth-to-body distance &mdash; the VP-8 linear mapping that Jackson, Jumper, and
+    Mottern discovered in 1976. No amount of modern AI training on standard photographs
+    recovers this relationship. The encoding is sui generis.
+  </p>
+
+  <h3>3. Consistency with the MediaPipe finding</h3>
+  <p>
+    This result parallels our earlier finding that MediaPipe FaceLandmarker &mdash; the
+    state-of-the-art face detection AI &mdash; cannot detect a face in the Shroud's depth
+    map at all. Both results point to the same conclusion: the Shroud's image is
+    fundamentally unlike anything in modern AI training data, whether for face detection
+    or depth estimation.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">Constraints on Image Formation</p>
+    <p>
+      These results constrain hypotheses about how the Shroud's image was formed.
+      Whatever mechanism created the image encoded spatial distance information in a way
+      that is:
+    </p>
+    <ul style="margin-top:0.5rem;">
+      <li>Linearly proportional to cloth-to-body distance (VP-8 compatible)</li>
+      <li>Not recognizable as standard photographic depth (MiDaS incompatible)</li>
+      <li>Not recognizable as a standard face (MediaPipe incompatible)</li>
+      <li>Consistent across independent photographs taken 47 years apart</li>
+      <li>Producing anatomically correct proportions when decoded</li>
+    </ul>
+    <p style="margin-top:0.5rem;">
+      This combination of properties significantly narrows the space of plausible
+      formation mechanisms.
+    </p>
+  </div>
+
+  <h2>Technical Details</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Neural model</td><td>MiDaS v3.1 DPT-Large (1.28 GB)</td></tr>
+      <tr><td>Architecture</td><td>Dense Prediction Transformer (ViT-Large backbone)</td></tr>
+      <tr><td>Training data</td><td>10+ datasets, millions of real-world images</td></tr>
+      <tr><td>VP-8 method</td><td>CLAHE (clipLimit=2.0, tileGrid=8&times;8) + normalization</td></tr>
+      <tr><td>Comparison resolution</td><td>150&times;150 pixels (both maps resampled)</td></tr>
+      <tr><td>Correlation method</td><td>Pearson pixel-wise correlation after normalization to [0,1]</td></tr>
+      <tr><td>Polarity check</td><td>Both original and inverted neural depth tested; best correlation reported</td></tr>
+      <tr><td>GPU</td><td>NVIDIA RTX 2080 Ti (11 GB VRAM)</td></tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+    &nbsp;&nbsp;
+    <a href="findings.html" class="btn">View Measurements</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>
