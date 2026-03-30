@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive 3D Viewer — Shroud Reconstruction</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:title" content="Interactive 3D Viewer — Shroud of Turin">
+  <meta property="og:description" content="Rotate, zoom, and explore the Shroud's VP-8 depth surface in 3D. Toggle between original and healed depth maps, switch materials from clay to wireframe to heatmap.">
+  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/viewer.html">
+  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    #viewer-container {
+      width: 100%;
+      height: 70vh;
+      min-height: 450px;
+      max-height: 800px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      background: #111;
+    }
+    #viewer-container canvas { display: block; }
+    .viewer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1.2rem 0;
+      align-items: center;
+    }
+    .viewer-controls label {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-right: 0.3rem;
+    }
+    .viewer-controls select, .viewer-controls button {
+      background: #222;
+      color: #ddd;
+      border: 1px solid #444;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .viewer-controls select:hover, .viewer-controls button:hover {
+      border-color: var(--accent);
+    }
+    .viewer-controls button.active {
+      background: var(--accent);
+      color: #111;
+      border-color: var(--accent);
+    }
+    .viewer-hint {
+      color: #666;
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    #loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="viewer.html" class="active">3D Viewer</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Interactive</p>
+    <h1>3D Depth Viewer</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Explore the Shroud&rsquo;s VP-8 depth surface interactively. Rotate, zoom, and pan
+      the 150&times;150 depth map extracted from the Enrie 1931 photograph.
+    </p>
+  </div>
+
+  <div class="viewer-controls">
+    <div>
+      <label for="depth-select">Depth Map:</label>
+      <select id="depth-select">
+        <option value="original">Original</option>
+        <option value="healed">Healed (Symmetrized)</option>
+      </select>
+    </div>
+    <div>
+      <label for="material-select">Material:</label>
+      <select id="material-select">
+        <option value="clay">Clay</option>
+        <option value="heatmap">Depth Heatmap</option>
+        <option value="wireframe">Wireframe</option>
+        <option value="normals">Surface Normals</option>
+      </select>
+    </div>
+    <div>
+      <label for="exaggeration">Z Exaggeration:</label>
+      <select id="exaggeration">
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+      </select>
+    </div>
+    <button id="reset-btn">Reset View</button>
+  </div>
+
+  <div id="viewer-container">
+    <div id="loading-indicator">Loading depth map...</div>
+  </div>
+  <p class="viewer-hint">Click and drag to rotate. Scroll to zoom. Right-click drag to pan.</p>
+
+  <h2>What You&rsquo;re Seeing</h2>
+  <p>
+    This is the actual VP-8 depth data extracted from the Shroud of Turin &mdash; the same
+    data used to generate all the 3D surfaces and AI reconstructions on this site. Each
+    pixel&rsquo;s height represents the image brightness at that point, which encodes the
+    cloth-to-body distance. Brighter areas (nose, brow) were closest to the body;
+    darker areas (background, eye sockets) were farthest away.
+  </p>
+  <p>
+    The <strong>Original</strong> depth map preserves all asymmetry from the source image.
+    The <strong>Healed</strong> version has been bilaterally symmetrized to remove
+    injury-related asymmetry, revealing the underlying facial geometry.
+  </p>
+  <p>
+    Try the <strong>Depth Heatmap</strong> material to see the elevation gradient, or
+    <strong>Wireframe</strong> to see the mesh structure. Increase <strong>Z Exaggeration</strong>
+    to amplify the facial relief.
+  </p>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="reconstruction.html" class="btn">AI Reconstructions</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">How It Works</a>
+  </p>
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const container = document.getElementById('viewer-container');
+const loading = document.getElementById('loading-indicator');
+
+// Scene setup
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+camera.position.set(0, -120, 100);
+camera.up.set(0, 0, 1);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(0, 0, 15);
+controls.update();
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x404040, 1.5);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(50, -80, 120);
+scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0x8888aa, 0.4);
+fillLight.position.set(-40, 60, 80);
+scene.add(fillLight);
+
+// State
+let currentMesh = null;
+let heightData = null;
+let currentExaggeration = 1.0;
+const gridSize = 150;
+const planeWidth = 100;
+const planeHeight = 100;
+const baseZScale = 30;
+
+// Materials
+const clayColor = new THREE.Color(0.55, 0.52, 0.48);
+
+function createClayMaterial() {
+  return new THREE.MeshStandardMaterial({
+    color: clayColor,
+    roughness: 0.85,
+    metalness: 0.05,
+    flatShading: false,
+  });
+}
+
+function createWireframeMaterial() {
+  return new THREE.MeshBasicMaterial({
+    color: 0xc4a35a,
+    wireframe: true,
+  });
+}
+
+function createNormalMaterial() {
+  return new THREE.MeshNormalMaterial({ flatShading: false });
+}
+
+function createHeatmapTexture(data, w, h) {
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(w, h);
+
+  for (let i = 0; i < w * h; i++) {
+    const v = data[i] / 255;
+    let r, g, b;
+    if (v < 0.25) {
+      const t = v / 0.25;
+      r = 0; g = 0; b = Math.floor(128 + 127 * t);
+    } else if (v < 0.5) {
+      const t = (v - 0.25) / 0.25;
+      r = 0; g = Math.floor(255 * t); b = Math.floor(255 * (1 - t));
+    } else if (v < 0.75) {
+      const t = (v - 0.5) / 0.25;
+      r = Math.floor(255 * t); g = 255; b = 0;
+    } else {
+      const t = (v - 0.75) / 0.25;
+      r = 255; g = Math.floor(255 * (1 - t)); b = 0;
+    }
+    imgData.data[i * 4] = r;
+    imgData.data[i * 4 + 1] = g;
+    imgData.data[i * 4 + 2] = b;
+    imgData.data[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+function createHeatmapMaterial(data, w, h) {
+  const texture = createHeatmapTexture(data, w, h);
+  return new THREE.MeshStandardMaterial({
+    map: texture,
+    roughness: 0.7,
+    metalness: 0.0,
+    flatShading: false,
+  });
+}
+
+function buildMesh(data, materialType) {
+  if (currentMesh) {
+    scene.remove(currentMesh);
+    currentMesh.geometry.dispose();
+    if (currentMesh.material.map) currentMesh.material.map.dispose();
+    currentMesh.material.dispose();
+  }
+
+  const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, gridSize - 1, gridSize - 1);
+  const positions = geometry.attributes.position;
+  const zScale = baseZScale * currentExaggeration;
+
+  for (let i = 0; i < positions.count; i++) {
+    // Map vertex index to data index
+    const ix = i % gridSize;
+    const iy = Math.floor(i / gridSize);
+    // Invert Y so face is right-side up
+    const dataIdx = (gridSize - 1 - iy) * gridSize + ix;
+    const h = (data[dataIdx] || 0) / 255;
+    positions.setZ(i, h * zScale);
+  }
+  geometry.computeVertexNormals();
+
+  let material;
+  switch (materialType) {
+    case 'wireframe': material = createWireframeMaterial(); break;
+    case 'normals': material = createNormalMaterial(); break;
+    case 'heatmap': material = createHeatmapMaterial(data, gridSize, gridSize); break;
+    default: material = createClayMaterial();
+  }
+
+  currentMesh = new THREE.Mesh(geometry, material);
+  scene.add(currentMesh);
+  loading.style.display = 'none';
+}
+
+// Load depth from PNG heightmap
+function loadHeightmap(url) {
+  loading.style.display = 'block';
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = gridSize;
+      canvas.height = gridSize;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, gridSize, gridSize);
+      const imgData = ctx.getImageData(0, 0, gridSize, gridSize);
+      const data = new Float32Array(gridSize * gridSize);
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        data[i] = imgData.data[i * 4]; // Red channel
+      }
+      resolve(data);
+    };
+    img.onerror = () => {
+      loading.textContent = 'Failed to load depth map';
+      resolve(null);
+    };
+    img.src = url;
+  });
+}
+
+// Initial load
+const depthUrls = {
+  original: 'images/depth-heightmap-original.png',
+  healed: 'images/depth-heightmap-healed.png',
+};
+
+async function init() {
+  heightData = await loadHeightmap(depthUrls.original);
+  if (heightData) buildMesh(heightData, 'clay');
+}
+
+// Controls
+document.getElementById('depth-select').addEventListener('change', async (e) => {
+  heightData = await loadHeightmap(depthUrls[e.target.value]);
+  if (heightData) buildMesh(heightData, document.getElementById('material-select').value);
+});
+
+document.getElementById('material-select').addEventListener('change', (e) => {
+  if (heightData) buildMesh(heightData, e.target.value);
+});
+
+document.getElementById('exaggeration').addEventListener('change', (e) => {
+  currentExaggeration = parseFloat(e.target.value);
+  if (heightData) buildMesh(heightData, document.getElementById('material-select').value);
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  camera.position.set(0, -120, 100);
+  controls.target.set(0, 0, 15);
+  controls.update();
+});
+
+// Resize handler
+window.addEventListener('resize', () => {
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+});
+
+// Render loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+init();
+animate();
+</script>
+
+</body>
+</html>
