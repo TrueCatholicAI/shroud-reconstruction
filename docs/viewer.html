@@ -156,6 +156,34 @@
     to amplify the facial relief.
   </p>
 
+  <h2>3D-Printable STL Models</h2>
+  <p>
+    The depth map has been exported as 3D-printable STL mesh files. Each model is a
+    150&times;150 vertex grid (44,402 triangles) scaled to 150&times;150&times;30 mm
+    physical dimensions &mdash; designed to print on any standard FDM or resin printer.
+  </p>
+
+  <div id="stl-viewer-container" style="width:100%;height:50vh;min-height:350px;max-height:600px;border:1px solid #333;border-radius:6px;overflow:hidden;position:relative;background:#111;">
+    <div id="stl-loading">Loading STL model...</div>
+  </div>
+
+  <div class="viewer-controls">
+    <div>
+      <label for="stl-select">STL Model:</label>
+      <select id="stl-select">
+        <option value="downloads/shroud_face_enrie.stl">Original</option>
+        <option value="downloads/shroud_face_enrie_healed.stl">Healed (Symmetrized)</option>
+      </select>
+    </div>
+    <button id="stl-reset-btn">Reset View</button>
+  </div>
+
+  <p style="margin-top:1rem;">
+    <strong>Download for 3D printing:</strong><br>
+    <a href="downloads/shroud_face_enrie.stl" download style="color:var(--accent);">shroud_face_enrie.stl</a> (2.1 MB) &mdash; Original depth<br>
+    <a href="downloads/shroud_face_enrie_healed.stl" download style="color:var(--accent);">shroud_face_enrie_healed.stl</a> (2.1 MB) &mdash; Healed/symmetrized depth
+  </p>
+
   <p style="margin-top:2rem;text-align:center;">
     <a href="reconstruction.html" class="btn">AI Reconstructions</a>
     &nbsp;&nbsp;
@@ -179,6 +207,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
 const container = document.getElementById('viewer-container');
 const loading = document.getElementById('loading-indicator');
@@ -401,6 +430,93 @@ function animate() {
 
 init();
 animate();
+
+// === STL Viewer ===
+const stlContainer = document.getElementById('stl-viewer-container');
+const stlLoading = document.getElementById('stl-loading');
+
+if (stlContainer) {
+  const stlScene = new THREE.Scene();
+  stlScene.background = new THREE.Color(0x111111);
+
+  const stlCamera = new THREE.PerspectiveCamera(45, stlContainer.clientWidth / stlContainer.clientHeight, 0.1, 2000);
+  stlCamera.position.set(0, -200, 150);
+  stlCamera.up.set(0, 0, 1);
+
+  const stlRenderer = new THREE.WebGLRenderer({ antialias: true });
+  stlRenderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight);
+  stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  stlContainer.appendChild(stlRenderer.domElement);
+
+  const stlControls = new OrbitControls(stlCamera, stlRenderer.domElement);
+  stlControls.enableDamping = true;
+  stlControls.dampingFactor = 0.08;
+
+  const stlAmbient = new THREE.AmbientLight(0x404040, 1.5);
+  stlScene.add(stlAmbient);
+  const stlDir = new THREE.DirectionalLight(0xffffff, 1.2);
+  stlDir.position.set(80, -120, 180);
+  stlScene.add(stlDir);
+  const stlFill = new THREE.DirectionalLight(0x8888aa, 0.4);
+  stlFill.position.set(-60, 80, 100);
+  stlScene.add(stlFill);
+
+  let stlMesh = null;
+  const stlLoader = new STLLoader();
+
+  function loadSTL(url) {
+    if (stlLoading) stlLoading.style.display = 'block';
+    if (stlMesh) {
+      stlScene.remove(stlMesh);
+      stlMesh.geometry.dispose();
+      stlMesh.material.dispose();
+    }
+    stlLoader.load(url, (geometry) => {
+      geometry.computeVertexNormals();
+      geometry.center();
+      const material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0.55, 0.52, 0.48),
+        roughness: 0.85,
+        metalness: 0.05,
+      });
+      stlMesh = new THREE.Mesh(geometry, material);
+      stlScene.add(stlMesh);
+      // Fit camera
+      const box = new THREE.Box3().setFromObject(stlMesh);
+      const center = box.getCenter(new THREE.Vector3());
+      stlControls.target.copy(center);
+      stlControls.update();
+      if (stlLoading) stlLoading.style.display = 'none';
+    }, undefined, () => {
+      if (stlLoading) stlLoading.textContent = 'Failed to load STL';
+    });
+  }
+
+  loadSTL('downloads/shroud_face_enrie.stl');
+
+  document.getElementById('stl-select').addEventListener('change', (e) => {
+    loadSTL(e.target.value);
+  });
+
+  document.getElementById('stl-reset-btn').addEventListener('click', () => {
+    stlCamera.position.set(0, -200, 150);
+    stlControls.target.set(0, 0, 0);
+    stlControls.update();
+  });
+
+  window.addEventListener('resize', () => {
+    stlCamera.aspect = stlContainer.clientWidth / stlContainer.clientHeight;
+    stlCamera.updateProjectionMatrix();
+    stlRenderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight);
+  });
+
+  function animateSTL() {
+    requestAnimationFrame(animateSTL);
+    stlControls.update();
+    stlRenderer.render(stlScene, stlCamera);
+  }
+  animateSTL();
+}
 </script>
 
 </body>
