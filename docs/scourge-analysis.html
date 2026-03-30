@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scourge Mark Analysis — Shroud Reconstruction</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:title" content="Scourge Mark Pattern Analysis — Shroud of Turin">
+  <meta property="og:description" content="Deep analysis of scourge mark patterns using bandpass filtering, dumbbell shape detection, and flagrum spacing analysis. Two approaches compared: basic (832 candidates) vs refined (22 candidates).">
+  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/scourge-analysis.html">
+  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="scourge-analysis.html" class="active">Scourge</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Deep Pattern Analysis</p>
+    <h1>Scourge Mark Detection</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Can computational image analysis detect the ~120 scourge marks identified by
+      Shroud researchers? Two approaches tested &mdash; basic thresholding and
+      bandpass-filtered dumbbell shape detection.
+    </p>
+  </div>
+
+  <h2>Background</h2>
+  <p>
+    Published Shroud literature identifies approximately 120 scourge marks across the
+    full body, consistent with a Roman <em>flagrum</em> &mdash; a multi-tipped whip with
+    metal or bone weights at the leather thong ends. Each strike leaves a characteristic
+    &ldquo;dumbbell&rdquo; pattern: two small impact marks connected by a thin line, spaced
+    2&ndash;3 cm apart (the distance between flagrum tips).
+  </p>
+  <p>
+    The question: can we computationally detect these marks from the photographic data alone,
+    without multi-spectral imaging?
+  </p>
+
+  <h2>Approach 1: Basic Thresholding</h2>
+  <p>
+    Our initial approach (Wave 2) used simple high-frequency residual extraction: raw CLAHE
+    depth minus Gaussian-smoothed (&sigma;=20) body surface, thresholded at 1.5&sigma; above
+    the mean in the torso region, filtered for small connected components (5&ndash;80 pixel area).
+  </p>
+  <p>
+    <strong>Result: 832 candidates</strong> &mdash; approximately 7&times; the expected count.
+    The method cannot distinguish flagrum marks from cloth weave intersections and other texture
+    artifacts at ~12 px/cm body resolution.
+  </p>
+
+  <h2>Approach 2: Bandpass + Shape Filtering</h2>
+  <p>
+    The refined approach uses three stages of filtering designed to isolate features at the
+    specific spatial scale and morphology of flagrum marks:
+  </p>
+
+  <h3>Stage 1: Bandpass filtering</h3>
+  <p>
+    Instead of a simple smooth-subtract, we compute a <strong>band-pass residual</strong>:
+    medium-scale smooth (&sigma;=8) minus large-scale body smooth (&sigma;=25). This isolates
+    mid-frequency features (5&ndash;15mm range) while rejecting both cloth weave texture
+    (1&ndash;2mm, too small) and body shape contours (&gt;30mm, too large).
+  </p>
+
+  <h3>Stage 2: Dumbbell shape detection</h3>
+  <p>
+    Connected components are filtered by morphological criteria matching flagrum strike marks:
+  </p>
+  <ul>
+    <li><strong>Area:</strong> 8&ndash;150 pixels (corresponding to ~5&ndash;12mm marks)</li>
+    <li><strong>Aspect ratio:</strong> 1.3&ndash;5.0 (elongated but not thread-like)</li>
+    <li>Morphological opening with 3&times;3 elliptical kernel to remove noise</li>
+  </ul>
+
+  <h3>Stage 3: Flagrum spacing analysis</h3>
+  <p>
+    Roman flagra typically had 2&ndash;3 tips spaced 2&ndash;3 cm apart. At ~12 px/cm,
+    paired marks should appear 18&ndash;50 pixels apart. We search for candidate pairs
+    within this spacing range.
+  </p>
+
+  <h2>Results</h2>
+
+  <figure>
+    <img src="images/scourge_deep_overview.png" alt="Deep scourge analysis overview with bandpass residual and candidates">
+    <figcaption>
+      Left: full-body frontal with four analysis regions outlined. Center: bandpass residual
+      (red = raised mid-frequency features, blue = depressed). Right: 22 dumbbell-shaped
+      candidates (green circles) with 2 paired marks (orange lines).
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Approach 1 (Basic)</th><th>Approach 2 (Bandpass)</th><th>Literature</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Total candidates</td>
+        <td>832</td>
+        <td><strong>22</strong></td>
+        <td>~120</td>
+      </tr>
+      <tr>
+        <td>Detection ratio</td>
+        <td>6.9&times; over</td>
+        <td><strong>0.18&times; under</strong></td>
+        <td>1.0&times;</td>
+      </tr>
+      <tr>
+        <td>Paired marks (flagrum spacing)</td>
+        <td>Not tested</td>
+        <td>2 pairs</td>
+        <td>~40&ndash;60 pairs</td>
+      </tr>
+      <tr>
+        <td>Mean pair spacing</td>
+        <td>&mdash;</td>
+        <td>41.7 px (~3.5 cm)</td>
+        <td>2&ndash;3 cm</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Regional Distribution</h2>
+
+  <figure>
+    <img src="images/scourge_regions_detail.png" alt="Regional scourge mark candidates with dumbbell shape markers">
+    <figcaption>
+      Four body regions with dumbbell-shaped candidates marked. Green circles: candidates
+      meeting shape criteria. Yellow rings: highly elongated marks (aspect &gt; 2.0).
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Region</th><th>Raw Components</th><th>Dumbbell Candidates</th><th>Highly Elongated</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Upper back/chest</td><td>36</td><td>8</td><td>2</td></tr>
+      <tr><td>Lower torso</td><td>42</td><td>3</td><td>1</td></tr>
+      <tr><td>Upper legs</td><td>42</td><td>4</td><td>0</td></tr>
+      <tr><td>Lower legs</td><td>45</td><td>7</td><td>1</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Spacing Distribution</h2>
+
+  <figure>
+    <img src="images/scourge_spacing_histogram.png" alt="Histogram of paired mark spacing distances">
+    <figcaption>
+      Distance distribution between paired mark candidates. Red dashed line: expected
+      2 cm flagrum spacing (~24 px). Blue dashed line: expected 3 cm spacing (~36 px).
+      Only 2 pairs were found, insufficient for statistical analysis.
+    </figcaption>
+  </figure>
+
+  <h2>Analysis</h2>
+
+  <h3>The two approaches bracket the truth</h3>
+  <p>
+    Basic thresholding over-detects by 7&times; (832 candidates) because it cannot distinguish
+    scourge marks from cloth texture. Bandpass + shape filtering under-detects by 5&times;
+    (22 candidates) because the morphological criteria are too strict at this resolution.
+    The true count (~120) falls between the two approaches.
+  </p>
+
+  <h3>Resolution is the fundamental constraint</h3>
+  <p>
+    At ~12 pixels per centimeter body scale, a 10mm flagrum mark occupies only ~12 pixels.
+    A dumbbell pattern (two tips + connecting line) would be ~20&ndash;30 pixels total.
+    This is at or below the minimum for reliable shape analysis using connected components.
+    The bandpass filter helps isolate the correct spatial scale but cannot create resolution
+    that isn&rsquo;t in the source image.
+  </p>
+
+  <h3>What would be needed</h3>
+  <ul>
+    <li><strong>Higher-resolution source:</strong> 3&ndash;5&times; higher body resolution
+        (~40&ndash;60 px/cm) would make individual flagrum tips distinguishable</li>
+    <li><strong>Multi-spectral data:</strong> UV fluorescence photographs specifically
+        highlight blood (which fluoresces differently from body image) and would provide
+        ground truth for mark locations</li>
+    <li><strong>Machine learning:</strong> A trained detector using annotated examples from
+        high-resolution multi-spectral sources could potentially work on lower-resolution
+        photographic data</li>
+  </ul>
+
+  <div class="callout">
+    <p class="callout-title">Honest Assessment</p>
+    <p>
+      The bandpass approach is methodologically sound but the source resolution is insufficient
+      for reliable scourge mark detection. We can confirm that the Shroud image contains
+      mid-frequency features in the expected spatial scale (5&ndash;15mm), but we cannot
+      definitively identify them as scourge marks rather than cloth texture artifacts.
+      This question requires higher-resolution or multi-spectral source data to answer.
+    </p>
+  </div>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="formation-analysis.html" class="btn">Formation Analysis</a>
+    &nbsp;&nbsp;
+    <a href="full-body.html" class="btn">Full Body Study</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>
