@@ -25,6 +25,8 @@
       <li><a href="reconstruction.html">Reconstruction</a></li>
       <li><a href="study2.html" class="active">Study 2</a></li>
       <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
       <li><a href="about.html">About</a></li>
     </ul>
   </div>
@@ -232,8 +234,75 @@
     The Miller 34c source (8176&times;6132) is 3–4&times; higher resolution than Enrie.
     The current pipeline downsamples both to 150&times;150, which means the extra
     resolution is not currently exploited. Future work: run Miller at 250&times;250 or
-    300&times;300 to capture finer feature detail that Enrie cannot provide.
+    This has now been addressed &mdash; see the Enhanced Processing section below.
   </p>
+
+  <h2>Enhanced Processing &mdash; Textile Weave Removal</h2>
+
+  <p>
+    The Miller 1978 source (8176&times;6132 pixels) contains visible periodic cloth weave
+    texture that adds noise to the depth extraction. We applied <strong>FFT-based notch filtering</strong>
+    to suppress the weave frequencies while preserving the macroscopic body-image signal,
+    then ran the depth pipeline at higher resolutions.
+  </p>
+
+  <h3>FFT Weave Separation</h3>
+  <p>
+    A 2D Fast Fourier Transform of the Miller face crop reveals periodic peaks in the
+    frequency domain corresponding to the cloth weave pattern. A notch filter with Gaussian
+    taper suppresses these peaks. The inverse FFT produces a cleaned image with
+    <strong>95% correlation</strong> (r=0.947) to the original depth map &mdash; the macro
+    structure is preserved, only the weave texture is removed.
+  </p>
+
+  <figure>
+    <img src="images/fft-before-after.png" alt="Miller before and after FFT weave filtering">
+    <figcaption>
+      Full face view: original Miller source (left) vs FFT weave-filtered (right).
+      The periodic cloth texture is suppressed while facial features are preserved.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/fft-depth-comparison.png" alt="Unfiltered vs FFT-filtered depth maps">
+    <figcaption>
+      Depth map comparison: Study 2 unfiltered (left), FFT-filtered (center), and their
+      difference (right). Correlation r=0.947. The differences are concentrated in
+      high-frequency weave artifacts, not facial geometry.
+    </figcaption>
+  </figure>
+
+  <h3>Higher-Resolution Depth Maps</h3>
+  <p>
+    With weave texture removed, the Miller source can be processed at higher resolution
+    without amplifying cloth artifacts:
+  </p>
+  <ul>
+    <li><strong>300&times;300 + Gaussian 21:</strong> 2&times; the standard resolution, proportional smoothing</li>
+    <li><strong>500&times;500 + Gaussian 31:</strong> 3.3&times; resolution, finest detail achievable</li>
+  </ul>
+
+  <h3>Reconstruction Comparison</h3>
+  <figure>
+    <img src="images/highres-reconstruction-comparison.png" alt="Resolution comparison of Miller reconstructions">
+    <figcaption>
+      Gray clay reconstructions (seed 44) from three Miller depth resolutions.
+      Left: standard 150&times;150 (Study 2 original). Center: 300&times;300 FFT-filtered.
+      Right: 500&times;500 FFT-filtered. Higher-resolution depth inputs produce subtly
+      sharper facial contours, though the 512&times;512 ControlNet bottleneck limits
+      the visible improvement.
+    </figcaption>
+  </figure>
+
+  <div class="callout">
+    <p class="callout-title">FFT Filtering Verdict</p>
+    <p>
+      FFT weave removal is a meaningful improvement for the Miller source. It enables
+      higher-resolution depth extraction without weave contamination and produces
+      cleaner ControlNet inputs. The 300&times;300 + G21 configuration offers the best
+      balance of resolution gain vs noise for this source.
+    </p>
+  </div>
 
 </main>
 
