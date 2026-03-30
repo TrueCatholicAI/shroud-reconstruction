@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shroud of Turin — AI Forensic Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <p class="hero-label">Open-Source Research &middot; 2026</p>
+    <h1>Shroud of Turin<br>AI Forensic Reconstruction</h1>
+    <p class="hero-subtitle">
+      Extracting the face from the Shroud's depth-encoded image
+      using computer vision and constrained AI generation.
+    </p>
+    <figure style="max-width:460px;margin:0 auto 2rem;">
+      <img src="images/hero-clay.png" alt="Forensic clay reconstruction from Shroud depth map" class="hero-image">
+      <figcaption>Forensic clay reconstruction — constrained by the Shroud's VP-8 depth topology. Enrie 1931 source. Seed 44.</figcaption>
+    </figure>
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </section>
+
+  <h2>What This Project Does</h2>
+  <p>
+    In 1976, scientists using the VP-8 Image Analyzer discovered that the Shroud of Turin
+    encodes genuine three-dimensional information: image brightness is directly proportional
+    to cloth-to-body distance. This means the Shroud is not a painting or photograph — it
+    carries actual spatial data about the body beneath it.
+  </p>
+  <p>
+    This project builds an open-source pipeline that extracts that depth data, measures
+    the facial geometry it encodes, and uses a depth-constrained AI to render sculptural
+    reconstructions. The AI cannot invent facial structure — it is bound by the geometry
+    the Shroud itself records.
+  </p>
+
+  <h2>Pipeline Overview</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-content">
+        <h3>Depth Map Extraction</h3>
+        <p>CLAHE contrast enhancement + normalization converts the photographic negative into a depth map where brightness encodes proximity to the cloth surface.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-content">
+        <h3>VP-8 3D Surface</h3>
+        <p>150&times;150 downsample with Gaussian 15&times;15 smoothing produces the VP-8 style 3D surface — the same class of visualization that convinced STURP scientists in 1976.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-content">
+        <h3>Landmark Detection &amp; Measurement</h3>
+        <p>Novel depth-guided landmark detection (MediaPipe fails on Shroud data). Bilateral symmetry search locates the face midline; centerline profile walking identifies anatomy. Nine measurements cross-checked against forensic anthropology.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-content">
+        <h3>Constrained AI Reconstruction</h3>
+        <p>Stable Diffusion 1.5 + ControlNet Depth at conditioning scale 0.95. The depth map guides the AI — facial structure cannot deviate from the recorded geometry. Rendered in neutral sculptural materials to eliminate pigmentation assumptions.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p class="callout-title">Scope Statement</p>
+    <p>
+      This project extracts and visualizes the geometric information the Shroud encodes.
+      It does not make claims about the Shroud's authenticity, the identity of the man
+      depicted, or the mechanism of image formation. All measurements are presented with
+      their uncertainties. All outputs are framed as data, not conclusions.
+    </p>
+  </div>
+
+  <h2>Two Independent Sources</h2>
+  <p>
+    The pipeline has been run on two completely independent source photographs taken
+    47 years apart — Enrie 1931 and Vernon Miller 1978 (STURP). Both produce consistent
+    face geometry, providing cross-validation of the methodology.
+  </p>
+  <div class="img-pair">
+    <figure>
+      <img src="images/hero-clay.png" alt="Study 1 — Enrie 1931 clay reconstruction">
+      <figcaption><strong>Study 1</strong> — Enrie 1931 photographic glass plate.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/study2-clay-original.png" alt="Study 2 — Miller 1978 clay reconstruction">
+      <figcaption><strong>Study 2</strong> — Miller 1978 STURP expedition (8176&times;6132 px).</figcaption>
+    </figure>
+  </div>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="findings.html" class="btn">View Measurements</a>
+    &nbsp;&nbsp;
+    <a href="reconstruction.html" class="btn">View Reconstructions</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

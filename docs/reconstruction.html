@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconstruction — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html" class="active">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">AI Reconstruction</p>
+    <h1>Sculptural Reconstruction</h1>
+    <p style="color:var(--muted);max-width:560px;">
+      Depth-constrained AI renders. The geometry is determined by the Shroud.
+      The material is neutral. The face belongs to the data.
+    </p>
+  </div>
+
+  <h2>Why Sculptural Materials?</h2>
+  <p>
+    Photorealistic skin renders require choosing a skin tone — a parameter the Shroud's
+    depth map cannot provide. Any skin tone choice would impose an assumption on the output.
+    Sculptural materials (gray clay, sandstone, white marble) let the <em>geometry speak</em>
+    without that bias.
+  </p>
+  <p>
+    The forensic anthropology constraints for pigmentation are documented separately below.
+    They are not baked into these renders.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">ControlNet Conditioning</p>
+    <p>
+      Conditioning scale: <strong>0.95</strong> — near maximum. At this setting, the AI's
+      facial structure is almost entirely determined by the depth map, not by its training data.
+      The depth map is the face. The AI adds surface detail consistent with the chosen material.
+    </p>
+  </div>
+
+  <h2>Sculptural Comparison Grid</h2>
+  <p>
+    Three materials (gray clay, sandstone, white marble), four seeds each. Seed 44 was
+    selected as the reference seed based on overall quality and depth adherence.
+  </p>
+  <figure>
+    <img src="images/sculptural-grid.png" alt="Sculptural reconstruction comparison grid — all three materials">
+    <figcaption>
+      All three materials, seeds 42–45. Left column: ControlNet depth input.
+      The face structure is consistent across all seeds and materials.
+    </figcaption>
+  </figure>
+
+  <h2>Individual Material Renders</h2>
+  <div class="img-pair">
+    <figure>
+      <img src="images/hero-clay.png" alt="Gray clay forensic reconstruction — seed 44">
+      <figcaption>
+        <strong>Gray clay</strong> — seed 44. Matte clay forensic reconstruction aesthetic.
+        Prominent nose and deep eye sockets are clearly resolved.
+      </figcaption>
+    </figure>
+    <figure>
+      <img src="images/sandstone-seed44.png" alt="Sandstone relief reconstruction — seed 44">
+      <figcaption>
+        <strong>Sandstone</strong> — seed 44. First-century carved stone aesthetic.
+        Strong brow ridge and angular jaw are most visible in this material.
+      </figcaption>
+    </figure>
+  </div>
+
+  <figure class="img-single">
+    <img src="images/marble-seed44.png" alt="White marble Roman bust reconstruction — seed 44">
+    <figcaption>
+      <strong>White Carrara marble</strong> — seed 44. Roman bust aesthetic.
+      The marble surface amplifies the cheekbone and jaw geometry.
+    </figcaption>
+  </figure>
+
+  <hr class="section-divider">
+
+  <h2>Original vs. Healed Comparison</h2>
+  <p>
+    The <em>healed</em> reconstruction uses a bilaterally symmetrized depth map.
+    Trauma-related asymmetry, swelling, and facial distortion effects are removed
+    algorithmically. This is an analytical step — it separates the face geometry from
+    the injury pattern, not a theological claim.
+  </p>
+  <p>
+    Left panels are labeled <em>"As Recorded on the Shroud (at death)"</em>.
+    Right panels are labeled <em>"Estimated Appearance Before the Passion (healed)"</em>.
+  </p>
+  <figure>
+    <img src="images/original-vs-healed.png" alt="Original vs healed depth reconstruction comparison">
+    <figcaption>
+      Original (left) vs healed (right) for clay and sandstone materials, seed 44.
+      The healed renders show a more symmetrical, refined face structure —
+      the geometry without the trauma signal.
+    </figcaption>
+  </figure>
+
+  <div class="img-pair">
+    <figure>
+      <img src="images/depth-original-150.png" alt="Original depth map">
+      <figcaption>Original depth map — asymmetry from cloth contact and possible injury visible.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/depth-healed-150.png" alt="Healed symmetrized depth map">
+      <figcaption>Healed depth map after bilateral symmetrization (99.7% asymmetry reduction).</figcaption>
+    </figure>
+  </div>
+
+  <hr class="section-divider">
+
+  <h2>Anthropological Constraints</h2>
+  <p>
+    The depth map provides facial <em>geometry</em>. Pigmentation, hair texture, and eye
+    color are not encoded in the Shroud's image. For completeness, the anthropological
+    constraints for a first-century Levantine Jewish male are documented separately,
+    drawing on:
+  </p>
+  <ul>
+    <li>Richard Neave forensic reconstruction (2001 BBC "Son of God" documentary)</li>
+    <li>Joan Taylor, <em>What Did Jesus Look Like?</em> (Bloomsbury, 2018)</li>
+    <li>Ancient DNA studies: Haber et al. 2017, Agranat-Tamir et al. 2020</li>
+    <li>First-century skeletal data (Qumran, Judean desert sites)</li>
+  </ul>
+  <p>
+    All sources converge on: olive-brown skin (Fitzpatrick IV–V), dark brown to black hair,
+    brown eyes, short beard, lean muscular build consistent with outdoor manual labor.
+  </p>
+  <p>
+    <a href="downloads/anthropological_constraints.md" class="btn">Download Constraint Document</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

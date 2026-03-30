@@ -1,0 +1,325 @@
+/* ============================================================
+   Shroud of Turin — Forensic Reconstruction
+   Museum-quality dark aesthetic
+   bg #0f0f0f | text #d8d8d8 | accent #c4a35a (muted gold)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f0f0f;
+  --surface:  #161616;
+  --border:   #2a2a2a;
+  --text:     #d8d8d8;
+  --muted:    #888;
+  --accent:   #c4a35a;
+  --accent-dim: #8a6e38;
+  --max-w:    860px;
+  --nav-h:    56px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+/* ── NAVIGATION ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(15,15,15,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.8rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active { color: var(--accent); }
+
+/* ── LAYOUT ── */
+main {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: calc(var(--nav-h) + 3rem) 1.5rem 5rem;
+}
+
+/* ── TYPOGRAPHY ── */
+h1, h2, h3, h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: normal;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+h1 { font-size: 2rem; margin-bottom: 0.75rem; }
+h2 { font-size: 1.35rem; margin: 3.5rem 0 1rem; color: var(--accent); }
+h3 { font-size: 1.1rem; margin: 2rem 0 0.6rem; color: #bbb; }
+h4 { font-size: 0.95rem; margin: 1.5rem 0 0.5rem; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+p { margin-bottom: 1rem; }
+p + p { margin-top: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+li { margin-bottom: 0.3rem; }
+
+strong { color: #eee; font-weight: 600; }
+
+/* ── HERO SECTION ── */
+.hero {
+  text-align: center;
+  padding: 2rem 0 3.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.hero-label {
+  color: var(--accent-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: block;
+  border: 1px solid var(--border);
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  padding: 2rem 0 2.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.page-label {
+  color: var(--accent-dim);
+  font-size: 0.73rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+/* ── IMAGES ── */
+figure {
+  margin: 2rem 0;
+}
+
+figure img {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--border);
+  background: #111;
+}
+
+figcaption {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.6rem;
+  line-height: 1.5;
+}
+
+.img-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.img-pair figure { margin: 0; }
+
+.img-single {
+  margin: 2rem 0;
+}
+
+/* ── TABLES ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1.5rem 0;
+}
+
+th {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--accent-dim);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:last-child td { border-bottom: none; }
+
+.status-ok    { color: #7ec87e; }
+.status-warn  { color: #e8c060; }
+.status-out   { color: #e07070; }
+.status-note  { color: var(--muted); font-size: 0.8rem; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-left: 3px solid var(--accent-dim);
+  padding: 1rem 1.2rem;
+  margin: 2rem 0;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.callout p:last-child { margin: 0; }
+
+.callout-title {
+  color: var(--accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* ── PIPELINE STEPS ── */
+.steps {
+  counter-reset: step;
+  margin: 2rem 0;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.step-num {
+  counter-increment: step;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--accent-dim);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.step-num::before { content: counter(step); }
+
+.step-content h3 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.step-content p  { margin: 0; font-size: 0.9rem; color: #aaa; }
+
+/* ── CTA BUTTON ── */
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 1rem;
+}
+
+.btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+/* ── DIVIDER ── */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3.5rem 0;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--muted);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .img-pair { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.7rem; }
+  .nav-links { gap: 1.1rem; }
+  .nav-links a { font-size: 0.75rem; }
+}

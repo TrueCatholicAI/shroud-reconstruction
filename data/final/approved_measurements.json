@@ -1,0 +1,41 @@
+{
+  "status": "APPROVED",
+  "approved_date": "2026-03-28",
+  "method": "150x150 downsampled depth map + Gaussian 15x15, depth-guided landmark detection",
+  "scale_calibration": {
+    "method": "Combined: face-height (40%) + IPD (60%)",
+    "px_per_cm": 44.39,
+    "face_height_reference_cm": 18.0,
+    "ipd_reference_cm": 6.3,
+    "implied_image_height_cm": 67.6
+  },
+  "measurements": {
+    "interpupillary_distance": {"cm": 5.45, "pixels": 242.1, "status": "borderline", "expected": "5.5-7.5"},
+    "inner_eye_distance": {"cm": 2.87, "pixels": 127.4, "status": "in_range", "expected": "2.8-3.5"},
+    "nose_width": {"cm": 3.59, "pixels": 159.2, "status": "in_range", "expected": "2.5-5.0"},
+    "face_width_cheekbones": {"cm": 16.50, "pixels": 732.3, "status": "in_range", "expected": "12.0-17.0"},
+    "jaw_width": {"cm": 12.91, "pixels": 573.1, "status": "in_range", "expected": "10.0-15.0"},
+    "mouth_width": {"cm": 4.30, "pixels": 191.0, "status": "in_range", "expected": "4.0-6.5"},
+    "facial_symmetry": {"ratio": 0.989, "status": "excellent"},
+    "nose_to_chin": {"cm": 9.91, "pixels": 440.0, "status": "outlier_explained", "note": "Cloth draping elongates vertical axis ~2cm"},
+    "nose_length": {"cm": 1.17, "pixels": 51.8, "status": "outlier_explained", "note": "Resolution limit: 4px on 150x150 grid"}
+  },
+  "key_landmarks": {
+    "left_pupil": {"x": 963.56, "y": 650.0},
+    "right_pupil": {"x": 1202.36, "y": 610.0},
+    "left_eye_inner": {"x": 1011.32, "y": 670.0},
+    "right_eye_inner": {"x": 1138.68, "y": 670.0},
+    "left_eye_outer": {"x": 858.49, "y": 670.0},
+    "right_eye_outer": {"x": 1291.51, "y": 670.0},
+    "nose_tip": {"x": 1122.76, "y": 850.0},
+    "nose_bridge_top": {"x": 1075.0, "y": 830.0},
+    "chin": {"x": 1075.0, "y": 1310.0},
+    "face_midline_x": 1075.0
+  },
+  "source_data": {
+    "image": "enrie_1931_face_hires.jpg",
+    "depth_map": "depth_map.npy",
+    "analysis_map": "150x150 downsample + Gaussian 15x15",
+    "3d_surface": "vp8_ds150_g15 (locked in)"
+  }
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html" class="active">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Pipeline Walkthrough</p>
+    <h1>Methodology</h1>
+    <p style="color:var(--muted);max-width:560px;">
+      Four steps from photographic negative to constrained AI reconstruction.
+      Every decision is documented and reproducible.
+    </p>
+  </div>
+
+  <h2>Source Image Selection</h2>
+  <p>
+    The primary source for Study 1 is the <strong>Enrie 1931 photographic negative</strong>
+    (<code>enrie_1931_face_hires.jpg</code>). Giuseppe Enrie photographed the Shroud in 1931
+    under controlled conditions using orthochromatic glass plates — the authoritative archival
+    record of the cloth's image.
+  </p>
+  <p>
+    We deliberately avoid the <em>Holy Face of 1909</em>. That image is a devotional artistic
+    reproduction, not a direct photograph. Using it as pipeline input would contaminate the
+    analysis with artistic interpretation.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">The VP-8 Principle</p>
+    <p>
+      In 1976, scientists Jackson, Jumper, and Mottern placed a Shroud photograph in the VP-8
+      Image Analyzer — a device designed to convert brightness values to three-dimensional
+      relief. Ordinary photographs produce distorted, unreadable 3D maps. The Shroud produced
+      a coherent, anatomically correct human face.
+    </p>
+    <p>
+      The conclusion: the Shroud's image brightness encodes cloth-to-body distance.
+      Brighter areas were closer to the body surface. This is not a photographic property
+      — it is a physical property embedded in the image formation process.
+    </p>
+  </div>
+
+  <h2>Step 1 — Depth Map Extraction</h2>
+  <p>
+    The photographic negative is loaded as a grayscale array. The negative already has the
+    correct polarity for VP-8 analysis: brighter pixels correspond to facial features that
+    were closer to the cloth (nose bridge, forehead, cheekbones).
+  </p>
+  <p>
+    Processing steps:
+  </p>
+  <ol>
+    <li><strong>Normalization:</strong> Stretch to full 0–255 range to maximize information content.</li>
+    <li><strong>CLAHE:</strong> Contrast Limited Adaptive Histogram Equalization (clipLimit=2.0, tileGrid=8&times;8) enhances local contrast without blowing out global structure.</li>
+    <li><strong>No inversion:</strong> The negative is used as-is. Inverting would reverse the depth polarity.</li>
+  </ol>
+
+  <h2>Step 2 — VP-8 3D Surface Optimization</h2>
+  <p>
+    The depth map is downsampled and smoothed to suppress cloth weave texture while
+    preserving macroscopic facial topology. Multiple downsample sizes (150&times;150 and
+    200&times;200) and Gaussian kernel sizes (11, 15, 21, 25 px) were evaluated.
+  </p>
+
+  <figure>
+    <img src="images/optimization-grid.png" alt="Downsample and Gaussian optimization grid">
+    <figcaption>
+      Optimization grid comparing 8 parameter combinations. Each panel shows the VP-8 3D surface.
+      <strong>150&times;150 + Gaussian 15&times;15</strong> was selected as the optimal balance
+      between feature resolution and noise suppression.
+    </figcaption>
+  </figure>
+
+  <p>
+    The winning configuration — <strong>150&times;150 + Gaussian 15&times;15</strong> — removes
+    cloth weave artifacts while clearly resolving the nose ridge, brow prominence, eye socket
+    depressions, and chin projection. This is the locked-in 3D surface; no further adjustment
+    is made.
+  </p>
+
+  <div class="img-pair">
+    <figure>
+      <img src="images/3d-surface-angled.png" alt="VP-8 3D surface angled view">
+      <figcaption>VP-8 style 3D surface — angled view. Nose ridge, brow ridge, and chin are clearly resolved.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/3d-surface-front.png" alt="VP-8 3D surface front view">
+      <figcaption>Front view — shows bilateral face structure and the depth of the eye socket depressions.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Step 3 — Landmark Detection</h2>
+
+  <h3>MediaPipe Failure — a Critical Finding</h3>
+  <p>
+    Before developing the custom detection algorithm, we tested MediaPipe FaceLandmarker
+    (the state-of-the-art AI face detector) on the Shroud depth map. It found no face.
+  </p>
+  <p>
+    This failure is scientifically significant. No AI detector trained on ordinary photographs
+    can recognize the Shroud's face. The image formation mechanism produces a face that is
+    fundamentally unlike anything in typical training data — confirming that the Shroud
+    cannot simply be a medieval painting or forgery that would "look like a face" to any
+    modern AI system.
+  </p>
+
+  <h3>Depth-Guided Detection Algorithm</h3>
+  <p>
+    We developed a novel depth-guided approach operating on the 150&times;150 analysis map:
+  </p>
+  <ol>
+    <li>
+      <strong>Bilateral symmetry search (x=40–60%):</strong>
+      Scans every candidate midline x position and computes normalized cross-correlation
+      between left and right halves. The maximum identifies the face's vertical axis of
+      symmetry. Result: x=75 (50%), symmetry score 0.989 — excellent.
+    </li>
+    <li>
+      <strong>Centerline profile walking:</strong>
+      Averages a 7-pixel strip around the midline to produce a vertical intensity profile.
+      Local maxima and minima identify anatomical features: brow ridge, eye socket trough,
+      nose bridge, nose tip, mouth valley, chin peak.
+    </li>
+    <li>
+      <strong>Eye socket detection:</strong>
+      Searches for the darkest region left of midline (lowest brightness = deepest socket depression).
+      Socket center is refined via half-depth boundary detection.
+    </li>
+    <li>
+      <strong>Cheekbones and jaw (anthropometric ratios):</strong>
+      Brightness-based cheekbone search was unreliable (cloth seam artifacts). Replaced with
+      the forensic anthropometry standard: bizygomatic width ≈ 2.05&times; IPD.
+    </li>
+  </ol>
+
+  <div class="img-pair">
+    <figure>
+      <img src="images/landmarks-depth.png" alt="Landmarks overlaid on full depth map">
+      <figcaption>Landmark positions overlaid on the full-resolution depth map.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/landmarks-150.png" alt="Landmarks overlaid on 150x150 analysis map">
+      <figcaption>Landmark positions on the 150&times;150 + Gaussian 15 analysis map used for detection.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Step 4 — Scale Calibration</h2>
+  <p>
+    The Enrie photograph is a close-up of the face — not the full cloth width. We cannot
+    divide image width by 113 cm. Instead, we use a combined calibration:
+  </p>
+  <ul>
+    <li><strong>Face height component (40% weight):</strong> Brow-to-chin ≈ 18.0 cm reference.</li>
+    <li><strong>IPD component (60% weight):</strong> Interpupillary distance ≈ 6.3 cm reference (adult male population average).</li>
+  </ul>
+  <p>
+    Result: <strong>44.39 px/cm</strong> in Enrie full image coordinates.
+    Implied image height: 67.6 cm (consistent with expected face close-up framing).
+  </p>
+
+  <h2>Step 5 — AI Reconstruction</h2>
+  <p>
+    Stable Diffusion 1.5 + ControlNet Depth is used to render the depth map as a sculptural
+    bust. The ControlNet conditioning scale is set to <strong>0.95</strong> — near maximum —
+    so the AI's facial structure is almost entirely determined by the depth map geometry,
+    not by its training data.
+  </p>
+  <p>
+    We use <strong>neutral sculptural materials</strong> (gray clay, sandstone, white marble)
+    rather than photorealistic skin. This eliminates the need to specify pigmentation —
+    a parameter the Shroud cannot provide — and prevents the AI from defaulting to
+    any particular ethnic appearance.
+  </p>
+  <p>
+    Anthropological constraints (olive-brown skin, dark hair, brown eyes for first-century
+    Levantine males) are documented separately and not imposed on the sculptural renders.
+    See the <a href="reconstruction.html">Reconstruction</a> page for the anthropological
+    constraint document.
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>
