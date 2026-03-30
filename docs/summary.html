@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summary of Findings — Shroud Reconstruction</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:title" content="Summary of All Findings — Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:description" content="Every quantitative finding from the Shroud reconstruction project in one page. Two independent studies, 20+ analyses, full methodology documented.">
+  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/summary.html">
+  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="summary.html" class="active">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Master Reference</p>
+    <h1>Summary of All Findings</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Every quantitative result from this project in one place.
+      Click any finding to see its detailed analysis page.
+    </p>
+  </div>
+
+  <h2>Core Pipeline Results</h2>
+
+  <table>
+    <thead>
+      <tr><th>Finding</th><th>Value</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Optimal depth extraction</td>
+        <td>150&times;150 + Gaussian 15</td>
+        <td><a href="methodology.html">Methodology</a></td>
+      </tr>
+      <tr>
+        <td>MediaPipe face detection</td>
+        <td>FAILED on Shroud</td>
+        <td><a href="methodology.html">Methodology</a></td>
+      </tr>
+      <tr>
+        <td>Scale calibration (Enrie)</td>
+        <td>44.39 px/cm</td>
+        <td><a href="methodology.html">Methodology</a></td>
+      </tr>
+      <tr>
+        <td>Measurements in range (Study 1)</td>
+        <td>7/9 (78%)</td>
+        <td><a href="findings.html">Findings</a></td>
+      </tr>
+      <tr>
+        <td>Measurements in range (Study 2)</td>
+        <td>7/9 (78%)</td>
+        <td><a href="study2.html">Study 2</a></td>
+      </tr>
+      <tr>
+        <td>Facial symmetry (Enrie)</td>
+        <td>0.989 (excellent)</td>
+        <td><a href="findings.html">Findings</a></td>
+      </tr>
+      <tr>
+        <td>ControlNet conditioning scale</td>
+        <td>0.95 (near-maximum)</td>
+        <td><a href="reconstruction.html">Reconstruction</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Cross-Validation</h2>
+
+  <table>
+    <thead>
+      <tr><th>Finding</th><th>Value</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cross-study depth correlation</td>
+        <td>r = 0.08 (global)</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>FFT weave filter preservation</td>
+        <td>r = 0.947 (95% preserved)</td>
+        <td><a href="study2.html">Study 2</a></td>
+      </tr>
+      <tr>
+        <td>MiDaS vs VP-8 (Enrie)</td>
+        <td>r = &minus;0.07 (uncorrelated)</td>
+        <td><a href="neural-depth.html">Neural Depth</a></td>
+      </tr>
+      <tr>
+        <td>MiDaS vs VP-8 (Miller)</td>
+        <td>r = 0.22 (weak)</td>
+        <td><a href="neural-depth.html">Neural Depth</a></td>
+      </tr>
+      <tr>
+        <td>Mean |Study 2 &minus; Neave|</td>
+        <td>0.66 cm across 7 measurements</td>
+        <td><a href="neave-comparison.html">Neave</a></td>
+      </tr>
+      <tr>
+        <td>Pantocrator closest match</td>
+        <td>Renaissance (distance 0.046)</td>
+        <td><a href="neave-comparison.html">Neave</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Image Formation</h2>
+
+  <table>
+    <thead>
+      <tr><th>Finding</th><th>Value</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Linear model R&sup2; (both studies)</td>
+        <td><strong>1.0000</strong></td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Exponential R&sup2;</td>
+        <td>0.989&ndash;0.992</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Inverse square R&sup2;</td>
+        <td>0.976&ndash;0.989</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Power law R&sup2;</td>
+        <td>0.640&ndash;0.867</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Landmark calibration (Enrie)</td>
+        <td>R&sup2; = 0.62 (linear best)</td>
+        <td><a href="distance-function.html">Distance</a></td>
+      </tr>
+      <tr>
+        <td>Estimated depth range (face)</td>
+        <td>0&ndash;25 mm cloth-to-body</td>
+        <td><a href="distance-function.html">Distance</a></td>
+      </tr>
+      <tr>
+        <td>Cloth draping distortion</td>
+        <td>~1.0&times; (minimal)</td>
+        <td><a href="methodology.html">Methodology</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Full-Body Analysis</h2>
+
+  <table>
+    <thead>
+      <tr><th>Finding</th><th>Value</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Estimated body height</td>
+        <td><strong>1.76 m (5&rsquo;9&rdquo;)</strong> &plusmn; 0.07 m</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Hand crossing angle</td>
+        <td>~20&deg; from horizontal</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Hand arrangement</td>
+        <td>Right over left</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Thumb visibility</td>
+        <td>Not visible (post-mortem adduction)</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Hand position</td>
+        <td>45% of body height</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Body thickness CV (frontal+dorsal)</td>
+        <td>0.226</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+      <tr>
+        <td>Frontal-dorsal correlation</td>
+        <td>r = 0.249</td>
+        <td><a href="full-body.html">Full Body</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exploratory / Inconclusive</h2>
+
+  <table>
+    <thead>
+      <tr><th>Investigation</th><th>Result</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Coin-over-eyes</td>
+        <td><strong>Inconclusive</strong> &mdash; ~53px coin below detection threshold</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Scourge marks (basic)</td>
+        <td>832 candidates vs ~120 expected (over-detection)</td>
+        <td><a href="formation-analysis.html">Formation</a></td>
+      </tr>
+      <tr>
+        <td>Scourge marks (bandpass)</td>
+        <td>22 candidates vs ~120 expected (under-detection)</td>
+        <td><a href="scourge-analysis.html">Scourge</a></td>
+      </tr>
+      <tr>
+        <td>Blood stain isolation</td>
+        <td>Proof-of-concept only &mdash; needs multi-spectral data</td>
+        <td>&mdash;</td>
+      </tr>
+      <tr>
+        <td>Temporal degradation (1931&ndash;1978)</td>
+        <td><strong>Cannot determine</strong> &mdash; imaging differences confound</td>
+        <td>&mdash;</td>
+      </tr>
+      <tr>
+        <td>Dual ControlNet (depth+canny)</td>
+        <td>Adds noise, not improvement &mdash; depth-only preferred</td>
+        <td>&mdash;</td>
+      </tr>
+      <tr>
+        <td>SDXL ControlNet</td>
+        <td>SKIPPED &mdash; Windows symlink failure</td>
+        <td>&mdash;</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Research Pages</h2>
+
+  <h3>Core Pipeline</h3>
+  <ul>
+    <li><a href="methodology.html">Methodology</a> &mdash; VP-8 depth extraction, landmark detection, scale calibration, cloth draping simulation</li>
+    <li><a href="findings.html">Findings</a> &mdash; Study 1 (Enrie 1931) anthropometric measurements</li>
+    <li><a href="reconstruction.html">Reconstruction</a> &mdash; ControlNet sculptural renders in clay, sandstone, marble</li>
+  </ul>
+
+  <h3>Cross-Validation</h3>
+  <ul>
+    <li><a href="study2.html">Study 2</a> &mdash; Independent validation with Miller 1978 + FFT weave removal</li>
+    <li><a href="neural-depth.html">Neural Depth</a> &mdash; MiDaS DPT-Large cannot decode VP-8 signal</li>
+    <li><a href="neave-comparison.html">Neave Comparison</a> &mdash; Shroud vs first-century Judean skull reconstruction + historical depictions</li>
+  </ul>
+
+  <h3>Extended Analysis</h3>
+  <ul>
+    <li><a href="full-body.html">Full Body</a> &mdash; Head-to-feet depth, hand geometry, height estimation, dorsal extraction</li>
+    <li><a href="formation-analysis.html">Formation Analysis</a> &mdash; Intensity-distance function, cross-study correlation, coin/scourge investigations</li>
+    <li><a href="scourge-analysis.html">Scourge Analysis</a> &mdash; Deep bandpass + dumbbell shape detection for flagrum marks</li>
+    <li><a href="distance-function.html">Distance Function</a> &mdash; Anatomical landmark calibration of cloth-to-body distance</li>
+  </ul>
+
+  <h3>Interactive</h3>
+  <ul>
+    <li><a href="viewer.html">3D Viewer</a> &mdash; Three.js depth surface viewer + STL model browser + downloads</li>
+  </ul>
+
+  <div class="callout">
+    <p class="callout-title">Open Science</p>
+    <p>
+      All code, data, and methodology are open source. Every finding on this page can be
+      independently reproduced by running the Python scripts in the
+      <a href="https://github.com/TrueCatholicAI/shroud-reconstruction" style="color:var(--accent);">GitHub repository</a>.
+      Negative and inconclusive results are published alongside positive findings because
+      knowing what the data <em>cannot</em> tell us is as important as knowing what it can.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

@@ -30,6 +30,7 @@
       <li><a href="scourge-analysis.html">Scourge</a></li>
       <li><a href="viewer.html">3D Viewer</a></li>
       <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="summary.html">Summary</a></li>
       <li><a href="about.html">About</a></li>
     </ul>
   </div>
@@ -164,6 +165,77 @@
     </figure>
   </div>
 
+  <h2>Hand Position &amp; Arm Geometry</h2>
+  <p>
+    The crossed hands are one of the most distinctive features of the Shroud body image.
+    We extracted the hand region (45&ndash;55% of body height) and analyzed the depth
+    profile for crossing geometry and thumb visibility.
+  </p>
+
+  <figure>
+    <img src="images/hand_geometry.png" alt="Hand geometry analysis showing crossing angle and depth profile">
+    <figcaption>
+      Hand region analysis: source crop, depth heatmap, and horizontal profile.
+      The hands cross at approximately 20&deg; from horizontal. Left wrist appears
+      slightly elevated (closer to cloth), suggesting the right hand is crossed over the left.
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Measurement</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Hand region location</td><td>45.0&ndash;54.9% of body height</td></tr>
+      <tr><td>Crossing angle</td><td>~20&deg; from horizontal</td></tr>
+      <tr><td>Hand arrangement</td><td>Right hand crossed over left</td></tr>
+      <tr><td>Thumb visibility</td><td><strong>Not visible</strong> &mdash; consistent with post-mortem adduction</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    The absence of visible thumbs is a well-known feature of the Shroud and has been
+    attributed to post-mortem retraction of the thumbs into the palms (cadaveric spasm)
+    or intentional positioning. The depth data confirms this: no distinct thumb protrusion
+    is detectable in the high-frequency detail of the hand region.
+  </p>
+
+  <h2>Height Estimation</h2>
+  <p>
+    Using the full-body depth map, we identified the crown of the head and the feet
+    positions from the centerline intensity profile and calibrated against the known
+    Shroud cloth length.
+  </p>
+
+  <figure>
+    <img src="images/height_estimation.png" alt="Height estimation from full-body depth map">
+    <figcaption>
+      Full-body centerline profile with head and feet positions identified.
+      The body occupies 80.9% of the image height.
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Parameter</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Head position</td><td>11.5% from top of image</td></tr>
+      <tr><td>Feet position</td><td>92.4% from top of image</td></tr>
+      <tr><td>Body occupancy</td><td>80.9% of image height</td></tr>
+      <tr><td><strong>Estimated height</strong></td><td><strong>1.76 m (5&rsquo;9.4&rdquo;)</strong></td></tr>
+      <tr><td>Uncertainty range</td><td>1.70&ndash;1.83 m (5&rsquo;7&rdquo;&ndash;6&rsquo;0&rdquo;)</td></tr>
+      <tr><td>Published estimates</td><td>1.75&ndash;1.81 m (5&rsquo;9&rdquo;&ndash;5&rsquo;11&rdquo;)</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Our estimate of <strong>1.76 m</strong> is consistent with published Shroud research
+    estimates (Giulio Fanti: ~1.75 m; Shroud Science Group: ~1.78 m). This height would
+    place the individual in the upper range for first-century Palestinian males (average
+    ~1.65&ndash;1.70 m), consistent with a notably tall person for that era.
+  </p>
+
   <div class="callout">
     <p class="callout-title">Limitations</p>
     <p>
@@ -171,7 +243,8 @@
       the face close-ups used in Studies 1 and 2. The frontal body crop is only ~1125 pixels
       wide, yielding a 300-pixel-wide analysis grid. Facial detail is minimal at this scale.
       The full-body reconstructions should be understood as representing overall body posture
-      and proportions, not fine anatomical detail.
+      and proportions, not fine anatomical detail. Height estimation carries &plusmn;3&ndash;4%
+      uncertainty from calibration, cloth draping, and body position.
     </p>
   </div>
 
