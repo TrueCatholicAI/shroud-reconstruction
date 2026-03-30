@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distance Function Calibration — Shroud Reconstruction</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
+  <meta property="og:title" content="Distance Function Calibration — Shroud of Turin">
+  <meta property="og:description" content="Calibrating the cloth-to-body distance function using anatomical landmarks with estimated physical distances. Linear model fits best for Enrie (R2=0.62) but landmark uncertainty is high.">
+  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/distance-function.html">
+  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Distance Calibration</p>
+    <h1>Cloth-to-Body Distance Function</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Can we calibrate the VP-8 intensity signal against physical cloth-to-body
+      distances using anatomical landmarks? This converts arbitrary intensity
+      units into estimated millimeters.
+    </p>
+  </div>
+
+  <h2>Approach</h2>
+  <p>
+    The <a href="formation-analysis.html">Formation Analysis</a> page established that the
+    intensity-distance relationship is linear along the centerline. But that analysis used
+    &ldquo;distance&rdquo; derived from the intensity itself (distance = max &minus; intensity),
+    making the linear fit partly tautological.
+  </p>
+  <p>
+    This page takes a different approach: we assign <strong>independently estimated physical
+    distances</strong> to 15 anatomical landmarks based on published cloth draping studies
+    (Jackson et al., 1984). The question becomes: does the measured VP-8 intensity at each
+    landmark correlate with the estimated physical distance?
+  </p>
+
+  <h3>Calibration landmarks</h3>
+  <table>
+    <thead>
+      <tr><th>Landmark</th><th>Est. Distance (mm)</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nose tip</td><td>0</td><td>Contact point &mdash; cloth touches body</td></tr>
+      <tr><td>Nose bridge</td><td>3</td><td>Slight standoff from nasal bone</td></tr>
+      <tr><td>Brow center</td><td>5</td><td>Forehead curves back from nose</td></tr>
+      <tr><td>Eyes (L/R)</td><td>12</td><td>Eye socket depressions</td></tr>
+      <tr><td>Cheeks (L/R)</td><td>8</td><td>Malar eminence surface</td></tr>
+      <tr><td>Upper lip</td><td>5</td><td>Lips protrude slightly</td></tr>
+      <tr><td>Chin</td><td>10</td><td>Chin drops away from cloth</td></tr>
+      <tr><td>Temples (L/R)</td><td>20</td><td>Temporal fossa recedes significantly</td></tr>
+      <tr><td>Forehead top</td><td>15</td><td>Frontal bone curves away</td></tr>
+      <tr><td>Jaw angles (L/R)</td><td>18</td><td>Mandibular angle drops</td></tr>
+      <tr><td>Neck center</td><td>25</td><td>Maximum standoff in face region</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Landmark Positions</h2>
+
+  <figure>
+    <img src="images/distance_calibration_landmarks.png" alt="Calibration landmarks on Enrie and Miller depth maps">
+    <figcaption>
+      Calibration landmarks on both 150&times;150 depth maps. Color indicates estimated
+      physical distance: green = contact (0 mm), red = maximum standoff (25 mm).
+    </figcaption>
+  </figure>
+
+  <h2>Curve Fitting</h2>
+
+  <figure>
+    <img src="images/distance_calibration_fits.png" alt="Intensity vs distance with fitted curves">
+    <figcaption>
+      Normalized intensity vs normalized cloth-to-body distance at 15 anatomical landmarks.
+      Gold dots: observed data. Colored lines: fitted models. Left: Enrie. Right: Miller.
+    </figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Model</th><th>Enrie R&sup2;</th><th>Miller R&sup2;</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:rgba(196,163,90,0.15);">
+        <td><strong>Linear</strong></td>
+        <td><strong>0.619</strong></td>
+        <td>0.000</td>
+      </tr>
+      <tr>
+        <td>Exponential</td>
+        <td>0.573</td>
+        <td>0.000</td>
+      </tr>
+      <tr>
+        <td>Inverse Square</td>
+        <td>0.395</td>
+        <td>0.012</td>
+      </tr>
+      <tr>
+        <td>Gaussian</td>
+        <td>0.000</td>
+        <td>0.014</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Residual Analysis</h2>
+
+  <figure>
+    <img src="images/distance_calibration_residuals.png" alt="Model residuals at each landmark">
+    <figcaption>
+      Residuals (observed &minus; predicted) at each anatomical landmark for all four models.
+      Large residuals at the cheeks, jaw, and temples indicate these landmarks have the
+      highest positional uncertainty in the 150&times;150 grid.
+    </figcaption>
+  </figure>
+
+  <h2>Analysis</h2>
+
+  <h3>Enrie: moderate linear correlation</h3>
+  <p>
+    The linear model achieves R&sup2; = 0.62 on the Enrie data &mdash; a moderate but not
+    strong correlation. This is substantially weaker than the R&sup2; = 1.000 from the
+    centerline analysis, which is expected: the centerline analysis samples densely along
+    a single profile, while this analysis samples sparsely at 15 discrete points across
+    the entire face, each with positional uncertainty of &plusmn;3&ndash;5 pixels.
+  </p>
+
+  <h3>Miller: no correlation</h3>
+  <p>
+    The Miller data shows essentially zero correlation for all models. This is because the
+    15 landmark positions were calibrated for the Enrie 150&times;150 grid, but the Miller
+    photograph has a different field of view and magnification. The same pixel coordinates
+    (e.g., row 68, column 75 for &ldquo;nose tip&rdquo;) do not correspond to the same
+    anatomical points in the Miller image. A proper Miller calibration would require
+    independently locating each landmark in the Miller depth map.
+  </p>
+
+  <h3>The scatter is real</h3>
+  <p>
+    Even for Enrie, the R&sup2; = 0.62 reflects genuine limitations:
+  </p>
+  <ul>
+    <li><strong>Bilateral asymmetry:</strong> Left and right eyes, cheeks, temples, and jaw
+        have different intensities despite identical estimated distances. This is partly
+        facial asymmetry and partly cloth draping non-uniformity.</li>
+    <li><strong>Landmark position uncertainty:</strong> At 150&times;150 resolution, each
+        pixel spans ~1.5 mm. A 3-pixel misplacement is ~4.5 mm &mdash; comparable to
+        the distance differences we&rsquo;re trying to measure.</li>
+    <li><strong>Distance estimates are approximate:</strong> The &ldquo;ground truth&rdquo;
+        distances are themselves estimates from draping models, not direct measurements.</li>
+  </ul>
+
+  <div class="callout">
+    <p class="callout-title">Comparison with Centerline Analysis</p>
+    <p>
+      The <a href="formation-analysis.html">centerline formation analysis</a> achieved
+      R&sup2; = 1.000 because it sampled intensity densely along a single profile where
+      &ldquo;distance&rdquo; was derived from the intensity itself. This landmark-based
+      approach uses independently estimated distances, making it a stronger test &mdash;
+      but at the cost of much higher noise. The R&sup2; = 0.62 linear result is consistent
+      with, but weaker than, the centerline finding. The linear model remains the best-fitting
+      functional form even with independent distance estimates.
+    </p>
+  </div>
+
+  <h3>What this means for distance calibration</h3>
+  <p>
+    The Enrie linear fit gives an approximate conversion: each unit of normalized intensity
+    corresponds to ~25 mm / 1.0 = <strong>~25 mm per full intensity range</strong>.
+    This implies the VP-8 depth map encodes approximately 0&ndash;25 mm of cloth-to-body
+    distance across the face region. This is physically reasonable for cloth draped over
+    a supine face.
+  </p>
+  <p>
+    However, the R&sup2; = 0.62 means individual landmark predictions have &plusmn;5&ndash;8 mm
+    uncertainty. This calibration is useful for order-of-magnitude estimates but not for
+    precise millimeter-level distance measurement.
+  </p>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="formation-analysis.html" class="btn">Formation Analysis</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>
