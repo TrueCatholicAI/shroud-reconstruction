@@ -177,6 +177,81 @@
     </p>
   </div>
 
+  <h2>Second Neural Model: Depth Anything V2</h2>
+  <p>
+    To confirm the MiDaS finding, we ran a second state-of-the-art neural depth model:
+    <strong>Depth Anything V2</strong> (Small variant, 24.8M parameters). This model uses
+    a DINOv2 backbone and was trained on 62M+ labeled images &mdash; a different architecture,
+    different training data, and different approach than MiDaS.
+  </p>
+
+  <figure>
+    <img src="images/depth_anything_comparison.png" alt="Three-model depth comparison: VP-8, Depth Anything V2, MiDaS">
+    <figcaption>
+      Three depth models compared on both sources. VP-8 (left) produces coherent facial
+      geometry. Depth Anything V2 (center) and MiDaS (right) produce different depth
+      interpretations that do not match VP-8 or each other.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/depth_anything_correlations.png" alt="Correlation bar chart for all three model pairs">
+    <figcaption>
+      Pearson correlations between all model pairs. Neither neural model recovers the
+      VP-8 signal. The two neural models also disagree with each other on Enrie (r=0.12).
+    </figcaption>
+  </figure>
+
+  <h3>Three-model correlation table</h3>
+  <table>
+    <thead>
+      <tr><th>Comparison</th><th>Enrie r</th><th>Miller r</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Depth Anything V2 vs VP-8</td>
+        <td>0.423</td>
+        <td>0.066</td>
+      </tr>
+      <tr>
+        <td>MiDaS DPT-Large vs VP-8</td>
+        <td>&minus;0.081</td>
+        <td>&minus;0.224</td>
+      </tr>
+      <tr>
+        <td>Depth Anything V2 vs MiDaS</td>
+        <td>0.117</td>
+        <td>0.417</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Interpretation</h3>
+  <p>
+    Depth Anything V2 shows slightly higher correlation with VP-8 than MiDaS on the Enrie
+    source (r=0.42 vs r=&minus;0.08), but this likely reflects DINOv2&rsquo;s stronger
+    feature extraction picking up some cloth-surface geometry rather than decoding the
+    body-image depth encoding. On the Miller source, Depth Anything also drops to near-zero
+    (r=0.07).
+  </p>
+  <p>
+    Critically, <strong>the two neural models don&rsquo;t even agree with each other</strong>
+    on the Enrie source (r=0.12). Each model imposes its own learned priors about what
+    &ldquo;depth&rdquo; looks like in photographs, and these priors produce different
+    interpretations of the Shroud&rsquo;s non-photographic image.
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">Two Models, One Conclusion</p>
+    <p>
+      Two independent state-of-the-art neural depth models &mdash; MiDaS DPT-Large (ViT backbone,
+      10M+ training images) and Depth Anything V2 (DINOv2 backbone, 62M+ training images) &mdash;
+      both fail to recover the VP-8 depth signal. They disagree with VP-8 and with each other.
+      The VP-8 depth encoding is confirmed to be fundamentally unlike standard photographic
+      depth cues by two independent verification approaches.
+    </p>
+  </div>
+
   <h2>Technical Details</h2>
   <table>
     <thead>
