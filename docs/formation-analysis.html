@@ -215,6 +215,69 @@
     </figcaption>
   </figure>
 
+  <h2>Exploratory Investigations</h2>
+
+  <h3>Coin-Over-Eyes</h3>
+  <p>
+    Multiple Shroud researchers have claimed to identify impressions of a Pontius Pilate
+    lepton (small Roman coin, ~15mm diameter) over the eye areas. We extracted the eye
+    regions from the Enrie high-resolution source at full resolution and applied CLAHE
+    enhancement, multi-scale edge detection, FFT spectral analysis, and Hough circle detection.
+  </p>
+
+  <figure>
+    <img src="images/coin-investigation.png" alt="Coin-over-eyes investigation panel">
+    <figcaption>
+      Comprehensive analysis of both eye regions. Top: left eye (raw, CLAHE, edges, FFT).
+      Middle: right eye. Bottom: Hough circle detection results and expected lepton size reference.
+    </figcaption>
+  </figure>
+
+  <p>
+    <strong>Result: Inconclusive.</strong> Hough circle detection finds numerous circular features
+    at various radii, but none specifically concentrated at the expected lepton diameter
+    (~53px at this resolution). The FFT spectra show no distinct periodic circular pattern.
+    At ~35 px/cm, a 15mm coin occupies only ~53 pixels &mdash; insufficient for reliable
+    pattern recognition in heavily textured cloth imagery. Higher-resolution scans or
+    multi-spectral data would be needed to make a definitive determination.
+  </p>
+
+  <h3>Scourge Mark Patterns</h3>
+  <p>
+    Published literature identifies approximately 120 scourge marks on the full body,
+    consistent with a Roman flagrum (multi-tipped whip). Using the full-body depth map
+    and high-frequency residual extraction, we searched for small (5&ndash;80 pixel)
+    raised features in the torso region.
+  </p>
+
+  <figure>
+    <img src="images/scourge-torso.png" alt="Scourge mark candidate analysis on torso">
+    <figcaption>
+      Left: torso source. Center: high-frequency residual (red=raised, blue=depressed).
+      Right: 832 candidate mark locations (green circles) overlaid on depth map.
+    </figcaption>
+  </figure>
+
+  <p>
+    <strong>Result: Over-detection.</strong> The analysis found 832 candidate features vs
+    the expected ~120. At ~12 px/cm body scale, individual flagrum marks (~10mm) occupy
+    only ~12 pixels &mdash; indistinguishable from cloth weave intersections and other
+    texture artifacts. This technique cannot reliably isolate scourge marks without
+    multi-spectral data (UV fluorescence photographs specifically highlight blood vs body image).
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">Honest Assessment</p>
+    <p>
+      Both the coin and scourge mark investigations demonstrate the resolution limits
+      of photographic analysis. The features of interest (~10&ndash;15mm) are at or below
+      the noise floor of the available imagery. These questions require higher-resolution
+      or multi-spectral source data to answer definitively. We publish these negative/inconclusive
+      results because they are informative &mdash; they define what <em>cannot</em> be determined
+      from this data, which is as important as what can.
+    </p>
+  </div>
+
   <p style="margin-top:2rem;text-align:center;">
     <a href="neural-depth.html" class="btn">Neural Depth Finding</a>
     &nbsp;&nbsp;
