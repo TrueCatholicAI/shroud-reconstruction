@@ -1,0 +1,51 @@
+[
+  {
+    "task": "Write a Python script (src/body_proportions.py) that loads the full-body Shroud image from data/source/shroud_full_negatives.jpg, extracts a vertical center-strip depth profile, identifies body landmarks (head top, chin, shoulders, navel, hand crossing at 45% height, knees, feet) using derivative-based peak finding. Calibration: 618px = 1.76m. Compute segment ratios (head/total, torso/total, leg/total) and compare against Vitruvian (1/8 head, golden ratio navel) and modern anthropometric averages. Generate three figures: body_proportions_profile.png (annotated profile), body_proportions_comparison.png (ratio bar chart), body_proportions_figure.png (schematic body diagram). Save to output/analysis/ and docs/images/.",
+    "type": "compute",
+    "status": "pending",
+    "output_files": ["docs/images/body_proportions_profile.png", "docs/images/body_proportions_comparison.png", "docs/images/body_proportions_figure.png"],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page at docs/wound-mapping.html for the Shroud wound mapping analysis. Title: 'Computational Wound Mapping'. Include sections: Overview (asymmetry index 0.1879, 43.5% of pixels exceed threshold), Regional Findings (left cheekbone swelling +0.1871, nasal deviation 0.0000, brow asymmetry 0.1882), Medical Literature (cross-reference Zugibe's 'The Crucifixion of Jesus' on left cheek blow, Barbet's 'A Doctor at Calvary' on nasal fracture, Bucklin's forensic report on periorbital swelling), Method (depth map flipping, difference computation, thresholding). Images: wound_mapping_overview.png, wound_mapping_3d.png, wound_mapping_annotated.png. Use the project CSS (css/style.css) and standard 14-page navigation.",
+    "type": "write",
+    "status": "pending",
+    "output_files": ["docs/wound-mapping.html"],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page at docs/wavelet-analysis.html for the multi-frequency depth analysis. Title: 'Multi-Frequency Depth Decomposition'. Sections: Overview (99% energy in low frequencies, SNR 25.5 dB), Frequency Bands (Level 4 approx = gross face shape at 98.98% energy, mid-freq details at 0.74%, high-freq cloth texture at 0.28%), Implications (face signal is concentrated in low spatial frequencies, constraining the image formation mechanism's spatial resolution to ~5-10 cycles/face-width; cloth weave contributes <0.3% of depth variation). Images: wavelet_bands.png, wavelet_3d_bands.png, wavelet_energy.png, wavelet_profiles.png. Use project CSS and standard nav.",
+    "type": "write",
+    "status": "pending",
+    "output_files": ["docs/wavelet-analysis.html"],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page at docs/bilateral-analysis.html for the bilateral wound catalog. Title: 'Bilateral Wound Catalog'. Sections: Method (5 horizontal slices: brow/40, eye/50, cheek/65, mouth/80, jaw/95, +/-3 row averaging, left-right comparison), Findings table (all 5 levels show left-side-dominant swelling, strongest at mouth level max 0.492, cheek mean asymmetry 0.152), Wound Catalog (systematic table: slice level, max asymmetry, location px from center, direction, anatomical interpretation), Clinical Correlation (unilateral left-side trauma pattern consistent with a right-handed assailant striking the left face). Images: bilateral_slices.png, bilateral_catalog.png, bilateral_overlay.png. Use project CSS and standard nav.",
+    "type": "write",
+    "status": "pending",
+    "output_files": ["docs/bilateral-analysis.html"],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page section to add to docs/full-body.html for body proportion analysis results. This will be appended. Title section: 'Body Segment Proportions'. Include: ratio comparison table (Shroud vs Vitruvian vs Modern), segment diagram description, key finding that proportions are consistent with a real adult male. Images: body_proportions_profile.png, body_proportions_comparison.png, body_proportions_figure.png.",
+    "type": "write",
+    "status": "pending",
+    "output_files": [],
+    "error": null
+  },
+  {
+    "task": "Generate alt text for all images in docs/images/. For each .png file, write a one-sentence description suitable for an alt attribute. Save the complete mapping as docs/image_alt_text.json with format {filename: alt_text}.",
+    "type": "write",
+    "status": "pending",
+    "output_files": ["docs/image_alt_text.json"],
+    "error": null
+  },
+  {
+    "task": "Push all changes in docs/ to gh-pages",
+    "type": "publish",
+    "status": "pending",
+    "output_files": [],
+    "error": null
+  }
+]
