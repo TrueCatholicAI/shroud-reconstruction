@@ -3,173 +3,386 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudarium of Oviedo — Shroud Reconstruction</title>
+  <title>Sudarium Analysis - Shroud Reconstruction Project</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="wound-mapping.html">Wound Mapping</a></li>
+        <li><a href="wavelet-analysis.html">Wavelet</a></li>
+        <li><a href="bilateral-analysis.html">Bilateral</a></li>
+        <li><a href="seed-sweep.html">Seed Sweep</a></li>
+        <li><a href="curvature-analysis.html">Curvature</a></li>
+        <li><a href="sudarium.html" class="active">Sudarium</a></li>
+        <li><a href="art-historical.html">Art History</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
 
-<nav>
-  <div class="nav-inner">
-    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="methodology.html">Methodology</a></li>
-      <li><a href="findings.html">Findings</a></li>
-      <li><a href="reconstruction.html">Reconstruction</a></li>
-      <li><a href="study2.html">Study 2</a></li>
-      <li><a href="neural-depth.html">Neural Depth</a></li>
-      <li><a href="full-body.html">Full Body</a></li>
-      <li><a href="formation-analysis.html">Formation</a></li>
-      <li><a href="distance-function.html">Distance</a></li>
-      <li><a href="scourge-analysis.html">Scourge</a></li>
-      <li><a href="neave-comparison.html">Neave</a></li>
-      <li><a href="wound-mapping.html">Wound Mapping</a></li>
-      <li><a href="wavelet-analysis.html">Wavelet</a></li>
-      <li><a href="bilateral-analysis.html">Bilateral</a></li>
-      <li><a href="seed-sweep.html">Seed Sweep</a></li>
-      <li><a href="curvature-analysis.html">Curvature</a></li>
-      <li><a href="sudarium.html" class="active">Sudarium</a></li>
-      <li><a href="art-historical.html">Art History</a></li>
-      <li><a href="viewer.html">3D Viewer</a></li>
-      <li><a href="summary.html">Summary</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-  </div>
-</nav>
+  <main class="content">
+    <section class="hero">
+      <h1>Sudarium of Oviedo Analysis</h1>
+      <p class="subtitle">Geometric and statistical comparison with the Shroud of Turin body image</p>
+    </section>
 
-<main>
-  <div class="page-header">
-    <p class="page-label">Cross-Reference</p>
-    <h1>Sudarium of Oviedo</h1>
-    <p style="color:var(--muted);max-width:620px;">
-      Computational comparison of bloodstain patterns on the Sudarium of Oviedo
-      with the Shroud facial depth map.
+    <section class="intro">
+      <h2>Overview</h2>
+      <p>
+        The Sudarium of Oviedo is a bloodstained cloth traditionally associated with the Passion of Christ.
+        Unlike the Shroud, it shows no dorsal body image. However, the bloodstain patterns may encode
+        positional information about the face that can be compared against the Shroud's frontal image.
+      </p>
+      <p>
+        This analysis uses ROI-based geometric comparison to evaluate whether specific facial features
+        in the Sudarium bloodstains align with corresponding regions in the Shroud depth map.
+      </p>
+    </section>
+
+    <section class="methodology">
+      <h2>Methodology</h2>
+      <h3>ROI-Based Comparison</h3>
+      <p>
+        Regions of Interest (ROIs) were defined around key facial landmarks: forehead, eyes, nose, mouth, and chin.
+        The ROI radius was set to 8 pixels. Overlap scores were computed by comparing Sudarium feature
+        positions against expected positions derived from the Shroud depth map.
+      </p>
+      <h3>Permutation Testing</h3>
+      <p>
+        To assess statistical significance, random permutations were applied to the Sudarium positions:
+      </p>
+      <ul>
+        <li>X offset range: -50 to +50 pixels</li>
+        <li>Y offset range: -50 to +50 pixels</li>
+        <li>Rotation range: -180° to +180°</li>
+        <li>Number of permutations: 1,000</li>
+        <li>Random seed: 42</li>
+      </ul>
+    </section>
+
+    <section class="results">
+      <h2>Observed Overlaps by Region</h2>
+      <p>
+        The following table shows the observed overlap scores for each facial region:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Observed Overlap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forehead</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Left Eye</td>
+            <td>31.715</td>
+          </tr>
+          <tr>
+            <td>Right Eye</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Nose</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Mouth</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Chin</td>
+            <td>0.000</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="distribution-stats">
+      <h2>Random Distribution Statistics</h2>
+      <p>
+        The following table summarizes the statistics of the random permutation distributions for each region:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Mean</th>
+            <th>Std Dev</th>
+            <th>Min</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forehead</td>
+            <td>14.794</td>
+            <td>13.894</td>
+            <td>0.000</td>
+            <td>50.254</td>
+          </tr>
+          <tr>
+            <td>Left Eye</td>
+            <td>20.348</td>
+            <td>21.499</td>
+            <td>0.000</td>
+            <td>57.022</td>
+          </tr>
+          <tr>
+            <td>Right Eye</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Nose</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Mouth</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+          </tr>
+          <tr>
+            <td>Chin</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+            <td>0.000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">
+        Note: Regions with zero variance (right eye, nose, mouth, chin) indicate no detectable
+        features in those areas of the Sudarium for the analysis.
+      </p>
+    </section>
+
+    <section class="limitations">
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Feature Detection Variability:</strong> The Sudarium bloodstain patterns are diffuse
+          and may not precisely localize facial features. Automated feature detection may miss
+          subtle but meaningful correlations.
+        </li>
+        <li>
+          <strong>Single Landmark ROI:</strong> Using an 8-pixel radius ROI around single points
+          captures limited neighborhood information. Larger-scale pattern matching might
+          reveal additional correlations.
+        </li>
+        <li>
+          <strong>Binary Threshold Sensitivity:</strong> The choice of threshold for depth map
+          binarization affects the overlap score. A systematic threshold sweep could provide
+          more robust results.
+        </li>
+        <li>
+          <strong>Geometric Constraints:</strong> The cloth may have shifted between the
+          body being covered by the Sudarium and later placement on the Shroud, introducing
+          geometric distortions not accounted for in this analysis.
+        </li>
+        <li>
+          <strong>Bloodstain vs Body Image:</strong> The Sudarium contains blood, not the
+          scorch/impression mechanism proposed for the Shroud body image. The comparison
+          assumes positional correspondence regardless of formation mechanism.
+        </li>
+      </ul>
+    </section>
+
+    <section class="null-hypothesis-test">
+      <h2>Null Hypothesis Test</h2>
+      <p>
+        To rigorously assess whether the observed overlap scores could have occurred by chance,
+        we conducted a permutation-based hypothesis test. The null hypothesis (H₀) states that
+        the Sudarium facial features have no specific spatial relationship to the Shroud body
+        image—any observed overlap is due to random alignment.
+      </p>
+      
+      <h3>Test Parameters</h3>
+      <ul>
+        <li>Number of permutations: 1,000</li>
+        <li>X offset range: -50 to +50 pixels</li>
+        <li>Y offset range: -50 to +50 pixels</li>
+        <li>Rotation range: -180° to +180°</li>
+        <li>Random seed: 42</li>
+      </ul>
+
+      <h3>P-Values by Region</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>P-Value</th>
+            <th>Significant (α=0.05)?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forehead</td>
+            <td>1.000</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Left Eye</td>
+            <td>0.368</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Right Eye</td>
+            <td>1.000</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Nose</td>
+            <td>1.000</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Mouth</td>
+            <td>1.000</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Chin</td>
+            <td>1.000</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Overall P-Value:</strong> 0.1965
+      </p>
+
+      <h3>Random Distribution Visualization</h3>
+      <p>
+        The histogram below shows the distribution of random overlap scores for the left eye
+        region (the only region with non-zero variance). The red dashed line indicates the
+        observed overlap value (31.715), and the gold dotted line shows the mean of the random
+        distribution (20.348).
+      </p>
+      <figure class="visualization">
+        <img src="images/null_test_histogram.png" alt="Null hypothesis test histogram for left eye region">
+        <figcaption>
+          Figure: Distribution of 1,000 random permutation overlap scores for the left eye region.
+          The observed overlap (31.715) falls within the range of random variation.
+        </figcaption>
+      </figure>
+
+      <h3>Statistical Interpretation</h3>
+      <div class="findings-box">
+        <h4>Result: No Statistically Significant Correlation Detected</h4>
+        <p>
+          <strong>All p-values are above the conventional significance threshold of 0.05.</strong>
+          The observed overlap is not statistically distinguishable from what would be expected
+          by chance alignment.
+        </p>
+        <p>
+          Specifically:
+        </p>
+        <ul>
+          <li>
+            The left eye region shows the lowest p-value (0.368), but this is far above the
+            0.05 threshold. An overlap score of 31.715 falls within the expected range of
+            random variation (mean: 20.348, std: 21.499).
+          </li>
+          <li>
+            All other regions (forehead, right eye, nose, mouth, chin) have p-values of 1.0,
+            indicating their observed overlaps are entirely consistent with random chance.
+          </li>
+          <li>
+            The overall p-value of 0.1965 confirms that the combined analysis does not
+            reject the null hypothesis.
+          </li>
+        </ul>
+        <p>
+          <strong>Conclusion:</strong> Under the conditions tested (1,000 permutations with
+          the specified offset and rotation ranges), there is no evidence of a non-random
+          spatial relationship between Sudarium bloodstain positions and Shroud body image
+          features.
+        </p>
+      </div>
+
+      <h3>Caveats</h3>
+      <p>
+        This analysis has important limitations:
+      </p>
+      <ul>
+        <li>
+          <strong>Multiple Comparisons:</strong> Testing 6 regions simultaneously increases
+          the risk of Type I error (false positives). Even if any individual p-value were
+          below 0.05, correction for multiple comparisons would be required.
+        </li>
+        <li>
+          <strong>Limited Permutations:</strong> With only 1,000 permutations, the minimum
+          achievable p-value is 0.001. More permutations would provide finer resolution.
+        </li>
+        <li>
+          <strong>Parameter Bounds:</strong> The offset and rotation ranges limit the
+          tested transformations. Optimal alignment might fall outside these bounds.
+        </li>
+        <li>
+          <strong>Feature Detection:</strong> The analysis depends on accurate automated
+          detection of bloodstain features. Manual landmarking might yield different results.
+        </li>
+      </ul>
+    </section>
+
+    <section class="conclusions">
+      <h2>Conclusions</h2>
+      <p>
+        The ROI-based geometric comparison between the Sudarium bloodstain positions and
+        the Shroud body image does not reveal statistically significant spatial correlation
+        under the tested conditions. The null hypothesis of random alignment cannot be rejected.
+      </p>
+      <p>
+        This result does not necessarily contradict traditional associations between the
+        two cloths. It simply indicates that the specific geometric test performed here—
+        using automated ROI overlap scoring—is not sensitive enough to detect any relationship,
+        or no such relationship exists in the tested form.
+      </p>
+      <p>
+        Further investigation might consider:
+      </p>
+      <ul>
+        <li>Manual landmarking of bloodstain features</li>
+        <li>Larger ROI radii to capture neighborhood patterns</li>
+        <li>Cross-correlation methods instead of binary overlap</li>
+        <li>Broader rotation and offset search ranges</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Shroud of Turin Forensic Reconstruction Project</p>
+    <p class="disclaimer">
+      This analysis is for scientific research purposes only. No claims are made regarding
+      the authenticity or origin of the Shroud of Turin or the Sudarium of Oviedo.
     </p>
-  </div>
-
-  <h2>What is the Sudarium?</h2>
-  <p>
-    The Sudarium of Oviedo is a bloodstained cloth kept in the C&aacute;mara Santa of
-    the Cathedral of Oviedo, Spain. Tradition identifies it as the face cloth mentioned
-    in John 20:7 &mdash; a separate piece from the burial linen. The cloth measures
-    approximately 84&times;53 cm and bears visible bloodstain patterns but no body image.
-  </p>
-  <p>
-    The Sudarium is relevant to this project because if both cloths covered the same face,
-    the bloodstain positions on the Sudarium should correspond to facial features on the
-    Shroud. This is a testable geometric claim.
-  </p>
-
-  <h2>Stain Extraction</h2>
-  <p>
-    Bloodstain regions were extracted from a 4160&times;3120 Wikimedia Commons photograph
-    of the Sudarium using HSV color thresholding (Hue 0&ndash;20 and 160&ndash;180,
-    Saturation 40&ndash;255, Value 30&ndash;200) targeting brownish-red regions on linen.
-    Morphological opening and closing were applied for noise reduction.
-  </p>
-  <p>
-    The extracted stain mask covers <strong>37.21%</strong> of the image area across
-    867 distinct regions.
-  </p>
-
-  <figure>
-    <img src="images/sudarium_stain_extraction.png" alt="Sudarium original photograph, extracted stain mask, and stain overlay">
-    <figcaption>
-      Left: Sudarium photograph from Wikimedia Commons. Center: extracted stain mask
-      (37.21% coverage). Right: stain overlay on original image.
-    </figcaption>
-  </figure>
-
-  <h2>Registration with Shroud Face</h2>
-  <p>
-    The Sudarium stain mask was scaled to 150&times;150 pixels to match the Shroud face
-    depth map. Overlap was computed at eight facial landmark regions (8-pixel radius
-    circular ROIs centered on landmarks from the Shroud depth map).
-  </p>
-
-  <table>
-    <thead>
-      <tr><th>Region</th><th>Stain Overlap</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Mouth</td><td><strong>98.0%</strong></td></tr>
-      <tr><td>Left cheek</td><td><strong>94.4%</strong></td></tr>
-      <tr><td>Nose</td><td><strong>92.9%</strong></td></tr>
-      <tr><td>Chin</td><td>86.8%</td></tr>
-      <tr><td>Right eye</td><td>77.7%</td></tr>
-      <tr><td>Right cheek</td><td>76.1%</td></tr>
-      <tr><td>Left eye</td><td>61.9%</td></tr>
-      <tr><td>Forehead</td><td>40.1%</td></tr>
-    </tbody>
-  </table>
-
-  <p>
-    Overall face region stain coverage: <strong>64.8%</strong>.
-  </p>
-
-  <div class="callout">
-    <p class="callout-title">Methodological Caution</p>
-    <p>
-      The stain mask covers 37.21% of the total image area. At this coverage level,
-      random overlap with any face-shaped region would be substantial. These percentages
-      should not be interpreted as evidence that both cloths covered the same face without
-      a proper null-hypothesis test &mdash; for example, computing overlap at randomized
-      registration offsets to establish a baseline expected overlap by chance. This
-      analysis is exploratory.
-    </p>
-  </div>
-
-  <figure>
-    <img src="images/sudarium_registration.png" alt="Side-by-side Shroud depth map, Sudarium stain mask, and registration overlay">
-    <figcaption>
-      Left: Shroud face depth map with landmark positions. Center: Sudarium stain mask
-      (scaled to 150&times;150). Right: registration overlay showing 64.8% face coverage.
-    </figcaption>
-  </figure>
-
-  <figure>
-    <img src="images/sudarium_overlap_chart.png" alt="Bar chart of stain overlap percentages by facial region">
-    <figcaption>
-      Stain overlap percentage by facial region. Highest overlap at mouth (98.0%),
-      left cheek (94.4%), and nose (92.9%). Lowest at forehead (40.1%).
-    </figcaption>
-  </figure>
-
-  <h2>Limitations</h2>
-  <p>
-    This analysis has significant methodological limitations:
-  </p>
-  <ul>
-    <li><strong>Registration method:</strong> Simple scaling assumes the Sudarium and
-      Shroud face are the same size and orientation. No feature-based alignment,
-      rotation correction, or geometric transformation was applied. A proper registration
-      would require identifying corresponding anatomical features on both cloths.</li>
-    <li><strong>Source photograph:</strong> The Sudarium photograph from Wikimedia Commons
-      may not represent the cloth accurately &mdash; color reproduction, lighting angle,
-      and photographic distortion all affect stain extraction.</li>
-    <li><strong>Color thresholding:</strong> HSV thresholding for brownish-red regions
-      cannot distinguish between blood, oxidation stains, water marks, and other
-      discolorations. The 37.21% coverage likely includes non-blood regions.</li>
-    <li><strong>Scale assumption:</strong> The Sudarium photograph shows the cloth in a
-      display frame. The mapping from photograph coordinates to cloth coordinates
-      to face coordinates involves multiple untested assumptions.</li>
-    <li><strong>Overlap interpretation:</strong> High overlap percentages do not
-      demonstrate that both cloths covered the same face. Any face-sized stain pattern
-      overlaid on a face-shaped target will produce some overlap.</li>
-  </ul>
-
-  <p style="margin-top:2rem;text-align:center;">
-    <a href="wound-mapping.html" class="btn">Wound Mapping</a>
-    &nbsp;&nbsp;
-    <a href="methodology.html" class="btn">Read the Methodology</a>
-  </p>
-
-</main>
-
-<footer>
-  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
-  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
-</footer>
-
+  </footer>
 </body>
 </html>
