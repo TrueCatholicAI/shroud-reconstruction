@@ -134,7 +134,7 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
             "max_tokens": max_tokens,
             "temperature": 0.3,
         },
-        timeout=120,
+        timeout=300,
     )
     resp.raise_for_status()
     data = resp.json()
@@ -158,14 +158,36 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
 # Task execution
 # ---------------------------------------------------------------------------
 def extract_code(text: str, lang: str = "python") -> str:
-    """Extract code from MiniMax response. Strips markdown fences if present."""
-    # Try to find fenced code block
+    """Extract code from MiniMax response. Strips think blocks and markdown fences."""
+    # Strip <think>...</think> blocks (MiniMax reasoning)
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    text = text.strip()
+
+    # Try to find fenced code block (```python ... ``` or ``` ... ```)
     pattern = rf"```{lang}?\s*\n(.*?)```"
     match = re.search(pattern, text, re.DOTALL)
     if match:
         return match.group(1).strip()
-    # If no fences, assume the whole response is code
-    return text.strip()
+
+    # Try generic fenced block
+    match = re.search(r"```\s*\n(.*?)```", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    # Find the first line that looks like Python code (import, #!, def, class, from)
+    lines = text.split("\n")
+    start = 0
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith(("import ", "from ", "#!", "#!/", "def ", "class ", '"""', "'''", "# ", "import\t")):
+            start = i
+            break
+    # Take everything from that line onward
+    code = "\n".join(lines[start:])
+
+    # Strip any trailing markdown fences
+    code = re.sub(r"\n```\s*$", "", code)
+    return code.strip()
 
 
 def validate_output_files(files: list[str]) -> tuple[bool, list[str]]:
@@ -270,12 +292,19 @@ def log_task_result(task: dict, success: bool, stdout: str = "", stderr: str = "
 def handle_compute_task(task: dict) -> bool:
     """Generate a Python script via MiniMax, execute it, validate outputs."""
     prompt = (
-        f"Write a complete Python script for the following task.\n\n"
-        f"TASK: {task['task']}\n\n"
-        f"The script will be saved to src/ and run with the project venv.\n"
-        f"Print all results to stdout. Save figures to both output/analysis/ "
-        f"and docs/images/.\n"
-        f"Use matplotlib.use('Agg'). Dark backgrounds (#1a1a1a)."
+        f"CRITICAL: Output ONLY a Python script. No explanations, no numbered lists, "
+        f"no prose before or after. Start with imports. The response must be valid "
+        f"Python that can be saved to a .py file and executed directly.\n\n"
+        f"Write a complete Python script for the following task:\n\n"
+        f"{task['task']}\n\n"
+        f"Requirements:\n"
+        f"- Start with: import matplotlib; matplotlib.use('Agg')\n"
+        f"- The script will be saved to src/ and run with the project venv.\n"
+        f"- Print all numeric results to stdout.\n"
+        f"- Save figures to both output/analysis/ and docs/images/.\n"
+        f"- Use os.makedirs(exist_ok=True) for output directories.\n"
+        f"- Dark figure backgrounds (#1a1a1a), gold accent (#c4a35a), white text.\n"
+        f"- NO markdown fences. NO explanations. ONLY Python code."
     )
 
     log(f"Sending compute task to MiniMax: {task['task'][:60]}...")
@@ -344,8 +373,8 @@ def handle_write_task(task: dict) -> bool:
     log(f"Sending write task to MiniMax: {task['task'][:60]}...")
     response = call_minimax(prompt, max_tokens=16384)
 
-    # Strip any markdown fences
-    content = response.strip()
+    # Strip <think> blocks and markdown fences
+    content = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
     if content.startswith("```"):
         content = re.sub(r"^```\w*\n", "", content)
         content = re.sub(r"\n```$", "", content)
