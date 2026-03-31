@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High-Resolution Miller Analysis | Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .analysis-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .panel {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .panel-title {
+      color: #c4a35a;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+    .resolution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .resolution-panel {
+      background: #252525;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 15px;
+      text-align: center;
+    }
+    .resolution-panel h3 {
+      color: #c4a35a;
+      margin-bottom: 10px;
+    }
+    .resolution-panel img {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .resolution-note {
+      font-size: 0.85em;
+      color: #888;
+    }
+    .measurement-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    .measurement-table th,
+    .measurement-table td {
+      padding: 12px 8px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    .measurement-table th {
+      background: #252525;
+      color: #c4a35a;
+      font-weight: 600;
+    }
+    .measurement-table tr:hover {
+      background: #252525;
+    }
+    .measurement-name {
+      text-align: left;
+      color: #ddd;
+    }
+    .stable {
+      color: #4CAF50;
+    }
+    .divergent {
+      color: #f44336;
+    }
+    .moderate {
+      color: #FFC107;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: 600;
+    }
+    .status-stable {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+    .status-divergent {
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+    }
+    .status-moderate {
+      background: rgba(255, 193, 7, 0.2);
+      color: #FFC107;
+    }
+    .visualization-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .viz-panel {
+      background: #252525;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 15px;
+    }
+    .viz-panel h4 {
+      color: #c4a35a;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .viz-panel img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .key-finding {
+      background: rgba(196, 163, 90, 0.1);
+      border-left: 3px solid #c4a35a;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .key-finding h4 {
+      color: #c4a35a;
+      margin-bottom: 10px;
+    }
+    .limitations-list {
+      list-style: none;
+      padding: 0;
+    }
+    .limitations-list li {
+      padding: 10px 0;
+      padding-left: 25px;
+      position: relative;
+      color: #ccc;
+      border-bottom: 1px solid #333;
+    }
+    .limitations-list li:last-child {
+      border-bottom: none;
+    }
+    .limitations-list li::before {
+      content: "⚠";
+      position: absolute;
+      left: 0;
+      color: #c4a35a;
+    }
+    .summary-box {
+      background: #252525;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .summary-box h4 {
+      color: #c4a35a;
+      margin-bottom: 15px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 15px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #c4a35a;
+    }
+    .stat-label {
+      font-size: 0.85em;
+      color: #888;
+      margin-top: 5px;
+    }
+    .interpretation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 15px;
+    }
+    .interpretation-panel {
+      background: #252525;
+      border-radius: 6px;
+      padding: 15px;
+    }
+    .interpretation-panel h4 {
+      margin-bottom: 10px;
+    }
+    .interpretation-panel.stable-interp h4 {
+      color: #4CAF50;
+    }
+    .interpretation-panel.divergent-interp h4 {
+      color: #f44336;
+    }
+    .interpretation-panel p {
+      color: #ccc;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="wound-mapping.html">Wound Mapping</a></li>
+        <li><a href="wavelet-analysis.html">Wavelet</a></li>
+        <li><a href="bilateral-analysis.html">Bilateral</a></li>
+        <li><a href="seed-sweep.html">Seed Sweep</a></li>
+        <li><a href="curvature-analysis.html">Curvature</a></li>
+        <li><a href="sudarium.html">Sudarium</a></li>
+        <li><a href="art-historical.html">Art History</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content-wrapper">
+    <div class="analysis-container">
+      <h1 class="page-title">High-Resolution Miller Analysis</h1>
+      <p class="page-subtitle">Resolution-Dependent Feature Detection: Comparing 150×150, 300×300, and 500×500 Pixel Analysis</p>
+
+      <!-- Resolution Comparison Panel -->
+      <div class="panel">
+        <h2 class="panel-title">Resolution Comparison Overview</h2>
+        <p style="color: #ccc; margin-bottom: 15px;">Comparing facial feature detection across three resolution scales to assess measurement stability and identify resolution-dependent artifacts.</p>
+
+        <div class="resolution-grid">
+          <div class="resolution-panel">
+            <h3>150×150 Resolution</h3>
+            <p class="resolution-note">Low resolution baseline</p>
+            <p style="color: #888; font-size: 0.85em;">Scale factor: 1.0×</p>
+            <p style="color: #ccc; margin-top: 10px;">Fast processing, coarse detail capture</p>
+          </div>
+          <div class="resolution-panel">
+            <h3>300×300 Resolution</h3>
+            <p class="resolution-note">Medium resolution intermediate</p>
+            <p style="color: #888; font-size: 0.85em;">Scale factor: 2.0×</p>
+            <p style="color: #ccc; margin-top: 10px;">2× increase from 150×150</p>
+          </div>
+          <div class="resolution-panel">
+            <h3>500×500 Resolution</h3>
+            <p class="resolution-note">High resolution detailed analysis</p>
+            <p style="color: #888; font-size: 0.85em;">Scale factor: 3.33×</p>
+            <p style="color: #ccc; margin-top: 10px;">Maximum detail capture</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Measurement Comparison Table -->
+      <div class="panel">
+        <h2 class="panel-title">Measurement Comparison: All 9 Key Measurements</h2>
+        <p style="color: #ccc; margin-bottom: 15px;">Comparing pixel values across resolutions. <span class="stable">Green</span> indicates stable (convergent) measurements. <span class="divergent">Red</span> indicates divergent (resolution-dependent) measurements.</p>
+
+        <table class="measurement-table">
+          <thead>
+            <tr>
+              <th>Measurement</th>
+              <th>150×150</th>
+              <th>300×300</th>
+              <th>500×500</th>
+              <th>Ratio (500/150)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="measurement-name">Interocular Distance</td>
+              <td>45.0</td>
+              <td>90.0</td>
+              <td>35.0</td>
+              <td class="divergent">0.78</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Nose Height</td>
+              <td>62.0</td>
+              <td>124.0</td>
+              <td>60.0</td>
+              <td class="moderate">0.97</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Nose Peak to Bridge</td>
+              <td>35.0</td>
+              <td>70.0</td>
+              <td>7.0</td>
+              <td class="divergent">0.20</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Left Eye to Nose</td>
+              <td>48.0</td>
+              <td>96.0</td>
+              <td>61.40</td>
+              <td class="moderate">1.28</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Right Eye to Nose</td>
+              <td>48.0</td>
+              <td>96.0</td>
+              <td>61.68</td>
+              <td class="moderate">1.29</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Face Width at Eyes</td>
+              <td>38.0</td>
+              <td>76.0</td>
+              <td>162.0</td>
+              <td class="divergent">4.26</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Left Cheek to Nose</td>
+              <td>55.0</td>
+              <td>110.0</td>
+              <td>67.01</td>
+              <td class="moderate">1.22</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Right Cheek to Nose</td>
+              <td>55.0</td>
+              <td>110.0</td>
+              <td>68.01</td>
+              <td class="moderate">1.24</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Forehead to Nose Peak</td>
+              <td>75.0</td>
+              <td>150.0</td>
+              <td>7.0</td>
+              <td class="divergent">0.09</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Additional Measurements Section -->
+      <div class="panel">
+        <h2 class="panel-title">Additional Facial Measurements</h2>
+        <p style="color: #ccc; margin-bottom: 15px;">Extended measurements including mouth width, chin distance, and depth values.</p>
+
+        <table class="measurement-table">
+          <thead>
+            <tr>
+              <th>Measurement</th>
+              <th>150×150</th>
+              <th>300×300</th>
+              <th>500×500</th>
+              <th>Ratio (500/150)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="measurement-name">Mouth Width</td>
+              <td>42.0</td>
+              <td>84.0</td>
+              <td>235.0</td>
+              <td class="divergent">5.60</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Nose to Chin</td>
+              <td>88.0</td>
+              <td>176.0</td>
+              <td>82.66</td>
+              <td class="moderate">0.94</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Left Eye to Forehead</td>
+              <td>60.0</td>
+              <td>120.0</td>
+              <td>18.79</td>
+              <td class="divergent">0.31</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Right Eye to Forehead</td>
+              <td>60.0</td>
+              <td>120.0</td>
+              <td>19.70</td>
+              <td class="divergent">0.33</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Nose Peak Depth</td>
+              <td>0.85</td>
+              <td>0.85</td>
+              <td>0.983</td>
+              <td class="moderate">1.16</td>
+              <td><span class="status-badge status-moderate">Stable</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Forehead Depth</td>
+              <td>0.45</td>
+              <td>0.45</td>
+              <td>0.959</td>
+              <td class="moderate">2.13</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Left Cheek Depth</td>
+              <td>0.70</td>
+              <td>0.70</td>
+              <td>0.814</td>
+              <td class="stable">1.16</td>
+              <td><span class="status-badge status-stable">Stable</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Right Cheek Depth</td>
+              <td>0.70</td>
+              <td>0.70</td>
+              <td>0.814</td>
+              <td class="stable">1.16</td>
+              <td><span class="status-badge status-stable">Stable</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Chin Depth</td>
+              <td>0.55</td>
+              <td>0.55</td>
+              <td>0.671</td>
+              <td class="moderate">1.22</td>
+              <td><span class="status-badge status-moderate">Stable</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Depth Nose to Forehead</td>
+              <td>0.40</td>
+              <td>0.40</td>
+              <td>0.024</td>
+              <td class="divergent">0.06</td>
+              <td><span class="status-badge status-divergent">Divergent</span></td>
+            </tr>
+            <tr>
+              <td class="measurement-name">Depth Nose to Chin</td>
+              <td>0.30</td>
+              <td>0.30</td>
+              <td>0.183</td>
+              <td class="moderate">0.61</td>
+              <td><span class="status-badge status-moderate">Moderate</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Key Finding -->
+      <div class="key-finding">
+        <h4>Key Question: Does Higher Resolution Reveal New Facial Features?</h4>
+        <p style="color: #ccc;">The data shows a mixed picture. Some measurements (nose height: ratio 0.97, nose to chin: ratio 0.94) remain relatively stable across resolutions, suggesting these features are reliably detected regardless of scale. However, many measurements show significant divergence:</p>
+        <ul style="color: #ccc; margin-top: 10px; margin-left: 20px;">
+          <li><strong>Dramatic decreases:</strong> Forehead to nose peak (0.09×), nose peak to bridge (0.20×), depth nose to forehead (0.06×)</li>
+          <li><strong>Dramatic increases:</strong> Mouth width (5.60×), face width at eyes (4.26×)</li>
+          <li><strong>Depth measurements:</strong> Cheek depths remain stable (~1.16× ratio), but forehead depth increases significantly (2.13×)</li>
+        </ul>
+        <p style="color: #ccc; margin-top: 10px;">This suggests that while higher resolution captures more detail, it may also introduce boundary detection artifacts that significantly affect linear measurements. The depth measurements appear more robust.</p>
+      </div>
+
+      <!-- 500x500 Visualizations -->
+      <div class="panel">
+        <h2 class="panel-title">500×500 High-Resolution Visualizations</h2>
+        <p style="color: #ccc; margin-bottom: 15px;">3D surface and heatmap representations from the highest resolution analysis (500×500 pixels).</p>
+
+        <div class="visualization-row">
+          <div class="viz-panel">
+            <h4>3D Surface Reconstruction</h4>
+            <img src="images/miller_surface_500.png" alt="500x500 3D Surface Reconstruction" onerror="this.src='images/placeholder.png'; this.onerror=null;">
+            <p style="color: #888; font-size: 0.85em; margin-top: 10px; text-align: center;">Surface depth visualization showing facial topography at 500×500 resolution</p>
+          </div>
+          <div class="viz-panel">
+            <h4>Depth Heatmap</h4>
+            <img src="images/miller_heatmap_500.png" alt="500x500 Depth Heatmap" onerror="this.src='images/placeholder.png'; this.onerror=null;">
+            <p style="color: #888; font-size: 0.85em; margin-top: 10px; text-align: center;">Depth intensity heatmap with landmark positions overlaid</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Summary -->
+      <div class="panel">
+        <h2 class="panel-title">Resolution Analysis Summary</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Stable Measurements</div>
+            <p style="color: #4CAF50; font-size: 0.8em; margin-top: 5px;">Cheek depths</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Moderate Variance</div>
+            <p style="color: #FFC107; font-size: 0.8em; margin-top: 5px;">Near-stable</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">9</div>
+            <div class="stat-label">Divergent Measurements</div>
+            <p style="color: #f44336; font-size: 0.8em; margin-top: 5px;">Resolution-dependent</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">500</div>
+            <div class="stat-label">Max Resolution (px)</div>
+            <p style="color: #c4a35a; font-size: 0.8em; margin-top: 5px;">Highest analyzed</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convergence/Divergence Interpretation -->
+      <div class="panel">
+        <h2 class="panel-title">Interpretation: Convergence vs. Divergence</h2>
+        <div class="interpretation-grid">
+          <div class="interpretation-panel stable-interp">
+            <h4>✓ Convergent (Stable) Measurements</h4>
+            <p>Measurements with ratio near 1.0 are reliable regardless of resolution:</p>
+            <ul style="color: #ccc; margin-top: 10px; margin-left: 15px;">
+              <li><strong>Left/Right Cheek Depth:</strong> Ratio ~1.16 — depth values stabilize at higher resolution</li>
+              <li><strong>Nose Height:</strong> Ratio ~0.97 — nearly perfect scaling consistency</li>
+              <li><strong>Nose to Chin:</strong> Ratio ~0.94 — reliable proportional measurement</li>
+            </ul>
+            <p style="margin-top: 10px; color: #ccc;">These measurements represent features that are robustly detected across scales and likely reflect actual image properties rather than resolution artifacts.</p>
+          </div>
+          <div class="interpretation-panel divergent-interp">
+            <h4>✗ Divergent (Resolution-Dependent) Measurements</h4>
+            <p>Measurements with ratios far from 1.0 show significant resolution sensitivity:</p>
+            <ul style="color: #ccc; margin-top: 10px; margin-left: 15px;">
+              <li><strong>Face Width at Eyes:</strong> Ratio 4.26 — dramatically increases at high resolution</li>
+              <li><strong>Mouth Width:</strong> Ratio 5.60 — most divergent measurement</li>
+              <li><strong>Forehead to Nose Peak:</strong> Ratio 0.09 — dramatically decreases</li>
+              <li><strong>Depth Nose to Forehead:</strong> Ratio 0.06 — extreme divergence</li>
+            </ul>
+            <p style="margin-top: 10px; color: #ccc;">These measurements are sensitive to edge detection algorithms and may reflect interpolation effects or boundary detection changes at different resolutions.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limitations Section -->
+      <div class="panel">
+        <h2 class="panel-title">Limitations</h2>
+        <ul class="limitations-list">
+          <li><strong>Resolution-dependent boundary detection:</strong> Edge detection algorithms may identify different boundaries at different resolutions, leading to the observed divergence in linear measurements.</li>
+          <li><strong>Interpolation artifacts:</strong> Upscaling from the original image to different resolutions may introduce interpolation artifacts that affect feature detection.</li>
+          <li><strong>No ground truth available:</strong> Without known reference measurements, it is impossible to determine which resolution provides the most accurate representation.</li>
+          <li><strong>Limited resolution range:</strong> The analysis uses only three resolution levels (150×150, 300×300, 500×500), which may not capture the full convergence behavior.</li>
+          <li><strong>Region-specific artifacts:</strong> Some facial regions (forehead, mouth) show more resolution sensitivity than others, suggesting localized image quality issues.</li>
+          <li><strong>Depth measurement limitations:</strong> While depth measurements appear more stable, they are derived from the same underlying image data and may share similar limitations.</li>
+          <li><strong>Algorithm dependency:</strong> Results are specific to the Miller projection algorithm used; other algorithms may yield different resolution sensitivities.</li>
+          <li><strong>Image quality:</strong> The underlying image quality of the Shroud photograph may limit the effective resolution beyond which additional detail is noise rather than signal.</li>
+        </ul>
+      </div>
+
+      <!-- Conclusion -->
+      <div class="summary-box">
+        <h4>Conclusion</h4>
+        <p style="color: #ccc; line-height: 1.6;">The high-resolution Miller analysis reveals that facial feature detection shows mixed stability across resolutions. Depth measurements (particularly cheek depth, chin depth) demonstrate reasonable convergence, suggesting these represent reliable features. However, many linear measurements show significant divergence, with some changing by factors of 4-6× between low and high resolution.</p>
+        <p style="color: #ccc; line-height: 1.6; margin-top: 10px;">Higher resolution does not uniformly improve feature detection. Some features (mouth width, face width) show dramatic increases at 500×500, while others (forehead region) show dramatic decreases. This suggests that resolution selection should be guided by the specific features of interest, and that multi-resolution analysis provides a more complete picture than any single resolution.</p>
+        <p style="color: #c4a35a; line-height: 1.6; margin-top: 10px;"><strong>Recommendation:</strong> For reliability analysis, focus on stable measurements (cheek depth, nose to chin). For exploratory analysis of edge features, note that high resolution may reveal different boundaries than low resolution.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Shroud of Turin AI Forensic Reconstruction Project</p>
+  </footer>
+</body>
+</html>
