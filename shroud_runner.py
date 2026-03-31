@@ -16,12 +16,20 @@ Task queue format (tasks.json):
 [
   {
     "task": "Description of what to do",
-    "type": "compute|write|publish",
+    "type": "compute|write",
     "status": "pending|running|done|failed",
     "output_files": [],
+    "results_json": null,        // compute tasks: path to structured JSON output
+    "data_source": null,         // write tasks: path to JSON from a compute task
     "error": null
   }
 ]
+
+Safeguards:
+- Compute tasks MUST produce a JSON results file in output/task_results/.
+- Write tasks MUST reference a data_source JSON — no JSON, no page generated.
+- No auto-commit, no auto-push. Publishing is manual.
+- The "publish" task type has been removed.
 """
 
 import json
@@ -45,6 +53,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 TASKS_FILE = PROJECT_ROOT / "tasks.json"
 MARATHON_LOG = PROJECT_ROOT / "marathon_log.md"
 OUTPUT_DIR = PROJECT_ROOT / "output"
+RESULTS_DIR = OUTPUT_DIR / "task_results"
 DOCS_DIR = PROJECT_ROOT / "docs"
 SRC_DIR = PROJECT_ROOT / "src"
 VENV_PYTHON = PROJECT_ROOT / "venv" / "Scripts" / "python.exe"
@@ -77,7 +86,17 @@ Rules:
 - Save figures to both output/analysis/ and docs/images/
 - When writing HTML, use <link rel="stylesheet" href="css/style.css">
 - Navigation must include all 14 pages (see nav template below)
-- Print all numeric findings to stdout so they can be captured
+
+COMPUTE TASKS — JSON output is mandatory:
+- At the end of every Python script, collect ALL numeric findings into a dict.
+- Write the dict as JSON to the path specified in the prompt.
+- Include an 'image_files' key listing every image path saved (relative to project root).
+
+WRITE TASKS — data integrity rules:
+- You will receive verified JSON data in the prompt. Use ONLY those numbers.
+- Do NOT fabricate quotes from researchers, papers, or any other source.
+- Do NOT make authenticity claims about the Shroud of Turin.
+- Do NOT invent data that is not in the provided JSON.
 
 When asked to write Python: output ONLY the complete Python script, no markdown fences.
 When asked to write HTML: output ONLY the complete HTML file, no markdown fences.
@@ -158,34 +177,53 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
 # Task execution
 # ---------------------------------------------------------------------------
 def extract_code(text: str, lang: str = "python") -> str:
-    """Extract code from MiniMax response. Strips think blocks and markdown fences."""
-    # Strip <think>...</think> blocks (MiniMax reasoning)
+    """Extract code from MiniMax response.
+
+    Strips <think> blocks, markdown fences, and any prose/reasoning that
+    appears before the first real code line.  MiniMax sometimes emits
+    reasoning as plain text (no <think> tags), so we can't rely on tag
+    matching alone — we scan for the first line that looks like actual
+    code and discard everything above it.
+    """
+    # 1. Strip explicit <think>...</think> blocks
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
     text = text.strip()
 
-    # Try to find fenced code block (```python ... ``` or ``` ... ```)
+    # 2. Try to find fenced code block (```python ... ``` or ``` ... ```)
     pattern = rf"```{lang}?\s*\n(.*?)```"
     match = re.search(pattern, text, re.DOTALL)
     if match:
         return match.group(1).strip()
 
-    # Try generic fenced block
     match = re.search(r"```\s*\n(.*?)```", text, re.DOTALL)
     if match:
         return match.group(1).strip()
 
-    # Find the first line that looks like Python code (import, #!, def, class, from)
+    # 3. Find the first line that is unambiguously code, not prose.
+    #    Covers Python (import/from/def/class/#!) and HTML (<!DOCTYPE/<html).
+    _CODE_START = re.compile(
+        r"^("
+        r"import\s|from\s|def\s|class\s"
+        r"|#!|#!/"
+        r"|<!DOCTYPE|<html"
+        r"|'\"'\"'\"'|\"\"\"|\'\'\'"  # docstrings
+        r"|#\s"                        # Python comments
+        r")",
+    )
     lines = text.split("\n")
-    start = 0
+    start = None
     for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith(("import ", "from ", "#!", "#!/", "def ", "class ", '"""', "'''", "# ", "import\t")):
+        if _CODE_START.match(line.strip()):
             start = i
             break
-    # Take everything from that line onward
+
+    if start is None:
+        # Fallback: return everything (caller will see the error at runtime)
+        start = 0
+
     code = "\n".join(lines[start:])
 
-    # Strip any trailing markdown fences
+    # 4. Strip any trailing markdown fences
     code = re.sub(r"\n```\s*$", "", code)
     return code.strip()
 
@@ -222,36 +260,6 @@ def run_python_script(script_path: str, timeout: int = 300) -> tuple[int, str, s
     )
     return result.returncode, result.stdout, result.stderr
 
-
-def git_commit_and_push(message: str, files: list[str]) -> bool:
-    """Stage specific files, commit, and push."""
-    try:
-        # Stage files
-        for f in files:
-            subprocess.run(
-                ["git", "add", str(f)],
-                cwd=str(PROJECT_ROOT),
-                capture_output=True,
-                check=True,
-            )
-        # Commit
-        subprocess.run(
-            ["git", "commit", "-m", message],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            check=True,
-        )
-        # Push
-        subprocess.run(
-            ["git", "push"],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            check=True,
-        )
-        return True
-    except subprocess.CalledProcessError as e:
-        log(f"Git error: {e.stderr if hasattr(e, 'stderr') else e}")
-        return False
 
 
 # ---------------------------------------------------------------------------
@@ -290,7 +298,17 @@ def log_task_result(task: dict, success: bool, stdout: str = "", stderr: str = "
 # Task handlers by type
 # ---------------------------------------------------------------------------
 def handle_compute_task(task: dict) -> bool:
-    """Generate a Python script via MiniMax, execute it, validate outputs."""
+    """Generate a Python script via MiniMax, execute it, validate outputs.
+
+    The generated script MUST write a structured JSON results file to
+    output/task_results/<slug>_results.json containing all numeric
+    findings.  Write-type tasks consume this JSON downstream — if the
+    JSON is missing or malformed, the pipeline stops here.
+    """
+    slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
+    results_json = RESULTS_DIR / f"{slug}_results.json"
+    results_json_rel = results_json.relative_to(PROJECT_ROOT)
+
     prompt = (
         f"CRITICAL: Output ONLY a Python script. No explanations, no numbered lists, "
         f"no prose before or after. Start with imports. The response must be valid "
@@ -300,10 +318,17 @@ def handle_compute_task(task: dict) -> bool:
         f"Requirements:\n"
         f"- Start with: import matplotlib; matplotlib.use('Agg')\n"
         f"- The script will be saved to src/ and run with the project venv.\n"
-        f"- Print all numeric results to stdout.\n"
         f"- Save figures to both output/analysis/ and docs/images/.\n"
         f"- Use os.makedirs(exist_ok=True) for output directories.\n"
         f"- Dark figure backgrounds (#1a1a1a), gold accent (#c4a35a), white text.\n"
+        f"- MANDATORY: At the end of the script, collect ALL numeric findings "
+        f"into a Python dict and write it as JSON to:\n"
+        f"    {results_json_rel}\n"
+        f"  The JSON must be a flat or shallow dict of result_name → value.\n"
+        f"  Also include an 'image_files' key listing every image path the "
+        f"  script saved (relative to project root).\n"
+        f"  Use: json.dump(results, open(r'{results_json}', 'w'), indent=2)\n"
+        f"- Also print the JSON to stdout so it is captured in logs.\n"
         f"- NO markdown fences. NO explanations. ONLY Python code."
     )
 
@@ -311,11 +336,12 @@ def handle_compute_task(task: dict) -> bool:
     response = call_minimax(prompt)
     code = extract_code(response)
 
-    # Determine script filename from task description
-    slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
     script_path = SRC_DIR / f"mm_{slug}.py"
     script_path.write_text(code, encoding="utf-8")
     log(f"Script written to {script_path.name}")
+
+    # Ensure results dir exists
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     # Execute
     log("Executing script...")
@@ -325,35 +351,96 @@ def handle_compute_task(task: dict) -> bool:
         log(f"Output: {stdout.strip()[:200]}")
 
     success = returncode == 0
+
+    # Validate output files
     if success and task.get("output_files"):
         ok, errors = validate_output_files(task["output_files"])
         if not ok:
             log(f"Validation failed: {errors}")
             success = False
 
+    # Validate the mandatory JSON results file
+    if success:
+        if not results_json.exists():
+            log(f"FAIL: Compute task did not produce results JSON at {results_json_rel}")
+            success = False
+        else:
+            try:
+                results_data = json.loads(results_json.read_text(encoding="utf-8"))
+                if not isinstance(results_data, dict):
+                    raise ValueError("Top-level value must be a JSON object")
+                log(f"Results JSON validated: {len(results_data)} keys")
+            except (json.JSONDecodeError, ValueError) as e:
+                log(f"FAIL: Results JSON is malformed: {e}")
+                success = False
+
     task["status"] = "done" if success else "failed"
+    task["results_json"] = str(results_json_rel) if success else None
     if not success:
         task["error"] = (stderr or stdout)[:500]
 
     log_task_result(task, success, stdout, stderr)
-
-    # Auto-commit if passed
-    if success:
-        files_to_commit = [str(script_path)]
-        if task.get("output_files"):
-            files_to_commit.extend(task["output_files"])
-        git_commit_and_push(
-            f"[auto] {task['task'][:60]}",
-            files_to_commit,
-        )
-
     return success
 
 
 def handle_write_task(task: dict) -> bool:
-    """Generate a file (HTML, markdown, etc.) via MiniMax and save it."""
-    # Determine output path from task description
-    # Look for explicit file paths in the task
+    """Generate a file (HTML, markdown, etc.) via MiniMax, using ONLY
+    verified JSON data from a prior compute task.
+
+    The task dict MUST include a ``data_source`` key pointing to a JSON
+    file produced by a compute task (e.g. ``output/task_results/wound_mapping_results.json``).
+    If the file is missing, empty, or malformed, the write task FAILS
+    immediately — MiniMax never sees a prompt and no page is generated.
+    This prevents fabricated data from reaching published pages.
+    """
+    # ------------------------------------------------------------------
+    # 1. Validate the data source
+    # ------------------------------------------------------------------
+    data_source = task.get("data_source")
+    if not data_source:
+        log("FAIL: Write task has no 'data_source' key. "
+            "Every write task must reference a compute-produced JSON file.")
+        task["status"] = "failed"
+        task["error"] = "Missing data_source field"
+        log_task_result(task, False)
+        return False
+
+    json_path = Path(data_source) if os.path.isabs(data_source) else PROJECT_ROOT / data_source
+    if not json_path.exists():
+        log(f"FAIL: Data source not found: {data_source}. "
+            "Run the corresponding compute task first.")
+        task["status"] = "failed"
+        task["error"] = f"data_source not found: {data_source}"
+        log_task_result(task, False)
+        return False
+
+    try:
+        results_data = json.loads(json_path.read_text(encoding="utf-8"))
+        if not isinstance(results_data, dict):
+            raise ValueError("Top-level value must be a JSON object")
+    except (json.JSONDecodeError, ValueError) as e:
+        log(f"FAIL: Data source is malformed JSON: {e}")
+        task["status"] = "failed"
+        task["error"] = f"Malformed data_source: {e}"
+        log_task_result(task, False)
+        return False
+
+    log(f"Data source validated: {data_source} ({len(results_data)} keys)")
+
+    # Verify that image files listed in the results actually exist
+    image_files = results_data.get("image_files", [])
+    missing_images = []
+    for img in image_files:
+        img_path = Path(img) if os.path.isabs(img) else PROJECT_ROOT / img
+        if not img_path.exists():
+            missing_images.append(img)
+    if missing_images:
+        log(f"WARNING: {len(missing_images)} images referenced in JSON not found: "
+            f"{missing_images[:5]}")
+
+    # ------------------------------------------------------------------
+    # 2. Determine output path
+    # ------------------------------------------------------------------
     path_match = re.search(r"(docs/\S+\.html|docs/\S+\.md|src/\S+\.py)", task["task"])
     if path_match:
         output_path = PROJECT_ROOT / path_match.group(1)
@@ -361,10 +448,27 @@ def handle_write_task(task: dict) -> bool:
         slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
         output_path = DOCS_DIR / f"mm_{slug}.html"
 
+    # ------------------------------------------------------------------
+    # 3. Send to MiniMax with the verified data inlined
+    # ------------------------------------------------------------------
+    # Truncate very large JSON to stay within token limits
+    data_str = json.dumps(results_data, indent=2)
+    if len(data_str) > 6000:
+        data_str = data_str[:6000] + "\n... (truncated)"
+
     prompt = (
         f"Write the complete file content for the following task.\n\n"
         f"TASK: {task['task']}\n\n"
         f"Output path: {output_path.relative_to(PROJECT_ROOT)}\n\n"
+        f"VERIFIED DATA (use ONLY these numbers and image paths — do not "
+        f"invent additional data, quotes, or claims):\n"
+        f"```json\n{data_str}\n```\n\n"
+        f"STRICT RULES:\n"
+        f"- Use ONLY the numeric values from the JSON above.\n"
+        f"- Do NOT fabricate quotes from researchers or papers.\n"
+        f"- Do NOT make authenticity claims about the Shroud.\n"
+        f"- Do NOT add data that is not in the JSON.\n"
+        f"- Image paths: use ONLY images listed in the JSON 'image_files' key.\n\n"
         f"NAVIGATION TEMPLATE (use this exact nav in every HTML page):\n"
         f"{NAV_TEMPLATE}\n\n"
         f"Mark the appropriate page as class=\"active\" in the nav."
@@ -373,11 +477,8 @@ def handle_write_task(task: dict) -> bool:
     log(f"Sending write task to MiniMax: {task['task'][:60]}...")
     response = call_minimax(prompt, max_tokens=16384)
 
-    # Strip <think> blocks and markdown fences
-    content = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
-    if content.startswith("```"):
-        content = re.sub(r"^```\w*\n", "", content)
-        content = re.sub(r"\n```$", "", content)
+    # Strip think blocks / prose preamble / markdown fences
+    content = extract_code(response, lang="html")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content, encoding="utf-8")
@@ -387,64 +488,13 @@ def handle_write_task(task: dict) -> bool:
     task["output_files"] = [str(output_path.relative_to(PROJECT_ROOT))]
 
     log_task_result(task, True)
-
-    # Auto-commit
-    git_commit_and_push(
-        f"[auto] {task['task'][:60]}",
-        [str(output_path)],
-    )
+    # No auto-push — publishing is manual
     return True
-
-
-def handle_publish_task(task: dict) -> bool:
-    """Commit all pending changes and push."""
-    log("Running publish task: staging all docs/ changes...")
-    try:
-        subprocess.run(
-            ["git", "add", "docs/"],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            check=True,
-        )
-        # Check if there's anything to commit
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--quiet"],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-        )
-        if result.returncode == 0:
-            log("Nothing to commit.")
-            task["status"] = "done"
-            return True
-
-        subprocess.run(
-            ["git", "commit", "-m", f"[auto] {task['task'][:60]}"],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            check=True,
-        )
-        subprocess.run(
-            ["git", "push"],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            check=True,
-        )
-        task["status"] = "done"
-        log("Published successfully.")
-        log_task_result(task, True)
-        return True
-    except subprocess.CalledProcessError as e:
-        task["status"] = "failed"
-        task["error"] = str(e)[:300]
-        log(f"Publish failed: {e}")
-        log_task_result(task, False, stderr=str(e))
-        return False
 
 
 HANDLERS = {
     "compute": handle_compute_task,
     "write": handle_write_task,
-    "publish": handle_publish_task,
 }
 
 

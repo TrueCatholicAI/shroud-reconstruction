@@ -18,13 +18,6 @@
     "error": null
   },
   {
-    "task": "Push all current changes in docs/ and output/ to git remote",
-    "type": "publish",
-    "status": "done",
-    "output_files": [],
-    "error": null
-  },
-  {
     "task": "Write a Python script (src/wound_mapping_analysis.py) that loads the Enrie depth map from data/processed/depth_map_smooth_15.npy, resizes to 150x150 with cv2.resize INTER_AREA. Creates an asymmetry map by computing (original - horizontally flipped). Normalizes by depth range. Measures: left cheekbone region (rows 55-75, cols 25-55) mean asymmetry, nasal region (rows 50-80, cols 65-85) deviation, brow ridge asymmetry (rows 35-50, left cols 20-50 vs right cols 100-130). Computes overall asymmetry index (mean |asymmetry| / mean depth). Generates: wound_analysis_overview.png (2x2: original, mirrored, raw asymmetry RdBu_r, thresholded >1std), wound_analysis_3d.png (3D surface with asymmetry facecolors), wound_analysis_annotated.png (asymmetry map with labeled regions and arrows). Save to output/analysis/ and docs/images/. Print all numeric findings.",
     "type": "compute",
     "status": "done",
@@ -120,13 +113,6 @@
     "output_files": [
       "docs\\video\\shroud-reconstruction-script.md"
     ],
-    "error": null
-  },
-  {
-    "task": "Push all changes in docs/, src/, and output/ to git remote",
-    "type": "publish",
-    "status": "done",
-    "output_files": [],
     "error": null
   }
 ]
