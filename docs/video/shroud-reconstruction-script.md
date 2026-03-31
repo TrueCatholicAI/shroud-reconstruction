@@ -1,26 +1,3 @@
-<think>
-The user wants me to write a complete markdown video script for a YouTube Shorts/TikTok video about the Shroud of Turin AI forensic reconstruction project. Let me create a detailed script following all the specifications.
-
-The script should include:
-1. HOOK (0:00-0:12) - VP-8 discovery + 3D face reveal
-2. THE PIPELINE (0:12-0:45) - depth extraction + landmarks + measurements
-3. THE AI TEST (0:45-1:20) - MiDaS failure, Depth Anything V2 failure
-4. CROSS-VALIDATION (1:20-1:50) - Enrie 1931 vs Miller 1978 comparison
-5. THE RECONSTRUCTION (1:50-2:30) - clay/sandstone/marble renders, healed face, full body
-6. THE CLOSE (2:30-3:00) - doesn't prove authenticity, open source, link to site
-
-I need to include:
-- [VISUAL: ...] tags for every shot
-- Suggested caption with hashtags
-- Cuts timing table with timestamps and durations
-- Measured, factual tone
-- Music suggestion: low ambient pad
-
-The output should be markdown content only, saved to docs/video/shroud-reconstruction-script.md
-
-Let me write this script:
-</think>
-
 # Shroud of Turin AI Forensic Reconstruction
 ## YouTube Shorts / TikTok Video Script
 

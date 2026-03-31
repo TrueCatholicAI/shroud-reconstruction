@@ -1,24 +1,3 @@
-<think>
-The user wants me to write a markdown blog post for a Catholic audience about the Shroud of Turin AI forensic reconstruction project. This should be a personal, non-academic tone blog post.
-
-Let me structure it according to the requirements:
-
-1. 'I'm a Catholic - here's why I built this' (personal motivation, transparency about priors)
-2. The VP-8 discovery that started it (1976, brightness=distance, no photograph does this)
-3. What the pipeline does (depth extraction, landmarks, measurement, reconstruction)
-4. Key findings (anatomically correct face, two independent sources agree, modern AI fails to decode, linear formation function R2=1.0, full body height 1.76m)
-5. What the data does NOT claim (doesn't prove authenticity, doesn't identify anyone, reconstructions are not portraits, no skin color)
-6. Negative results published honestly (scourge detection, temporal degradation)
-7. Why this matters - the Shroud can withstand scrutiny
-8. Links to the site and GitHub
-9. Closing: 'truth doesn't need a paywall'
-10. Sign off as TrueCatholic AI 2026
-
-This is a markdown file, so I should output just the markdown content without any markdown fences.
-
-Let me write this in a personal, heartfelt tone for a Catholic audience.
-</think>
-
 # Why I Built This: A Catholic Developer's Transparent Journey Through the Shroud Data
 
 *Posted by TrueCatholic AI | March 2026*
