@@ -2,17 +2,19 @@
 """
 Shroud Reconstruction Task Orchestrator
 ========================================
-Reads tasks from tasks.json, sends each to MiniMax M2.7 for code generation,
-executes the output in a sandboxed subprocess, validates results, and
-auto-commits passing work.
+Fully autonomous MiniMax M2.7 pipeline. Reads a task JSON file, calls the
+MiniMax API for code/content generation, executes the output, validates
+results, auto-commits, and optionally pushes.  Designed to run unattended
+from a terminal — no Claude Code required.
 
 Usage:
-    python shroud_runner.py                  # Run all pending tasks
-    python shroud_runner.py --dry-run        # Show what would run without executing
-    python shroud_runner.py --task 0         # Run only task at index 0
-    python shroud_runner.py --retry-failed   # Re-run tasks marked "failed"
+    python shroud_runner.py                       # Run all pending tasks, commit+push
+    python shroud_runner.py --dry-run             # Run all tasks but skip git push
+    python shroud_runner.py --task 0              # Run only task at index 0
+    python shroud_runner.py --retry-failed        # Re-run tasks marked "failed"
+    python shroud_runner.py --tasks wave7.json    # Use a different task file
 
-Task queue format (tasks.json):
+Task queue format:
 [
   {
     "task": "Description of what to do",
@@ -28,8 +30,10 @@ Task queue format (tasks.json):
 Safeguards:
 - Compute tasks MUST produce a JSON results file in output/task_results/.
 - Write tasks MUST reference a data_source JSON — no JSON, no page generated.
-- No auto-commit, no auto-push. Publishing is manual.
-- The "publish" task type has been removed.
+- Every task is wrapped in try/except — one failure never crashes the run.
+- Missing pip packages are auto-installed before script execution.
+- Git push failures are caught and logged, never fatal.
+- Full run summary saved to output/runner_summary.json.
 """
 
 import json
@@ -37,7 +41,7 @@ import os
 import sys
 import subprocess
 import time
-import hashlib
+import traceback
 import argparse
 import re
 from datetime import datetime
@@ -50,20 +54,27 @@ from dotenv import load_dotenv
 # Config
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent
-TASKS_FILE = PROJECT_ROOT / "tasks.json"
 MARATHON_LOG = PROJECT_ROOT / "marathon_log.md"
 OUTPUT_DIR = PROJECT_ROOT / "output"
 RESULTS_DIR = OUTPUT_DIR / "task_results"
+ERROR_LOG = OUTPUT_DIR / "runner_errors.log"
+SUMMARY_JSON = OUTPUT_DIR / "runner_summary.json"
 DOCS_DIR = PROJECT_ROOT / "docs"
 SRC_DIR = PROJECT_ROOT / "src"
 VENV_PYTHON = PROJECT_ROOT / "venv" / "Scripts" / "python.exe"
+VENV_PIP = PROJECT_ROOT / "venv" / "Scripts" / "pip.exe"
 
 load_dotenv(PROJECT_ROOT / ".env")
 MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY", "")
 MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2"
 MINIMAX_MODEL = "MiniMax-M2.7"
 
-# System prompt that gives MiniMax context about the project
+# Runtime counters
+_tokens_used = {"prompt": 0, "completion": 0}
+_files_created: list[str] = []
+_errors: list[dict] = []
+
+# System prompt
 SYSTEM_PROMPT = """You are a code generation assistant for the Shroud of Turin AI Forensic Reconstruction project.
 
 Project structure:
@@ -73,19 +84,15 @@ Project structure:
 - docs/css/style.css — shared stylesheet
 - output/ — raw script outputs (analysis/, 3d_print/, full_body/, etc.)
 - data/processed/ — depth maps (.npy files)
+- data/final/ — final analysis-ready depth maps
 - data/source/ — original photographs
-
-Key data files:
-- data/processed/depth_map_smooth_15.npy — Enrie 1931 depth map (load with numpy, resize to 150x150)
-- data/source/shroud_full_negatives.jpg — full body image
-- venv/ — Python 3.11 virtual environment with numpy, opencv, matplotlib, scipy, pywt, torch, etc.
+- venv/ — Python 3.11 virtual environment
 
 Rules:
 - Use matplotlib Agg backend (import matplotlib; matplotlib.use('Agg'))
 - Dark figure backgrounds (#1a1a1a), gold accent (#c4a35a), white text
 - Save figures to both output/analysis/ and docs/images/
 - When writing HTML, use <link rel="stylesheet" href="css/style.css">
-- Navigation must include all 14 pages (see nav template below)
 
 COMPUTE TASKS — JSON output is mandatory:
 - At the end of every Python script, collect ALL numeric findings into a dict.
@@ -104,7 +111,7 @@ When asked for any other file: output ONLY the file content.
 
 Always include error handling and print clear status messages."""
 
-# The canonical nav block for all HTML pages
+# Nav template — loaded from fix_nav.py if available, otherwise hardcoded
 NAV_TEMPLATE = """<nav>
   <div class="nav-inner">
     <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
@@ -120,6 +127,13 @@ NAV_TEMPLATE = """<nav>
       <li><a href="distance-function.html">Distance</a></li>
       <li><a href="scourge-analysis.html">Scourge</a></li>
       <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="wound-mapping.html">Wound Mapping</a></li>
+      <li><a href="wavelet-analysis.html">Wavelet</a></li>
+      <li><a href="bilateral-analysis.html">Bilateral</a></li>
+      <li><a href="seed-sweep.html">Seed Sweep</a></li>
+      <li><a href="curvature-analysis.html">Curvature</a></li>
+      <li><a href="sudarium.html">Sudarium</a></li>
+      <li><a href="art-historical.html">Art History</a></li>
       <li><a href="viewer.html">3D Viewer</a></li>
       <li><a href="summary.html">Summary</a></li>
       <li><a href="about.html">About</a></li>
@@ -133,6 +147,7 @@ NAV_TEMPLATE = """<nav>
 # ---------------------------------------------------------------------------
 def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 8192) -> str:
     """Send a prompt to MiniMax M2.7 and return the response text."""
+    global _tokens_used
     if not MINIMAX_API_KEY:
         raise RuntimeError("MINIMAX_API_KEY not set. Check .env file.")
 
@@ -158,7 +173,11 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
     resp.raise_for_status()
     data = resp.json()
 
-    # Check for API-level errors
+    # Track token usage
+    usage = data.get("usage", {})
+    _tokens_used["prompt"] += usage.get("prompt_tokens", 0)
+    _tokens_used["completion"] += usage.get("completion_tokens", 0)
+
     base_resp = data.get("base_resp", {})
     if base_resp.get("status_code", 0) != 0:
         raise RuntimeError(
@@ -166,7 +185,6 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
             f"{base_resp.get('status_msg', 'unknown')}"
         )
 
-    # Extract the assistant's reply
     choices = data.get("choices", [])
     if not choices:
         raise RuntimeError(f"MiniMax returned no choices: {json.dumps(data)[:300]}")
@@ -174,62 +192,109 @@ def call_minimax(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = 819
 
 
 # ---------------------------------------------------------------------------
-# Task execution
+# Code extraction
 # ---------------------------------------------------------------------------
-def extract_code(text: str, lang: str = "python") -> str:
-    """Extract code from MiniMax response.
+_CODE_START_RE = re.compile(
+    r"^("
+    r"import\s|from\s|def\s|class\s"
+    r"|#!|#!/"
+    r"|<!DOCTYPE|<html"
+    r"|\"\"\"|\'\'\'"
+    r"|#\s"
+    r")",
+)
 
-    Strips <think> blocks, markdown fences, and any prose/reasoning that
-    appears before the first real code line.  MiniMax sometimes emits
-    reasoning as plain text (no <think> tags), so we can't rely on tag
-    matching alone — we scan for the first line that looks like actual
-    code and discard everything above it.
-    """
-    # 1. Strip explicit <think>...</think> blocks
+
+def extract_code(text: str, lang: str = "python") -> str:
+    """Extract code from MiniMax response, stripping think blocks and prose."""
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
     text = text.strip()
 
-    # 2. Try to find fenced code block (```python ... ``` or ``` ... ```)
     pattern = rf"```{lang}?\s*\n(.*?)```"
     match = re.search(pattern, text, re.DOTALL)
     if match:
         return match.group(1).strip()
-
     match = re.search(r"```\s*\n(.*?)```", text, re.DOTALL)
     if match:
         return match.group(1).strip()
 
-    # 3. Find the first line that is unambiguously code, not prose.
-    #    Covers Python (import/from/def/class/#!) and HTML (<!DOCTYPE/<html).
-    _CODE_START = re.compile(
-        r"^("
-        r"import\s|from\s|def\s|class\s"
-        r"|#!|#!/"
-        r"|<!DOCTYPE|<html"
-        r"|'\"'\"'\"'|\"\"\"|\'\'\'"  # docstrings
-        r"|#\s"                        # Python comments
-        r")",
-    )
     lines = text.split("\n")
     start = None
     for i, line in enumerate(lines):
-        if _CODE_START.match(line.strip()):
+        if _CODE_START_RE.match(line.strip()):
             start = i
             break
-
     if start is None:
-        # Fallback: return everything (caller will see the error at runtime)
         start = 0
 
     code = "\n".join(lines[start:])
-
-    # 4. Strip any trailing markdown fences
     code = re.sub(r"\n```\s*$", "", code)
     return code.strip()
 
 
+# ---------------------------------------------------------------------------
+# Dependency scanning and auto-install
+# ---------------------------------------------------------------------------
+# Packages that are part of stdlib or known aliases — skip these
+_STDLIB_AND_ALIASES = {
+    "os", "sys", "re", "json", "math", "time", "datetime", "pathlib",
+    "subprocess", "hashlib", "io", "collections", "itertools", "functools",
+    "shutil", "glob", "copy", "traceback", "typing", "abc", "enum",
+    "dataclasses", "argparse", "logging", "csv", "struct", "base64",
+    "urllib", "http", "string", "textwrap", "warnings", "contextlib",
+    "tempfile", "threading", "multiprocessing", "socket", "pickle",
+    # Common pip-name != import-name mappings handled below
+    "cv2", "PIL", "skimage", "sklearn", "yaml", "mpl_toolkits",
+}
+
+_IMPORT_TO_PIP = {
+    "cv2": "opencv-python",
+    "PIL": "Pillow",
+    "skimage": "scikit-image",
+    "sklearn": "scikit-learn",
+    "yaml": "pyyaml",
+    "pywt": "PyWavelets",
+    "dotenv": "python-dotenv",
+}
+
+
+def scan_and_install_deps(code: str) -> list[str]:
+    """Scan code for imports and pip-install anything missing."""
+    installed = []
+    import_re = re.compile(r"^\s*(?:import|from)\s+(\w+)", re.MULTILINE)
+    modules = set(import_re.findall(code))
+
+    for mod in modules:
+        if mod in _STDLIB_AND_ALIASES:
+            continue
+        # Check if importable
+        check = subprocess.run(
+            [str(VENV_PYTHON), "-c", f"import {mod}"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if check.returncode == 0:
+            continue
+
+        pip_name = _IMPORT_TO_PIP.get(mod, mod)
+        log(f"  Auto-installing missing package: {pip_name}")
+        result = subprocess.run(
+            [str(VENV_PIP), "install", pip_name],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode == 0:
+            installed.append(pip_name)
+            log(f"  Installed {pip_name}")
+        else:
+            log(f"  WARNING: Failed to install {pip_name}: {result.stderr[:200]}")
+
+    return installed
+
+
+# ---------------------------------------------------------------------------
+# File validation
+# ---------------------------------------------------------------------------
 def validate_output_files(files: list[str]) -> tuple[bool, list[str]]:
-    """Check that output files exist and aren't empty. Returns (all_ok, errors)."""
+    """Check that output files exist and aren't empty."""
     errors = []
     for f in files:
         p = Path(f) if os.path.isabs(f) else PROJECT_ROOT / f
@@ -238,7 +303,6 @@ def validate_output_files(files: list[str]) -> tuple[bool, list[str]]:
         elif p.stat().st_size == 0:
             errors.append(f"Empty: {f}")
         elif p.suffix.lower() in (".png", ".jpg", ".jpeg"):
-            # Basic image validation: check file header
             with open(p, "rb") as fh:
                 header = fh.read(8)
             if p.suffix.lower() == ".png" and header[:4] != b"\x89PNG":
@@ -249,17 +313,78 @@ def validate_output_files(files: list[str]) -> tuple[bool, list[str]]:
 
 
 def run_python_script(script_path: str, timeout: int = 300) -> tuple[int, str, str]:
-    """Execute a Python script in the project venv. Returns (returncode, stdout, stderr)."""
+    """Execute a Python script in the project venv."""
     result = subprocess.run(
         [str(VENV_PYTHON), str(script_path)],
-        capture_output=True,
-        text=True,
-        timeout=timeout,
+        capture_output=True, text=True, timeout=timeout,
         cwd=str(PROJECT_ROOT),
         env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
     )
     return result.returncode, result.stdout, result.stderr
 
+
+# ---------------------------------------------------------------------------
+# Git operations
+# ---------------------------------------------------------------------------
+def git_add_commit(message: str, files: list[str]) -> bool:
+    """Stage files and commit. Returns True on success."""
+    try:
+        for f in files:
+            subprocess.run(
+                ["git", "add", str(f)],
+                cwd=str(PROJECT_ROOT), capture_output=True, check=True,
+            )
+        # Check if there's anything staged
+        diff = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"],
+            cwd=str(PROJECT_ROOT), capture_output=True,
+        )
+        if diff.returncode == 0:
+            log("  Nothing to commit (no changes)")
+            return True
+        subprocess.run(
+            ["git", "commit", "-m", message],
+            cwd=str(PROJECT_ROOT), capture_output=True, check=True,
+        )
+        log(f"  Committed: {message[:60]}")
+        return True
+    except subprocess.CalledProcessError as e:
+        log(f"  Git commit failed: {e}")
+        return False
+
+
+def git_push() -> bool:
+    """Push to origin. Returns True on success."""
+    try:
+        subprocess.run(
+            ["git", "push"],
+            cwd=str(PROJECT_ROOT), capture_output=True, check=True, timeout=60,
+        )
+        log("  Pushed to origin")
+        return True
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+        log(f"  PUSH FAILED: {e}")
+        _errors.append({
+            "task": "git push",
+            "error": str(e)[:300],
+            "timestamp": datetime.now().isoformat(),
+        })
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Error logging
+# ---------------------------------------------------------------------------
+def log_error(task_desc: str, exc: Exception):
+    """Write full traceback to error log file."""
+    ERROR_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with open(ERROR_LOG, "a", encoding="utf-8") as f:
+        f.write(f"\n{'='*60}\n")
+        f.write(f"Task: {task_desc[:120]}\n")
+        f.write(f"Time: {datetime.now().isoformat()}\n")
+        f.write(f"{'='*60}\n")
+        traceback.print_exc(file=f)
+        f.write("\n")
 
 
 # ---------------------------------------------------------------------------
@@ -270,7 +395,6 @@ def log(message: str):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"[{timestamp}] {message}"
     print(line)
-
     with open(MARATHON_LOG, "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
@@ -285,26 +409,17 @@ def log_task_result(task: dict, success: bool, stdout: str = "", stderr: str = "
         if task.get("output_files"):
             f.write(f"- **Output:** {', '.join(task['output_files'])}\n")
         if stdout.strip():
-            # Truncate long output
-            short = stdout.strip()[:500]
-            f.write(f"- **Stdout:**\n```\n{short}\n```\n")
+            f.write(f"- **Stdout:**\n```\n{stdout.strip()[:500]}\n```\n")
         if stderr.strip() and not success:
-            short = stderr.strip()[:300]
-            f.write(f"- **Stderr:**\n```\n{short}\n```\n")
+            f.write(f"- **Stderr:**\n```\n{stderr.strip()[:300]}\n```\n")
         f.write("\n")
 
 
 # ---------------------------------------------------------------------------
-# Task handlers by type
+# Task handlers
 # ---------------------------------------------------------------------------
-def handle_compute_task(task: dict) -> bool:
-    """Generate a Python script via MiniMax, execute it, validate outputs.
-
-    The generated script MUST write a structured JSON results file to
-    output/task_results/<slug>_results.json containing all numeric
-    findings.  Write-type tasks consume this JSON downstream — if the
-    JSON is missing or malformed, the pipeline stops here.
-    """
+def handle_compute_task(task: dict, dry_run: bool = False) -> bool:
+    """Generate a Python script via MiniMax, execute it, validate outputs."""
     slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
     results_json = RESULTS_DIR / f"{slug}_results.json"
     results_json_rel = results_json.relative_to(PROJECT_ROOT)
@@ -324,7 +439,7 @@ def handle_compute_task(task: dict) -> bool:
         f"- MANDATORY: At the end of the script, collect ALL numeric findings "
         f"into a Python dict and write it as JSON to:\n"
         f"    {results_json_rel}\n"
-        f"  The JSON must be a flat or shallow dict of result_name → value.\n"
+        f"  The JSON must be a flat or shallow dict of result_name -> value.\n"
         f"  Also include an 'image_files' key listing every image path the "
         f"  script saved (relative to project root).\n"
         f"  Use: json.dump(results, open(r'{results_json}', 'w'), indent=2)\n"
@@ -338,10 +453,17 @@ def handle_compute_task(task: dict) -> bool:
 
     script_path = SRC_DIR / f"mm_{slug}.py"
     script_path.write_text(code, encoding="utf-8")
+    _files_created.append(str(script_path.relative_to(PROJECT_ROOT)))
     log(f"Script written to {script_path.name}")
 
-    # Ensure results dir exists
+    if dry_run:
+        log("  (dry-run: skipping execution)")
+        task["status"] = "done"
+        return True
+
+    # Auto-install missing deps
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    scan_and_install_deps(code)
 
     # Execute
     log("Executing script...")
@@ -352,14 +474,12 @@ def handle_compute_task(task: dict) -> bool:
 
     success = returncode == 0
 
-    # Validate output files
     if success and task.get("output_files"):
         ok, errors = validate_output_files(task["output_files"])
         if not ok:
             log(f"Validation failed: {errors}")
             success = False
 
-    # Validate the mandatory JSON results file
     if success:
         if not results_json.exists():
             log(f"FAIL: Compute task did not produce results JSON at {results_json_rel}")
@@ -380,26 +500,25 @@ def handle_compute_task(task: dict) -> bool:
         task["error"] = (stderr or stdout)[:500]
 
     log_task_result(task, success, stdout, stderr)
+
+    # Auto-commit compute artifacts
+    if success:
+        commit_files = [str(script_path)]
+        if task.get("output_files"):
+            commit_files.extend(task["output_files"])
+        git_add_commit(
+            f"[runner] compute: {task['task'][:50]}",
+            commit_files,
+        )
+
     return success
 
 
-def handle_write_task(task: dict) -> bool:
-    """Generate a file (HTML, markdown, etc.) via MiniMax, using ONLY
-    verified JSON data from a prior compute task.
-
-    The task dict MUST include a ``data_source`` key pointing to a JSON
-    file produced by a compute task (e.g. ``output/task_results/wound_mapping_results.json``).
-    If the file is missing, empty, or malformed, the write task FAILS
-    immediately — MiniMax never sees a prompt and no page is generated.
-    This prevents fabricated data from reaching published pages.
-    """
-    # ------------------------------------------------------------------
-    # 1. Validate the data source
-    # ------------------------------------------------------------------
+def handle_write_task(task: dict, dry_run: bool = False) -> bool:
+    """Generate a file via MiniMax using ONLY verified JSON data."""
     data_source = task.get("data_source")
     if not data_source:
-        log("FAIL: Write task has no 'data_source' key. "
-            "Every write task must reference a compute-produced JSON file.")
+        log("FAIL: Write task has no 'data_source' key.")
         task["status"] = "failed"
         task["error"] = "Missing data_source field"
         log_task_result(task, False)
@@ -407,8 +526,7 @@ def handle_write_task(task: dict) -> bool:
 
     json_path = Path(data_source) if os.path.isabs(data_source) else PROJECT_ROOT / data_source
     if not json_path.exists():
-        log(f"FAIL: Data source not found: {data_source}. "
-            "Run the corresponding compute task first.")
+        log(f"FAIL: Data source not found: {data_source}")
         task["status"] = "failed"
         task["error"] = f"data_source not found: {data_source}"
         log_task_result(task, False)
@@ -419,7 +537,7 @@ def handle_write_task(task: dict) -> bool:
         if not isinstance(results_data, dict):
             raise ValueError("Top-level value must be a JSON object")
     except (json.JSONDecodeError, ValueError) as e:
-        log(f"FAIL: Data source is malformed JSON: {e}")
+        log(f"FAIL: Data source is malformed: {e}")
         task["status"] = "failed"
         task["error"] = f"Malformed data_source: {e}"
         log_task_result(task, False)
@@ -427,20 +545,12 @@ def handle_write_task(task: dict) -> bool:
 
     log(f"Data source validated: {data_source} ({len(results_data)} keys)")
 
-    # Verify that image files listed in the results actually exist
     image_files = results_data.get("image_files", [])
-    missing_images = []
-    for img in image_files:
-        img_path = Path(img) if os.path.isabs(img) else PROJECT_ROOT / img
-        if not img_path.exists():
-            missing_images.append(img)
-    if missing_images:
-        log(f"WARNING: {len(missing_images)} images referenced in JSON not found: "
-            f"{missing_images[:5]}")
+    missing = [p for p in image_files
+               if not (Path(p) if os.path.isabs(p) else PROJECT_ROOT / p).exists()]
+    if missing:
+        log(f"WARNING: {len(missing)} images missing: {missing[:5]}")
 
-    # ------------------------------------------------------------------
-    # 2. Determine output path
-    # ------------------------------------------------------------------
     path_match = re.search(r"(docs/\S+\.html|docs/\S+\.md|src/\S+\.py)", task["task"])
     if path_match:
         output_path = PROJECT_ROOT / path_match.group(1)
@@ -448,10 +558,6 @@ def handle_write_task(task: dict) -> bool:
         slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
         output_path = DOCS_DIR / f"mm_{slug}.html"
 
-    # ------------------------------------------------------------------
-    # 3. Send to MiniMax with the verified data inlined
-    # ------------------------------------------------------------------
-    # Truncate very large JSON to stay within token limits
     data_str = json.dumps(results_data, indent=2)
     if len(data_str) > 6000:
         data_str = data_str[:6000] + "\n... (truncated)"
@@ -476,19 +582,29 @@ def handle_write_task(task: dict) -> bool:
 
     log(f"Sending write task to MiniMax: {task['task'][:60]}...")
     response = call_minimax(prompt, max_tokens=16384)
-
-    # Strip think blocks / prose preamble / markdown fences
     content = extract_code(response, lang="html")
+
+    if dry_run:
+        log(f"  (dry-run: would write to {output_path.relative_to(PROJECT_ROOT)})")
+        task["status"] = "done"
+        return True
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content, encoding="utf-8")
-    log(f"File written to {output_path.relative_to(PROJECT_ROOT)}")
+    rel = str(output_path.relative_to(PROJECT_ROOT))
+    log(f"File written to {rel}")
+    _files_created.append(rel)
 
     task["status"] = "done"
-    task["output_files"] = [str(output_path.relative_to(PROJECT_ROOT))]
-
+    task["output_files"] = [rel]
     log_task_result(task, True)
-    # No auto-push — publishing is manual
+
+    # Auto-commit
+    git_add_commit(
+        f"[runner] write: {task['task'][:50]}",
+        [str(output_path)],
+    )
+
     return True
 
 
@@ -499,39 +615,46 @@ HANDLERS = {
 
 
 # ---------------------------------------------------------------------------
-# Main loop
+# Task file I/O
 # ---------------------------------------------------------------------------
-def load_tasks() -> list[dict]:
+def load_tasks(tasks_file: Path) -> list[dict]:
     """Load task queue from JSON file."""
-    if not TASKS_FILE.exists():
-        log(f"No {TASKS_FILE.name} found. Creating empty queue.")
-        TASKS_FILE.write_text("[]", encoding="utf-8")
+    if not tasks_file.exists():
+        log(f"No {tasks_file.name} found. Creating empty queue.")
+        tasks_file.write_text("[]", encoding="utf-8")
         return []
-    return json.loads(TASKS_FILE.read_text(encoding="utf-8"))
+    return json.loads(tasks_file.read_text(encoding="utf-8"))
 
 
-def save_tasks(tasks: list[dict]):
+def save_tasks(tasks: list[dict], tasks_file: Path):
     """Save task queue back to JSON."""
-    TASKS_FILE.write_text(
+    tasks_file.write_text(
         json.dumps(tasks, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
 
-def run_tasks(tasks: list[dict], dry_run: bool = False, task_index: int = None):
-    """Execute pending tasks from the queue."""
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+def run_tasks(tasks: list[dict], tasks_file: Path, dry_run: bool = False,
+              task_index: int = None) -> dict:
+    """Execute pending tasks. Returns summary dict."""
+    run_start = time.time()
+
     if task_index is not None:
-        # Run a single task
         if task_index >= len(tasks):
             log(f"Task index {task_index} out of range (have {len(tasks)} tasks)")
-            return
+            return {"attempted": 0, "passed": 0, "failed": 0}
         indices = [task_index]
     else:
-        indices = range(len(tasks))
+        indices = list(range(len(tasks)))
 
     total = len(tasks)
-    done = 0
+    attempted = 0
+    passed = 0
     failed = 0
+    push_ok = True
 
     for i in indices:
         task = tasks[i]
@@ -544,67 +667,146 @@ def run_tasks(tasks: list[dict], dry_run: bool = False, task_index: int = None):
             log(f"Unknown task type: {task_type}")
             task["status"] = "failed"
             task["error"] = f"Unknown type: {task_type}"
+            failed += 1
+            save_tasks(tasks, tasks_file)
             continue
 
         log(f"\n{'='*60}")
         log(f"Task {i+1}/{total}: [{task_type}] {task['task'][:70]}")
         log(f"{'='*60}")
 
-        if dry_run:
-            log("(dry run - skipping execution)")
-            continue
-
         task["status"] = "running"
-        save_tasks(tasks)
+        save_tasks(tasks, tasks_file)
+        attempted += 1
 
         try:
-            success = handler(task)
+            success = handler(task, dry_run=dry_run)
             if success:
-                done += 1
+                passed += 1
             else:
                 failed += 1
+                _errors.append({
+                    "task": task["task"][:120],
+                    "error": task.get("error", "unknown"),
+                    "timestamp": datetime.now().isoformat(),
+                })
         except Exception as e:
-            log(f"Exception: {e}")
+            log(f"EXCEPTION: {e}")
+            log_error(task["task"], e)
             task["status"] = "failed"
             task["error"] = str(e)[:500]
             failed += 1
+            _errors.append({
+                "task": task["task"][:120],
+                "error": str(e)[:300],
+                "traceback": traceback.format_exc()[:500],
+                "timestamp": datetime.now().isoformat(),
+            })
 
-        save_tasks(tasks)
+        save_tasks(tasks, tasks_file)
 
-    log(f"\nComplete. Done: {done}, Failed: {failed}, "
-        f"Remaining: {sum(1 for t in tasks if t.get('status') == 'pending')}")
+    # Git push (unless dry-run)
+    if not dry_run and attempted > 0:
+        log("\nPushing to origin...")
+        push_ok = git_push()
+    elif dry_run:
+        log("\n(dry-run: skipping git push)")
+        push_ok = True
+
+    elapsed = time.time() - run_start
+
+    summary = {
+        "timestamp": datetime.now().isoformat(),
+        "tasks_file": str(tasks_file),
+        "dry_run": dry_run,
+        "attempted": attempted,
+        "passed": passed,
+        "failed": failed,
+        "remaining": sum(1 for t in tasks if t.get("status") == "pending"),
+        "files_created": _files_created.copy(),
+        "files_created_count": len(_files_created),
+        "tokens_prompt": _tokens_used["prompt"],
+        "tokens_completion": _tokens_used["completion"],
+        "tokens_total": _tokens_used["prompt"] + _tokens_used["completion"],
+        "runtime_seconds": round(elapsed, 1),
+        "push_succeeded": push_ok,
+        "errors": _errors.copy(),
+    }
+
+    # Save summary
+    SUMMARY_JSON.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_JSON.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    # Print summary
+    log(f"\n{'='*60}")
+    log("RUN SUMMARY")
+    log(f"{'='*60}")
+    log(f"  Attempted:  {attempted}")
+    log(f"  Passed:     {passed}")
+    log(f"  Failed:     {failed}")
+    log(f"  Files:      {len(_files_created)}")
+    log(f"  Tokens:     {summary['tokens_total']} "
+        f"(prompt: {_tokens_used['prompt']}, completion: {_tokens_used['completion']})")
+    log(f"  Runtime:    {elapsed:.1f}s")
+    if not push_ok:
+        log("  *** PUSH FAILED — run 'git push' manually ***")
+    if _errors:
+        log(f"  Errors:     {len(_errors)}")
+        for err in _errors:
+            log(f"    - {err['task'][:60]}: {err['error'][:80]}")
+    log(f"\nSummary saved to {SUMMARY_JSON.relative_to(PROJECT_ROOT)}")
+
+    return summary
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Shroud Reconstruction Task Runner")
-    parser.add_argument("--dry-run", action="store_true", help="Show tasks without executing")
-    parser.add_argument("--task", type=int, default=None, help="Run a specific task by index")
-    parser.add_argument("--retry-failed", action="store_true", help="Re-run failed tasks")
+    parser = argparse.ArgumentParser(
+        description="Shroud Reconstruction Task Runner — autonomous MiniMax pipeline",
+    )
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Run tasks but skip git push (review before going live)")
+    parser.add_argument("--task", type=int, default=None,
+                        help="Run a specific task by index")
+    parser.add_argument("--retry-failed", action="store_true",
+                        help="Re-run tasks marked 'failed'")
+    parser.add_argument("--tasks", type=str, default="tasks.json",
+                        help="Path to task file (default: tasks.json)")
     args = parser.parse_args()
 
+    tasks_file = Path(args.tasks)
+    if not tasks_file.is_absolute():
+        tasks_file = PROJECT_ROOT / tasks_file
+
     log("\n" + "=" * 60)
-    log("SHROUD RUNNER — MiniMax M2.7 Orchestrator")
+    log("SHROUD RUNNER — MiniMax M2.7 Autonomous Orchestrator")
+    log(f"Tasks file: {tasks_file}")
+    log(f"Dry run: {args.dry_run}")
     log("=" * 60)
 
-    tasks = load_tasks()
+    tasks = load_tasks(tasks_file)
     if not tasks:
-        log("Task queue is empty. Add tasks to tasks.json and re-run.")
+        log("Task queue is empty.")
         return
 
-    # Reset failed tasks if retrying
     if args.retry_failed:
+        reset = 0
         for t in tasks:
             if t.get("status") == "failed":
                 t["status"] = "pending"
                 t.pop("error", None)
-        save_tasks(tasks)
+                reset += 1
+        save_tasks(tasks, tasks_file)
+        log(f"Reset {reset} failed tasks to pending")
 
-    log(f"Loaded {len(tasks)} tasks. "
-        f"Pending: {sum(1 for t in tasks if t.get('status', 'pending') == 'pending')}, "
-        f"Done: {sum(1 for t in tasks if t.get('status') == 'done')}, "
-        f"Failed: {sum(1 for t in tasks if t.get('status') == 'failed')}")
+    pending = sum(1 for t in tasks if t.get("status", "pending") == "pending")
+    done = sum(1 for t in tasks if t.get("status") == "done")
+    log(f"Loaded {len(tasks)} tasks. Pending: {pending}, Done: {done}")
 
-    run_tasks(tasks, dry_run=args.dry_run, task_index=args.task)
+    if pending == 0:
+        log("No pending tasks. Nothing to do.")
+        return
+
+    run_tasks(tasks, tasks_file, dry_run=args.dry_run, task_index=args.task)
 
 
 if __name__ == "__main__":
