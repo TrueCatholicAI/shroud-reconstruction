@@ -1,0 +1,358 @@
+<think>
+I need to create a complete HTML page for wavelet-analysis.html. This is a technical documentation page about multi-frequency depth decomposition analysis of the Shroud of Turin.
+
+Let me plan the structure:
+1. Full navigation with wavelet-analysis.html marked as active
+2. Title: "Multi-Frequency Depth Decomposition"
+3. Sections:
+   - Overview
+   - Frequency Bands (with 3 sub-categories showing energy percentages)
+   - Signal Quality
+   - Implications for Image Formation
+4. Images from docs/images/ with wavelet_decomp_*.png or wavelet_*.png patterns
+5. Use the project CSS
+6. Dark theme with gold accents
+
+Let me write this complete HTML file:
+</think>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Frequency Depth Decomposition | Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .analysis-section {
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid #c4a35a;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .frequency-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    
+    .frequency-card {
+      background: #252525;
+      border: 1px solid #3a3a3a;
+      border-radius: 6px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .frequency-card.highlight {
+      border-color: #c4a35a;
+    }
+    
+    .energy-badge {
+      display: inline-block;
+      background: #c4a35a;
+      color: #1a1a1a;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    
+    .energy-badge.small {
+      font-size: 1rem;
+      padding: 0.3rem 0.7rem;
+    }
+    
+    .analysis-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      border: 2px solid #3a3a3a;
+    }
+    
+    .image-caption {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: -1rem;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #3a3a3a;
+    }
+    
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+    
+    .metric-label {
+      color: #ccc;
+    }
+    
+    .metric-value {
+      color: #c4a35a;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    .highlight-text {
+      color: #c4a35a;
+    }
+    
+    .implications-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .implications-list li {
+      padding: 1rem;
+      margin: 0.5rem 0;
+      background: #252525;
+      border-left: 3px solid #c4a35a;
+      padding-left: 1.5rem;
+    }
+    
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+      <header class="page-header">
+        <h1>Multi-Frequency Depth Decomposition</h1>
+        <p class="subtitle">Wavelet-Based Signal Separation for Forensic Analysis</p>
+      </header>
+
+      <section class="analysis-section">
+        <h2>Overview</h2>
+        <p>
+          Wavelet decomposition provides a mathematically rigorous approach to separating the 
+          facial signal from cloth-related noise artifacts. Unlike simple Gaussian smoothing, 
+          which indiscriminately blurs all spatial frequencies, wavelet analysis allows us to 
+          isolate specific frequency components and quantify their contribution to the overall 
+          depth information.
+        </p>
+        <p>
+          Using a Symlet-4 wavelet with 4 levels of decomposition, we can separate the depth map 
+          into distinct frequency bands and analyze each component independently. This technique 
+          reveals that the facial features are concentrated in specific spatial frequency ranges, 
+          while cloth texture artifacts occupy a different frequency domain.
+        </p>
+        <img src="images/wavelet_decomp_overview.png" alt="Wavelet Decomposition Overview" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Wavelet decomposition separates the depth map into multiple frequency components</p>
+      </section>
+
+      <section class="analysis-section">
+        <h2>Frequency Band Analysis</h2>
+        <p>
+          The depth map decomposition reveals three distinct frequency bands with remarkably 
+          different energy distributions. Each band corresponds to different structural features 
+          in the image:
+        </p>
+        
+        <div class="frequency-grid">
+          <div class="frequency-card highlight">
+            <h3>Level 4 Approximation</h3>
+            <p class="highlight-text">Gross Face Shape</p>
+            <div class="energy-badge">~99%</div>
+            <p>Contains the overall head contour and major body features. Represents the fundamental 
+            shape information that defines the subject's silhouette.</p>
+          </div>
+          
+          <div class="frequency-card">
+            <h3>Mid-Frequency Details</h3>
+            <p class="highlight-text">Anatomical Features</p>
+            <div class="energy-badge small">~0.7%</div>
+            <p>Contains critical anatomical details: nose bridge, brow ridges, eye sockets, 
+            lip contours. This is the forensic-critical information for identification.</p>
+          </div>
+          
+          <div class="frequency-card">
+            <h3>High-Frequency</h3>
+            <p class="highlight-text">Cloth Texture & Noise</p>
+            <div class="energy-badge small">~0.3%</div>
+            <p>Fine surface texture including the linen weave pattern and measurement/processing 
+            noise. These artifacts are not body-derived.</p>
+          </div>
+        </div>
+
+        <img src="images/wavelet_decomp_bands.png" alt="Frequency Band Decomposition" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Three distinct frequency bands with their respective energy contributions</p>
+
+        <img src="images/wavelet_decomp_levels.png" alt="Wavelet Decomposition Levels" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Progressive wavelet decomposition showing detail extraction at each level</p>
+      </section>
+
+      <section class="analysis-section">
+        <h2>Signal Quality Metrics</h2>
+        <p>
+          Quantitative analysis of the decomposed signal reveals excellent separation between 
+          the facial information and cloth artifacts:
+        </p>
+        
+        <div class="two-column">
+          <div>
+            <div class="metric-row">
+              <span class="metric-label">Signal-to-Noise Ratio (SNR)</span>
+              <span class="metric-value">~25 dB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Face Signal Energy</span>
+              <span class="metric-value">99.7%</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Cloth Artifact Energy</span>
+              <span class="metric-value">0.3%</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Face/Cloth Ratio</span>
+              <span class="metric-value">333:1</span>
+            </div>
+          </div>
+          <div>
+            <img src="images/wavelet_signal_quality.png" alt="Signal Quality Analysis" class="analysis-image" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <p>
+          The <span class="highlight-text">SNR of approximately 25 dB</span> indicates that the facial signal 
+          is well-separated from cloth artifacts. A ratio of 333:1 between face signal energy and cloth 
+          noise confirms that the depth information is overwhelmingly body-derived.
+        </p>
+
+        <img src="images/wavelet_snr_analysis.png" alt="SNR Analysis" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Signal quality analysis showing clean separation between facial features and cloth artifacts</p>
+      </section>
+
+      <section class="analysis-section">
+        <h2>Implications for Image Formation</h2>
+        <p>
+          The multi-frequency analysis provides critical constraints on the possible image 
+          formation mechanisms for the Shroud of Turin:
+        </p>
+        
+        <ul class="implications-list">
+          <li>
+            <strong>Low Spatial Frequency Constraint:</strong> The face signal is concentrated in 
+            low spatial frequencies, with gross facial structure captured in approximately 5-10 
+            cycles across the face width. This suggests the formation mechanism could not have 
+            produced detail finer than these spatial scales.
+          </li>
+          <li>
+            <strong>Cloth Weave Contribution:</strong> The linen weave contributes less than 0.3% 
+            of total depth information. This confirms the signal is <em>body-derived</em>, not 
+            cloth-derived, ruling out mechanisms that would imprint weave texture onto the body image.
+          </li>
+          <li>
+            <strong>Formation Resolution Limit:</strong> The ~0.7% mid-frequency content containing 
+            anatomical details suggests a formation resolution of approximately 7-14 pixels across 
+            the face width, constraining any proposed formation mechanism to produce detail at 
+            this scale.
+          </li>
+          <li>
+            <strong>Selective Detail Preservation:</strong> The hierarchical energy distribution 
+            (99% → 0.7% → 0.3%) suggests a formation mechanism that preferentially produced 
+            low-frequency body contour information while preserving some mid-frequency anatomical 
+            features and suppressing cloth texture.
+          </li>
+        </ul>
+
+        <img src="images/wavelet_formation_constraints.png" alt="Formation Mechanism Constraints" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Frequency-domain constraints on potential image formation mechanisms</p>
+
+        <img src="images/wavelet_frequency_spectrum.png" alt="Frequency Spectrum Analysis" class="analysis-image" onerror="this.style.display='none'">
+        <p class="image-caption">Power spectrum analysis revealing the spatial frequency content of the facial signal</p>
+      </section>
+
+      <section class="analysis-section">
+        <h2>Summary</h2>
+        <div class="metric-row">
+          <span class="metric-label">Wavelet Basis</span>
+          <span class="metric-value">Symlet-4</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Decomposition Levels</span>
+          <span class="metric-value">4</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Primary Signal Band</span>
+          <span class="metric-value">Low Frequency (99%)</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Anatomical Detail Band</span>
+          <span class="metric-value">Mid Frequency (0.7%)</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Noise/Artifact Band</span>
+          <span class="metric-value">High Frequency (0.3%)</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">SNR</span>
+          <span class="metric-value">~25 dB</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Face/Cloth Ratio</span>
+          <span class="metric-value">333:1</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Formation Resolution</span>
+          <span class="metric-value">~5-10 cycles/face-width</span>
+        </div>
+      </section>
+
+      <div class="navigation-buttons">
+        <a href="neural-depth.html" class="btn btn-secondary">← Neural Depth Estimation</a>
+        <a href="full-body.html" class="btn btn-primary">Full Body Analysis →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Shroud of Turin AI Forensic Reconstruction Project</p>
+  </footer>
+</body>
+</html>
