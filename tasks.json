@@ -1,50 +1,131 @@
 [
   {
-    "task": "Write a Python script (src/body_proportions.py) that loads the full-body Shroud image from data/source/shroud_full_negatives.jpg, extracts a vertical center-strip depth profile, identifies body landmarks (head top, chin, shoulders, navel, hand crossing at 45% height, knees, feet) using derivative-based peak finding. Calibration: 618px = 1.76m. Compute segment ratios (head/total, torso/total, leg/total) and compare against Vitruvian (1/8 head, golden ratio navel) and modern anthropometric averages. Generate three figures: body_proportions_profile.png (annotated profile), body_proportions_comparison.png (ratio bar chart), body_proportions_figure.png (schematic body diagram). Save to output/analysis/ and docs/images/.",
+    "task": "Write a Python script (src/seed_sweep_miller.py). Load data/source/vernon_miller/34c-Fa-N_0414.jpg as grayscale, resize to 300x300. Apply FFT bandpass: zero frequencies below 5 and above 80 cycles. Loop seeds 0-199: for each seed, compute Lambertian shading with light azimuth = seed*1.8 degrees (0-360), ambient=0.3, diffuse=0.7, clay color RGB(180,175,168). Compute surface normals from depth gradient. Score with cv2.CascadeClassifier(cv2.data.haarcascades + \"haarcascade_frontalface_default.xml\"). Save top 10 to output/seed_sweep/. Generate 2x5 contact sheet - IMPORTANT: when building the contact sheet, use a canvas of exactly 300*5=1500 wide by 300*2=600 tall, and place each 300x300 image at exact grid positions (col*300, row*300). Copy contact sheet to docs/images/miller_seed_sweep_contact.png. Print results table.",
     "type": "compute",
-    "status": "pending",
-    "output_files": ["docs/images/body_proportions_profile.png", "docs/images/body_proportions_comparison.png", "docs/images/body_proportions_figure.png"],
+    "status": "done",
+    "output_files": [
+      "docs/images/miller_seed_sweep_contact.png"
+    ],
     "error": null
   },
   {
-    "task": "Write a complete HTML page at docs/wound-mapping.html for the Shroud wound mapping analysis. Title: 'Computational Wound Mapping'. Include sections: Overview (asymmetry index 0.1879, 43.5% of pixels exceed threshold), Regional Findings (left cheekbone swelling +0.1871, nasal deviation 0.0000, brow asymmetry 0.1882), Medical Literature (cross-reference Zugibe's 'The Crucifixion of Jesus' on left cheek blow, Barbet's 'A Doctor at Calvary' on nasal fracture, Bucklin's forensic report on periorbital swelling), Method (depth map flipping, difference computation, thresholding). Images: wound_mapping_overview.png, wound_mapping_3d.png, wound_mapping_annotated.png. Use the project CSS (css/style.css) and standard 14-page navigation.",
+    "task": "Write a complete HTML page at docs/seed-sweep.html for the Miller seed sweep results. Title: 'Seed Sweep: Miller FFT-Filtered Depth'. Include sections: Method (FFT bandpass 5-80 cycles on 300x300 Miller depth, 200 lighting angle variations, gray clay Lambertian rendering, Haar cascade scoring), Results (top 10 seeds table with scores, contact sheet image), Analysis (which lighting angles produce the most face-like renders, what this tells us about the optimal viewing angle for the depth information). Use the project CSS (css/style.css). Navigation must include ALL existing pages plus this new one. Image: miller_seed_sweep_contact.png.",
     "type": "write",
-    "status": "pending",
-    "output_files": ["docs/wound-mapping.html"],
+    "status": "done",
+    "output_files": [
+      "docs\\seed-sweep.html"
+    ],
     "error": null
   },
   {
-    "task": "Write a complete HTML page at docs/wavelet-analysis.html for the multi-frequency depth analysis. Title: 'Multi-Frequency Depth Decomposition'. Sections: Overview (99% energy in low frequencies, SNR 25.5 dB), Frequency Bands (Level 4 approx = gross face shape at 98.98% energy, mid-freq details at 0.74%, high-freq cloth texture at 0.28%), Implications (face signal is concentrated in low spatial frequencies, constraining the image formation mechanism's spatial resolution to ~5-10 cycles/face-width; cloth weave contributes <0.3% of depth variation). Images: wavelet_bands.png, wavelet_3d_bands.png, wavelet_energy.png, wavelet_profiles.png. Use project CSS and standard nav.",
-    "type": "write",
-    "status": "pending",
-    "output_files": ["docs/wavelet-analysis.html"],
-    "error": null
-  },
-  {
-    "task": "Write a complete HTML page at docs/bilateral-analysis.html for the bilateral wound catalog. Title: 'Bilateral Wound Catalog'. Sections: Method (5 horizontal slices: brow/40, eye/50, cheek/65, mouth/80, jaw/95, +/-3 row averaging, left-right comparison), Findings table (all 5 levels show left-side-dominant swelling, strongest at mouth level max 0.492, cheek mean asymmetry 0.152), Wound Catalog (systematic table: slice level, max asymmetry, location px from center, direction, anatomical interpretation), Clinical Correlation (unilateral left-side trauma pattern consistent with a right-handed assailant striking the left face). Images: bilateral_slices.png, bilateral_catalog.png, bilateral_overlay.png. Use project CSS and standard nav.",
-    "type": "write",
-    "status": "pending",
-    "output_files": ["docs/bilateral-analysis.html"],
-    "error": null
-  },
-  {
-    "task": "Write a complete HTML page section to add to docs/full-body.html for body proportion analysis results. This will be appended. Title section: 'Body Segment Proportions'. Include: ratio comparison table (Shroud vs Vitruvian vs Modern), segment diagram description, key finding that proportions are consistent with a real adult male. Images: body_proportions_profile.png, body_proportions_comparison.png, body_proportions_figure.png.",
-    "type": "write",
-    "status": "pending",
+    "task": "Push all current changes in docs/ and output/ to git remote",
+    "type": "publish",
+    "status": "done",
     "output_files": [],
     "error": null
   },
   {
-    "task": "Generate alt text for all images in docs/images/. For each .png file, write a one-sentence description suitable for an alt attribute. Save the complete mapping as docs/image_alt_text.json with format {filename: alt_text}.",
-    "type": "write",
-    "status": "pending",
-    "output_files": ["docs/image_alt_text.json"],
+    "task": "Write a Python script (src/wound_mapping_analysis.py) that loads the Enrie depth map from data/processed/depth_map_smooth_15.npy, resizes to 150x150 with cv2.resize INTER_AREA. Creates an asymmetry map by computing (original - horizontally flipped). Normalizes by depth range. Measures: left cheekbone region (rows 55-75, cols 25-55) mean asymmetry, nasal region (rows 50-80, cols 65-85) deviation, brow ridge asymmetry (rows 35-50, left cols 20-50 vs right cols 100-130). Computes overall asymmetry index (mean |asymmetry| / mean depth). Generates: wound_analysis_overview.png (2x2: original, mirrored, raw asymmetry RdBu_r, thresholded >1std), wound_analysis_3d.png (3D surface with asymmetry facecolors), wound_analysis_annotated.png (asymmetry map with labeled regions and arrows). Save to output/analysis/ and docs/images/. Print all numeric findings.",
+    "type": "compute",
+    "status": "done",
+    "output_files": [
+      "docs/images/wound_analysis_overview.png",
+      "docs/images/wound_analysis_3d.png",
+      "docs/images/wound_analysis_annotated.png"
+    ],
     "error": null
   },
   {
-    "task": "Push all changes in docs/ to gh-pages",
+    "task": "Write a complete HTML page at docs/wound-mapping.html for the Shroud wound mapping analysis. Title: 'Computational Wound Mapping'. Include sections: Overview (asymmetry method explanation, overall asymmetry index ~0.19, ~43% of pixels exceed 1-std threshold), Regional Findings (left cheekbone swelling: positive asymmetry consistent with a blow to the face; nasal region: deviation indicating possible broken nose; brow ridge: left-right difference indicating periorbital trauma), Medical Literature Cross-Reference (Zugibe 'The Crucifixion of Jesus' - blow to left cheek from a rod, Barbet 'A Doctor at Calvary' - nasal cartilage deviation, Bucklin forensic pathology report - periorbital swelling and infraorbital hematoma), Method (depth map horizontal flip, pixel-wise difference, normalization, regional ROI analysis, 1-std thresholding). Images: wound_analysis_overview.png OR wound_mapping_overview.png (use whichever exists), wound_analysis_3d.png OR wound_mapping_3d.png, wound_analysis_annotated.png OR wound_mapping_annotated.png. Use the project CSS (css/style.css) and include navigation with all site pages.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\wound-mapping.html"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a Python script (src/wavelet_analysis.py). Load data/processed/depth_map_smooth_15.npy, resize to (150,150) with cv2.resize INTER_AREA. Use pywt.wavedec2(depth, \"db4\", level=4). Reconstruct frequency bands: low=level4 approx only (zero all detail coeffs), mid=levels 3-4 details only, high=levels 1-2 details only. Use pywt.waverec2 for reconstruction. Compute energy per band as sum of squared coefficients. Generate 4 PNG files: wavelet_decomp_bands.png (2x3 subplot grid using imshow, inferno colormap), wavelet_decomp_energy.png (bar chart), wavelet_decomp_profiles.png (line plot of row 65 across bands). SKIP the 3D surface plot entirely - do NOT generate wavelet_decomp_3d.png. Save to output/analysis/ and docs/images/. Print energy percentages and SNR in dB.",
+    "type": "compute",
+    "status": "done",
+    "output_files": [
+      "docs/images/wavelet_decomp_bands.png",
+      "docs/images/wavelet_decomp_energy.png",
+      "docs/images/wavelet_decomp_profiles.png"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page at docs/wavelet-analysis.html for the multi-frequency depth decomposition. Title: 'Multi-Frequency Depth Decomposition'. Sections: Overview (wavelet decomposition separates face signal from cloth noise more rigorously than Gaussian smoothing), Frequency Bands (Level 4 approximation captures ~99% energy = gross face shape; mid-frequency details at ~0.7% = anatomical features like nose, brow ridges, eye sockets; high-frequency at ~0.3% = cloth texture and surface noise), Signal Quality (SNR ~25 dB indicates clean facial signal well-separated from cloth artifacts), Implications for Image Formation (face signal concentrated in low spatial frequencies constrains formation mechanism to ~5-10 cycles/face-width resolution; cloth weave contributes less than 0.3% of depth information, confirming the signal is body-derived not cloth-derived). Images: use wavelet_decomp_*.png or wavelet_*.png files (whichever exist in docs/images/). Use project CSS and full site navigation.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\wavelet-analysis.html"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a Python script (src/bilateral_wound_catalog.py) that loads Enrie depth from data/processed/depth_map_smooth_15.npy, resizes to 150x150. Defines 5 horizontal slices: Brow row 40, Eye row 50, Cheek row 65, Mouth row 80, Jaw row 95. For each, averages +/-3 rows, splits at midpoint col 75, flips right half, computes left-minus-right difference. Finds regions where |diff| > 1 std. Generates: bilateral_wound_slices.png (5-row figure: left=depth map with slice line, right=overlaid left red/right blue profiles with shaded divergence), bilateral_wound_catalog.png (heatmap: x=distance from center, y=5 slices, color=RdBu_r asymmetry), bilateral_wound_overlay.png (depth map with red=swelling blue=depression overlay). Save to output/analysis/ and docs/images/. Print wound catalog table: slice, max_asymmetry, location_px, direction, interpretation.",
+    "type": "compute",
+    "status": "done",
+    "output_files": [
+      "docs/images/bilateral_wound_slices.png",
+      "docs/images/bilateral_wound_catalog.png",
+      "docs/images/bilateral_wound_overlay.png"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML page at docs/bilateral-analysis.html for the bilateral wound catalog. Title: 'Bilateral Wound Catalog'. Sections: Method (5 horizontal slices at brow/eye/cheek/mouth/jaw levels, +/-3 row averaging for noise reduction, left-right split at midpoint, profile comparison), Systematic Wound Catalog (HTML table with columns: Anatomical Level, Max Asymmetry, Location from Center, Direction, Clinical Interpretation - all 5 levels show left-side-dominant swelling pattern, strongest at mouth level ~0.49, cheek level mean ~0.15), Clinical Correlation (unilateral left-side trauma pattern consistent with right-handed assailant delivering blows to the left face; direction of asymmetry - positive values indicate raised/swollen tissue, negative indicate depression), Comparison with Medical Literature (pattern matches Zugibe's description of repeated blows to the left side of the face). Images: use bilateral_wound_*.png or bilateral_*.png files (whichever exist). Use project CSS and full navigation.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\bilateral-analysis.html"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a Python script (src/body_proportions_analysis.py) that loads data/source/shroud_full_negatives.jpg, converts to grayscale, extracts vertical center strip (middle 20% of width), averages horizontally to get 1D depth profile. Calibration: total body height = 618px = 1.76m (~2.85mm/px). Uses scipy.signal.find_peaks and gradient analysis to locate: top of head, chin (face-neck valley), shoulders (width maximum ~row 100-130), navel/waist (narrowing ~rows 250-300), hand crossing (known at 45% = ~row 278), knees (depth feature ~rows 400-450), feet (signal end ~row 618). Computes: head/total ratio (Vitruvian=0.125), torso/total (Vitruvian=0.375), leg/total (Vitruvian=0.5), navel position ratio (golden ratio=0.618 from top). Generates: body_props_profile.png (annotated vertical profile with landmark lines), body_props_comparison.png (grouped bar chart: Shroud vs Vitruvian vs Modern), body_props_figure.png (stacked colored rectangle diagram). Save to output/analysis/ and docs/images/. Print all ratios and comparisons.",
+    "type": "compute",
+    "status": "done",
+    "output_files": [
+      "docs/images/body_props_profile.png",
+      "docs/images/body_props_comparison.png",
+      "docs/images/body_props_figure.png"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a complete HTML section to append to docs/full-body.html for body proportion analysis. Add before the closing </main> tag. Section title: 'Body Segment Proportions'. Include: method description (center-strip depth profile, landmark detection, calibration at 618px=1.76m), comparison table (HTML table: Segment Ratio, Shroud Value, Vitruvian Ideal, Modern Average, Within Normal), key findings (proportions consistent with real adult male, not idealized artistic proportions), navel position relative to golden ratio. Images: body_props_profile.png or body_proportions_profile.png, body_props_comparison.png or body_proportions_comparison.png, body_props_figure.png or body_proportions_figure.png. NOTE: This is an APPEND operation - output only the new HTML section, not the full page.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\full-body.html"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a markdown blog post at docs/blog/shroud-project-announcement.md for a Catholic audience. Personal tone, not academic. Structure: 1) 'I'm a Catholic - here's why I built this' (personal motivation, transparency about priors), 2) The VP-8 discovery that started it (1976, brightness=distance, no photograph does this), 3) What the pipeline does (depth extraction, landmarks, measurement, reconstruction), 4) Key findings (anatomically correct face, two independent sources agree, modern AI fails to decode, linear formation function R2=1.0, full body height 1.76m), 5) What the data does NOT claim (doesn't prove authenticity, doesn't identify anyone, reconstructions are not portraits, no skin color), 6) Negative results published honestly (scourge detection, temporal degradation), 7) Why this matters - the Shroud can withstand scrutiny, 8) Links to the site and GitHub. Closing: 'truth doesn't need a paywall'. Sign off as TrueCatholic AI 2026.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\blog\\shroud-project-announcement.md"
+    ],
+    "error": null
+  },
+  {
+    "task": "Write a markdown video script at docs/video/shroud-reconstruction-script.md for a ~3 minute YouTube Shorts/TikTok video. Format: HOOK (0:00-0:12, VP-8 discovery + 3D face reveal), THE PIPELINE (0:12-0:45, depth extraction + landmarks + measurements), THE AI TEST (0:45-1:20, MiDaS failure r=-0.07, Depth Anything V2 failure, neither model can decode), CROSS-VALIDATION (1:20-1:50, Enrie 1931 vs Miller 1978, same results, linear R2=1.000), THE RECONSTRUCTION (1:50-2:30, clay/sandstone/marble renders, healed face, full body 5'9), THE CLOSE (2:30-3:00, doesn't prove authenticity, all code open source, link to site). Include: [VISUAL: ...] tags for every shot, suggested caption with hashtags, and a cuts timing table with timestamps and durations. Tone: measured, factual, not sensational. Music suggestion: low ambient pad.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\video\\shroud-reconstruction-script.md"
+    ],
+    "error": null
+  },
+  {
+    "task": "Push all changes in docs/, src/, and output/ to git remote",
     "type": "publish",
-    "status": "pending",
+    "status": "done",
     "output_files": [],
     "error": null
   }
