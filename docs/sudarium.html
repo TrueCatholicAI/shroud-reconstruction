@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudarium of Oviedo — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="distance-function.html">Distance</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="wound-mapping.html">Wound Mapping</a></li>
+      <li><a href="wavelet-analysis.html">Wavelet</a></li>
+      <li><a href="bilateral-analysis.html">Bilateral</a></li>
+      <li><a href="seed-sweep.html">Seed Sweep</a></li>
+      <li><a href="curvature-analysis.html">Curvature</a></li>
+      <li><a href="sudarium.html" class="active">Sudarium</a></li>
+      <li><a href="art-historical.html">Art History</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="summary.html">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Cross-Reference</p>
+    <h1>Sudarium of Oviedo</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Computational comparison of bloodstain patterns on the Sudarium of Oviedo
+      with the Shroud facial depth map.
+    </p>
+  </div>
+
+  <h2>What is the Sudarium?</h2>
+  <p>
+    The Sudarium of Oviedo is a bloodstained cloth kept in the C&aacute;mara Santa of
+    the Cathedral of Oviedo, Spain. Tradition identifies it as the face cloth mentioned
+    in John 20:7 &mdash; a separate piece from the burial linen. The cloth measures
+    approximately 84&times;53 cm and bears visible bloodstain patterns but no body image.
+  </p>
+  <p>
+    The Sudarium is relevant to this project because if both cloths covered the same face,
+    the bloodstain positions on the Sudarium should correspond to facial features on the
+    Shroud. This is a testable geometric claim.
+  </p>
+
+  <h2>Stain Extraction</h2>
+  <p>
+    Bloodstain regions were extracted from a 4160&times;3120 Wikimedia Commons photograph
+    of the Sudarium using HSV color thresholding (Hue 0&ndash;20 and 160&ndash;180,
+    Saturation 40&ndash;255, Value 30&ndash;200) targeting brownish-red regions on linen.
+    Morphological opening and closing were applied for noise reduction.
+  </p>
+  <p>
+    The extracted stain mask covers <strong>37.21%</strong> of the image area across
+    867 distinct regions.
+  </p>
+
+  <figure>
+    <img src="images/sudarium_stain_extraction.png" alt="Sudarium original photograph, extracted stain mask, and stain overlay">
+    <figcaption>
+      Left: Sudarium photograph from Wikimedia Commons. Center: extracted stain mask
+      (37.21% coverage). Right: stain overlay on original image.
+    </figcaption>
+  </figure>
+
+  <h2>Registration with Shroud Face</h2>
+  <p>
+    The Sudarium stain mask was scaled to 150&times;150 pixels to match the Shroud face
+    depth map. Overlap was computed at eight facial landmark regions (8-pixel radius
+    circular ROIs centered on landmarks from the Shroud depth map).
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Region</th><th>Stain Overlap</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mouth</td><td><strong>98.0%</strong></td></tr>
+      <tr><td>Left cheek</td><td><strong>94.4%</strong></td></tr>
+      <tr><td>Nose</td><td><strong>92.9%</strong></td></tr>
+      <tr><td>Chin</td><td>86.8%</td></tr>
+      <tr><td>Right eye</td><td>77.7%</td></tr>
+      <tr><td>Right cheek</td><td>76.1%</td></tr>
+      <tr><td>Left eye</td><td>61.9%</td></tr>
+      <tr><td>Forehead</td><td>40.1%</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Overall face region stain coverage: <strong>64.8%</strong>.
+  </p>
+
+  <figure>
+    <img src="images/sudarium_registration.png" alt="Side-by-side Shroud depth map, Sudarium stain mask, and registration overlay">
+    <figcaption>
+      Left: Shroud face depth map with landmark positions. Center: Sudarium stain mask
+      (scaled to 150&times;150). Right: registration overlay showing 64.8% face coverage.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/sudarium_overlap_chart.png" alt="Bar chart of stain overlap percentages by facial region">
+    <figcaption>
+      Stain overlap percentage by facial region. Highest overlap at mouth (98.0%),
+      left cheek (94.4%), and nose (92.9%). Lowest at forehead (40.1%).
+    </figcaption>
+  </figure>
+
+  <h2>Limitations</h2>
+  <p>
+    This analysis has significant methodological limitations:
+  </p>
+  <ul>
+    <li><strong>Registration method:</strong> Simple scaling assumes the Sudarium and
+      Shroud face are the same size and orientation. No feature-based alignment,
+      rotation correction, or geometric transformation was applied. A proper registration
+      would require identifying corresponding anatomical features on both cloths.</li>
+    <li><strong>Source photograph:</strong> The Sudarium photograph from Wikimedia Commons
+      may not represent the cloth accurately &mdash; color reproduction, lighting angle,
+      and photographic distortion all affect stain extraction.</li>
+    <li><strong>Color thresholding:</strong> HSV thresholding for brownish-red regions
+      cannot distinguish between blood, oxidation stains, water marks, and other
+      discolorations. The 37.21% coverage likely includes non-blood regions.</li>
+    <li><strong>Scale assumption:</strong> The Sudarium photograph shows the cloth in a
+      display frame. The mapping from photograph coordinates to cloth coordinates
+      to face coordinates involves multiple untested assumptions.</li>
+    <li><strong>Overlap interpretation:</strong> High overlap percentages do not
+      demonstrate that both cloths covered the same face. Any face-sized stain pattern
+      overlaid on a face-shaped target will produce some overlap.</li>
+  </ul>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="wound-mapping.html" class="btn">Wound Mapping</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

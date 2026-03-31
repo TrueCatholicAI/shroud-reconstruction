@@ -34,6 +34,9 @@
       <li><a href="wavelet-analysis.html">Wavelet</a></li>
       <li><a href="bilateral-analysis.html">Bilateral</a></li>
       <li><a href="seed-sweep.html">Seed Sweep</a></li>
+      <li><a href="curvature-analysis.html">Curvature</a></li>
+      <li><a href="sudarium.html">Sudarium</a></li>
+      <li><a href="art-historical.html">Art History</a></li>
       <li><a href="viewer.html">3D Viewer</a></li>
       <li><a href="summary.html">Summary</a></li>
       <li><a href="about.html">About</a></li>
@@ -134,6 +137,57 @@
     &nbsp;&nbsp;
     <a href="reconstruction.html" class="btn">View Reconstructions</a>
   </p>
+
+  <h2>Research Pages</h2>
+  <p style="color:var(--muted);">Full documentation of every analysis in the pipeline.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:1rem;">
+
+    <div>
+      <h3 style="color:var(--gold);">Core Pipeline</h3>
+      <ul style="list-style:none;padding:0;">
+        <li><a href="methodology.html">Methodology</a> &mdash; Depth extraction, landmark detection, measurement pipeline</li>
+        <li><a href="findings.html">Findings</a> &mdash; Craniometric measurements and anatomical proportions</li>
+        <li><a href="reconstruction.html">Reconstruction</a> &mdash; ControlNet depth-constrained facial reconstructions</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="color:var(--gold);">Cross-Validation</h3>
+      <ul style="list-style:none;padding:0;">
+        <li><a href="study2.html">Study 2</a> &mdash; Independent replication with Miller 1978 photograph</li>
+        <li><a href="neural-depth.html">Neural Depth</a> &mdash; MiDaS and Depth Anything V2 fail to decode the image</li>
+        <li><a href="neave-comparison.html">Neave Comparison</a> &mdash; Comparison with Richard Neave&rsquo;s 2001 reconstruction</li>
+        <li><a href="art-historical.html">Art-Historical</a> &mdash; Same geometry across five art period styles</li>
+        <li><a href="sudarium.html">Sudarium</a> &mdash; Sudarium of Oviedo bloodstain cross-reference</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="color:var(--gold);">Extended Analysis</h3>
+      <ul style="list-style:none;padding:0;">
+        <li><a href="full-body.html">Full Body</a> &mdash; Full-body depth extraction and height estimation</li>
+        <li><a href="formation-analysis.html">Formation</a> &mdash; Intensity-distance function and image formation constraints</li>
+        <li><a href="distance-function.html">Distance</a> &mdash; Distance calibration from landmark positions</li>
+        <li><a href="wound-mapping.html">Wound Mapping</a> &mdash; Original vs healed depth difference analysis</li>
+        <li><a href="wavelet-analysis.html">Wavelet</a> &mdash; Multi-frequency depth decomposition (99.8% low-freq)</li>
+        <li><a href="bilateral-analysis.html">Bilateral</a> &mdash; Left-right asymmetry at five anatomical levels</li>
+        <li><a href="curvature-analysis.html">Curvature</a> &mdash; Second-derivative curvature and landmark identification</li>
+        <li><a href="scourge-analysis.html">Scourge</a> &mdash; Scourge mark pattern analysis (negative result)</li>
+        <li><a href="seed-sweep.html">Seed Sweep</a> &mdash; Lighting angle sweep with Haar detection (negative result)</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="color:var(--gold);">Interactive &amp; Reference</h3>
+      <ul style="list-style:none;padding:0;">
+        <li><a href="viewer.html">3D Viewer</a> &mdash; Interactive Three.js depth surface viewer</li>
+        <li><a href="summary.html">Summary</a> &mdash; All findings in one page</li>
+        <li><a href="about.html">About</a> &mdash; Project background, methodology statement, open-source links</li>
+      </ul>
+    </div>
+
+  </div>
 
 </main>
 
