@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilateral Wound Catalog — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="distance-function.html">Distance</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="summary.html">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Forensic Analysis</p>
+    <h1>Bilateral Wound Catalog</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Systematic left&ndash;right comparison at five anatomical levels reveals a
+      consistent asymmetry pattern in the facial depth map.
+    </p>
+  </div>
+
+  <h2>Method</h2>
+  <p>
+    Five horizontal slices were extracted from the 150&times;150 Enrie depth map at
+    landmark y-coordinates: brow (y=32), eyes (y=51), cheeks (y=60), mouth (y=74),
+    and jaw (y=79). Each slice averages &plusmn;3 rows for noise reduction. The profile
+    is split at the midline (x=75), the left half is compared against the horizontally-flipped
+    right half, and the pixel-wise difference is computed. Positive values indicate the
+    left side is higher (more swollen) than the right.
+  </p>
+
+  <h2>Slice Results</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Level</th>
+        <th>Y-Coord</th>
+        <th>Max Asymmetry</th>
+        <th>Location (px from midline)</th>
+        <th>Mean Asymmetry</th>
+        <th>Direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Brow</td>
+        <td>32</td>
+        <td>57.29</td>
+        <td>66</td>
+        <td>21.57</td>
+        <td>Left</td>
+      </tr>
+      <tr>
+        <td>Eyes</td>
+        <td>51</td>
+        <td>56.71</td>
+        <td>31</td>
+        <td>22.04</td>
+        <td>Left</td>
+      </tr>
+      <tr style="background:rgba(196,163,90,0.15);">
+        <td><strong>Cheeks</strong></td>
+        <td>60</td>
+        <td><strong>73.71</strong></td>
+        <td>32</td>
+        <td><strong>30.32</strong></td>
+        <td><strong>Left</strong></td>
+      </tr>
+      <tr>
+        <td>Mouth</td>
+        <td>74</td>
+        <td>67.86</td>
+        <td>34</td>
+        <td>25.66</td>
+        <td>Left</td>
+      </tr>
+      <tr>
+        <td><strong>Jaw</strong></td>
+        <td>79</td>
+        <td><strong>77.57</strong></td>
+        <td>34</td>
+        <td>26.69</td>
+        <td><strong>Left</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    All five levels show left-side dominance. The highest max asymmetry (77.57) is at
+    the jaw, while the highest mean asymmetry (30.32) is at the cheek level.
+  </p>
+
+  <h2>Profile Comparisons</h2>
+
+  <figure>
+    <img src="images/bilateral_slices.png" alt="Five-level bilateral slice comparison showing depth map with slice lines and overlaid left-right profiles">
+    <figcaption>
+      Left column: depth map with horizontal slice positions. Right column: overlaid
+      left (red) and right-flipped (blue) profiles with shaded divergence regions.
+      Red shading indicates where the left side is higher than the right.
+    </figcaption>
+  </figure>
+
+  <h2>Asymmetry Heatmap</h2>
+
+  <figure>
+    <img src="images/bilateral_heatmap.png" alt="Heatmap showing left-right asymmetry across all five anatomical levels">
+    <figcaption>
+      Asymmetry heatmap: x-axis is distance from midline, y-axis is anatomical level.
+      Red indicates left-side swelling, blue indicates right-side swelling.
+      The consistent red dominance across all levels indicates a unilateral pattern.
+    </figcaption>
+  </figure>
+
+  <h2>Wound Overlay</h2>
+
+  <figure>
+    <img src="images/bilateral_overlay.png" alt="Depth map with red-blue asymmetry overlay and slice positions marked">
+    <figcaption>
+      Depth map with asymmetry overlay. Red regions exceed +1&sigma; (left-side swelling),
+      blue regions exceed &minus;1&sigma; (right-side swelling). Gold dashed lines mark
+      the five slice positions.
+    </figcaption>
+  </figure>
+
+  <h2>Interpretation</h2>
+  <p>
+    The consistent left-side dominance across all five anatomical levels suggests a
+    unilateral trauma pattern. The direction of asymmetry &mdash; positive on the left
+    at every level &mdash; is consistent with published descriptions of facial trauma
+    on the Shroud image.
+  </p>
+  <p>
+    The strongest asymmetry concentrates in the mid-to-lower face (cheeks, mouth, jaw),
+    with the jaw showing the single highest asymmetry value (77.57) and the cheeks
+    showing the highest mean asymmetry (30.32).
+  </p>
+
+  <div class="callout">
+    <p class="callout-title">Limitations</p>
+    <p>
+      Bilateral asymmetry in a depth map derived from cloth contact could also reflect
+      asymmetric draping, uneven cloth tension, or positional asymmetry of the body
+      beneath the cloth. The asymmetry pattern alone cannot distinguish between trauma
+      and these alternative explanations without additional evidence.
+    </p>
+  </div>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="wound-mapping.html" class="btn">Wound Mapping</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

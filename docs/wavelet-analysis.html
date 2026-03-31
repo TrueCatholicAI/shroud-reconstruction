@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Frequency Depth Decomposition — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="distance-function.html">Distance</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="summary.html">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Signal Analysis</p>
+    <h1>Multi-Frequency Depth Decomposition</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Wavelet decomposition separates the depth map into frequency bands,
+      revealing how much of the signal is face geometry versus cloth texture.
+    </p>
+  </div>
+
+  <h2>Method</h2>
+  <p>
+    The 150&times;150 Enrie depth map was decomposed using a Symlet-4 (sym4) wavelet
+    at 4 levels via PyWavelets. At each level, the signal splits into a low-frequency
+    approximation and three directional detail coefficient sets (horizontal, vertical, diagonal).
+    Energy is computed as the sum of squared coefficients at each level, normalized to the
+    total coefficient energy.
+  </p>
+
+  <h2>Energy Distribution</h2>
+
+  <table>
+    <thead>
+      <tr><th>Level</th><th>Component</th><th>Energy (%)</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:rgba(196,163,90,0.15);">
+        <td><strong>Level 4</strong></td>
+        <td><strong>Approximation (gross face shape)</strong></td>
+        <td><strong>99.8034%</strong></td>
+      </tr>
+      <tr>
+        <td>Level 4</td>
+        <td>Detail coefficients</td>
+        <td>0.1679%</td>
+      </tr>
+      <tr>
+        <td>Level 3</td>
+        <td>Detail coefficients</td>
+        <td>0.0267%</td>
+      </tr>
+      <tr>
+        <td>Level 2</td>
+        <td>Detail coefficients</td>
+        <td>0.0019%</td>
+      </tr>
+      <tr>
+        <td>Level 1</td>
+        <td>Detail coefficients (highest frequency)</td>
+        <td>0.0001%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Signal-to-Noise Ratio</h2>
+  <p>
+    Defining signal as the Level 3&ndash;4 approximation and detail coefficients, and noise
+    as the Level 1 detail coefficients, the SNR is <strong>59.75 dB</strong>. This indicates
+    an extremely clean facial signal well-separated from high-frequency content.
+  </p>
+
+  <h2>Frequency Band Visualization</h2>
+
+  <figure>
+    <img src="images/wavelet_decomp_bands.png" alt="Wavelet frequency band decomposition showing original depth map and reconstructed low, mid, and high frequency bands">
+    <figcaption>
+      Symlet-4 wavelet decomposition at 4 levels. Top-left: original depth map.
+      Top-center: Level 4 approximation (99.80% of energy). Top-right: mid-frequency detail (L3&ndash;4).
+      Bottom-left: high-frequency detail (L1&ndash;2). Bottom-center/right: Level 4 directional detail coefficients.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/wavelet_energy.png" alt="Bar chart showing energy distribution across decomposition levels">
+    <figcaption>
+      Energy distribution by decomposition level (log scale). The Level 4 approximation
+      contains virtually all signal energy.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/wavelet_profiles.png" alt="Line plot comparing frequency band profiles at row 75">
+    <figcaption>
+      Horizontal profile at row 75 (mid-face) across all frequency bands. The low-frequency
+      band (gold) closely tracks the original signal (white), while mid and high frequency
+      components contribute minimal amplitude.
+    </figcaption>
+  </figure>
+
+  <h2>Interpretation</h2>
+  <p>
+    The face signal dominates the depth map at low spatial frequencies. The Level 4
+    approximation alone captures 99.80% of the total coefficient energy &mdash; this
+    corresponds to the gross geometry of the face (nose ridge, brow, cheeks, chin).
+  </p>
+  <p>
+    Mid-frequency detail (Levels 3&ndash;4, combined 0.19%) encodes finer anatomical
+    features such as the eye sockets and nasal bridge contours. High-frequency content
+    (Levels 1&ndash;2, combined 0.002%) represents cloth weave texture and surface noise.
+  </p>
+  <p>
+    The extremely high SNR (59.75 dB) confirms that the depth information encoded in
+    the Shroud image is overwhelmingly body-derived, not cloth-derived. The cloth weave
+    contributes less than 0.01% of the depth signal energy.
+  </p>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="formation-analysis.html" class="btn">Formation Analysis</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

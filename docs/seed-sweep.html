@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Sweep — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="distance-function.html">Distance</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="summary.html">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Negative Result</p>
+    <h1>Seed Sweep &mdash; Miller FFT-Filtered Depth</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Lambertian clay renders across 100 lighting angles tested against Haar cascade
+      face detection. Result: 0 detections. This is a negative result that informs
+      future methodology.
+    </p>
+  </div>
+
+  <h2>Method</h2>
+  <p>
+    The Miller 300&times;300 depth map was rendered as a Lambertian-shaded gray clay surface
+    (RGB 180, 175, 168; ambient 0.3, diffuse 0.7) at 100 lighting angles spanning 0&ndash;360&deg;
+    azimuth at a fixed 45&deg; elevation. Each render was passed to OpenCV&rsquo;s Haar cascade
+    face detector (<code>haarcascade_frontalface_default.xml</code>, scale factor 1.05,
+    min neighbors 3, min size 50&times;50).
+  </p>
+
+  <h2>Result</h2>
+
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Seeds tested</td>
+        <td>100</td>
+      </tr>
+      <tr style="background:rgba(196,163,90,0.15);">
+        <td><strong>Total Haar detections</strong></td>
+        <td><strong>0</strong></td>
+      </tr>
+      <tr>
+        <td>Detection rate</td>
+        <td>0.0%</td>
+      </tr>
+      <tr>
+        <td>Mean score</td>
+        <td>0.0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p class="callout-title">This is a negative result</p>
+    <p>
+      Zero out of 100 renders produced a Haar cascade face detection. The Haar classifier
+      failed uniformly across all lighting angles. This does not mean the depth map lacks
+      facial information &mdash; it means Haar cascade detection is not an appropriate
+      scoring metric for this type of render.
+    </p>
+  </div>
+
+  <h2>Why Haar Cascade Fails Here</h2>
+  <p>
+    Haar cascade classifiers are trained on photographic images with specific contrast
+    patterns: dark eye sockets against lighter cheeks, shadow under the nose, etc. A
+    Lambertian clay render of a depth map lacks these features:
+  </p>
+  <ul>
+    <li><strong>No texture:</strong> Clay renders produce smooth, uniform surfaces without
+      the skin texture, shadows, and specular highlights that Haar features rely on.</li>
+    <li><strong>No color contrast:</strong> The monochromatic clay material produces gentle
+      shading gradients, not the high-contrast edge patterns Haar cascades detect.</li>
+    <li><strong>Depth vs. appearance:</strong> The depth map encodes geometry, but Haar
+      cascades are trained on appearance. These are fundamentally different domains.</li>
+  </ul>
+
+  <h2>Render Samples</h2>
+
+  <figure>
+    <img src="images/seed_sweep_contact.png" alt="Contact sheet of clay renders at various lighting angles, none producing Haar cascade detections">
+    <figcaption>
+      Sample renders across lighting angles. Despite clearly showing facial geometry to a
+      human observer, none triggered the Haar cascade face detector.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/seed_sweep_scores.png" alt="Bar chart showing Haar detection score of 0.0 across all 100 lighting angles">
+    <figcaption>
+      Haar detection score vs lighting azimuth. All 100 seeds scored 0.0.
+    </figcaption>
+  </figure>
+
+  <h2>Recommended Alternative Approaches</h2>
+  <p>
+    For future work on automated scoring of depth-constrained reconstructions, we
+    recommend exploring:
+  </p>
+  <ul>
+    <li><strong>SSIM against depth map input:</strong> Structural Similarity Index between
+      the rendered image and the input depth map, measuring how faithfully the render
+      preserves the geometric information.</li>
+    <li><strong>Facial landmark detection on renders:</strong> Modern deep-learning-based
+      landmark detectors (e.g. MediaPipe Face Mesh, dlib) are more robust to material
+      and lighting variations than Haar cascades.</li>
+    <li><strong>Manual expert review:</strong> For a dataset of this size (100&ndash;200 renders),
+      structured human evaluation with defined criteria may be more reliable than
+      automated metrics not designed for this domain.</li>
+    <li><strong>Perceptual similarity metrics:</strong> LPIPS or other learned perceptual
+      metrics trained on diverse image types may generalize better to sculptural renders.</li>
+  </ul>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="reconstruction.html" class="btn">Reconstruction</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>

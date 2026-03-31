@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computational Wound Mapping — Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="findings.html">Findings</a></li>
+      <li><a href="reconstruction.html">Reconstruction</a></li>
+      <li><a href="study2.html">Study 2</a></li>
+      <li><a href="neural-depth.html">Neural Depth</a></li>
+      <li><a href="full-body.html">Full Body</a></li>
+      <li><a href="formation-analysis.html">Formation</a></li>
+      <li><a href="distance-function.html">Distance</a></li>
+      <li><a href="scourge-analysis.html">Scourge</a></li>
+      <li><a href="neave-comparison.html">Neave</a></li>
+      <li><a href="viewer.html">3D Viewer</a></li>
+      <li><a href="summary.html">Summary</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-label">Forensic Analysis</p>
+    <h1>Computational Wound Mapping</h1>
+    <p style="color:var(--muted);max-width:620px;">
+      Pixel-wise comparison of the original and computationally-healed depth maps
+      reveals the spatial distribution of facial asymmetry.
+    </p>
+  </div>
+
+  <h2>Method</h2>
+  <p>
+    The original 150&times;150 Enrie depth map is subtracted from the computationally-healed
+    version (which has bilateral symmetry enforced and surface irregularities smoothed).
+    The resulting difference map highlights regions where the original face deviates from
+    its healed reconstruction. Positive values indicate the original is higher (swelling),
+    negative values indicate it is lower (depression).
+  </p>
+
+  <h2>Global Statistics</h2>
+
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Asymmetry index (mean |difference|)</td>
+        <td><strong>10.51</strong></td>
+      </tr>
+      <tr>
+        <td>1&sigma; threshold</td>
+        <td>13.66</td>
+      </tr>
+      <tr>
+        <td>Pixels exceeding threshold</td>
+        <td><strong>28.01%</strong></td>
+      </tr>
+      <tr>
+        <td>Max positive deviation (swelling)</td>
+        <td>+50.0</td>
+      </tr>
+      <tr>
+        <td>Max negative deviation (depression)</td>
+        <td>&minus;51.0</td>
+      </tr>
+      <tr>
+        <td>Mean difference</td>
+        <td>+0.46</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Regional Breakdown</h2>
+
+  <table>
+    <thead>
+      <tr><th>Region</th><th>Mean Diff</th><th>Max</th><th>Min</th><th>Std Dev</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:rgba(196,163,90,0.15);">
+        <td><strong>Left cheek</strong></td>
+        <td><strong>+11.89</strong></td>
+        <td>+32.0</td>
+        <td>&minus;8.0</td>
+        <td>7.74</td>
+      </tr>
+      <tr>
+        <td>Right cheek</td>
+        <td>&minus;10.20</td>
+        <td>+12.0</td>
+        <td>&minus;31.0</td>
+        <td>8.90</td>
+      </tr>
+      <tr>
+        <td>Brow ridge</td>
+        <td>+0.65</td>
+        <td>+32.0</td>
+        <td>&minus;33.0</td>
+        <td>14.81</td>
+      </tr>
+      <tr>
+        <td>Nose</td>
+        <td>+0.38</td>
+        <td>+24.0</td>
+        <td>&minus;23.0</td>
+        <td>10.39</td>
+      </tr>
+      <tr>
+        <td>Mouth</td>
+        <td>+0.61</td>
+        <td>+17.0</td>
+        <td>&minus;18.0</td>
+        <td>7.80</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The asymmetry pattern shows a clear left&ndash;right disparity: the left cheek has a
+    mean positive deviation of +11.89 (swollen relative to the healed reconstruction),
+    while the right cheek has a mean negative deviation of &minus;10.20. The brow ridge,
+    nose, and mouth regions are approximately symmetric (mean differences near zero) but
+    with high variance, indicating localized irregularities.
+  </p>
+  <p>
+    This pattern is consistent with the published medical literature describing facial
+    trauma on the Shroud.
+  </p>
+
+  <h2>Visualizations</h2>
+
+  <figure>
+    <img src="images/wound_overview.png" alt="2x2 panel showing original depth, healed depth, raw difference map, and thresholded difference map">
+    <figcaption>
+      Top-left: original depth map. Top-right: healed depth map. Bottom-left: raw difference
+      (red = original higher, blue = original lower). Bottom-right: thresholded at 1&sigma;
+      (13.66), showing the 28.01% of pixels with significant deviation.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/wound_3d_surface.png" alt="3D surface plot with wound difference coloring">
+    <figcaption>
+      3D surface of the original depth map with face-colors showing the wound difference.
+      Red regions are swollen relative to the healed reconstruction, blue regions are depressed.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <img src="images/wound_annotated.png" alt="Annotated wound map with labeled regions and mean differences">
+    <figcaption>
+      Diverging colormap of the difference with annotated regions of interest. Each region
+      label shows its mean deviation from the healed reconstruction.
+    </figcaption>
+  </figure>
+
+  <h2>Limitations</h2>
+  <p>
+    The asymmetry measured here is the difference between the original depth map and a
+    computationally-healed version. Several factors besides trauma could produce asymmetry
+    in a cloth-contact depth map:
+  </p>
+  <ul>
+    <li><strong>Cloth contact pressure:</strong> Uneven draping or tension in the cloth
+      would produce asymmetric depth readings independent of facial anatomy.</li>
+    <li><strong>Body position:</strong> A slight head tilt or rotation would introduce
+      systematic left&ndash;right differences in cloth-to-body distance.</li>
+    <li><strong>Healing algorithm assumptions:</strong> The healed reconstruction enforces
+      bilateral symmetry and smoothness, which may over-correct natural anatomical
+      asymmetry present in any human face.</li>
+  </ul>
+  <p>
+    The wound mapping data alone cannot distinguish between these explanations. It should
+    be interpreted alongside the bilateral analysis and in the context of the full
+    body imaging characteristics.
+  </p>
+
+  <p style="margin-top:2rem;text-align:center;">
+    <a href="bilateral-analysis.html" class="btn">Bilateral Analysis</a>
+    &nbsp;&nbsp;
+    <a href="methodology.html" class="btn">Read the Methodology</a>
+  </p>
+
+</main>
+
+<footer>
+  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
+  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
+</footer>
+
+</body>
+</html>
