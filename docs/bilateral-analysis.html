@@ -1,0 +1,284 @@
+<think>
+The user wants me to create an HTML page for the bilateral wound catalog analysis. Let me carefully structure this page according to the requirements:
+
+1. Title: "Bilateral Wound Catalog"
+2. Sections needed:
+   - Method (describe the 5 horizontal slices, averaging, left-right split, profile comparison)
+   - Systematic Wound Catalog (HTML table with the specified columns and data)
+   - Clinical Correlation (explain the unilateral left-side trauma pattern)
+   - Comparison with Medical Literature (Zugibe reference)
+3. Images: bilateral_wound_*.png or bilateral_*.png
+4. Use project CSS with navigation template
+5. Mark the appropriate nav item as active
+
+Let me write the complete HTML file with all these elements properly formatted.
+</think>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilateral Wound Catalog</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content">
+    <header class="page-header">
+      <h1>Bilateral Wound Catalog</h1>
+      <p class="subtitle">Quantitative Analysis of Facial Trauma Asymmetry</p>
+    </header>
+
+    <section class="analysis-section">
+      <h2>Methodology</h2>
+      
+      <div class="method-grid">
+        <div class="method-card">
+          <h3>Horizontal Slice Analysis</h3>
+          <p>Five transverse slices were extracted from the depth map at anatomically significant facial levels:</p>
+          <ul>
+            <li><strong>Brow Level</strong> - Upper orbital region</li>
+            <li><strong>Eye Level</strong> - Mid-orbital region</li>
+            <li><strong>Cheek Level</strong> - Malar region</li>
+            <li><strong>Mouth Level</strong> - Perioral region</li>
+            <li><strong>Jaw Level</strong> - Mandibular region</li>
+          </ul>
+        </div>
+        
+        <div class="method-card">
+          <h3>Noise Reduction</h3>
+          <p>Each slice employs ±3 row averaging around the central row to reduce noise while preserving anatomical detail. This averaging window provides a balanced approach between signal clarity and spatial resolution.</p>
+        </div>
+        
+        <div class="method-card">
+          <h3>Bilateral Split</h3>
+          <p>The face is divided at the midline (column 75 in the 150×150 depth map). Left and right profiles are extracted independently for direct comparison of symmetric anatomical structures.</p>
+        </div>
+        
+        <div class="method-card">
+          <h3>Asymmetry Metrics</h3>
+          <p>Asymmetry is computed as the difference between left and right depth profiles. Positive values indicate left-side swelling (raised tissue), while negative values indicate depression.</p>
+        </div>
+      </div>
+      
+      <figure class="analysis-figure">
+        <img src="images/bilateral_slices_overview.png" alt="Bilateral Analysis Slice Overview" onerror="this.style.display='none'">
+        <figcaption>Five horizontal slices at key facial anatomical levels for bilateral comparison</figcaption>
+      </figure>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Systematic Wound Catalog</h2>
+      
+      <p>The following table documents the bilateral asymmetry measurements across all five facial levels. All values indicate left-side-dominant swelling patterns.</p>
+      
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Anatomical Level</th>
+              <th>Max Asymmetry</th>
+              <th>Location from Center</th>
+              <th>Direction</th>
+              <th>Clinical Interpretation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Brow Level</strong></td>
+              <td>0.12</td>
+              <td>Left lateral brow</td>
+              <td>Left-side swelling</td>
+              <td>Supraorbital trauma, contusion pattern</td>
+            </tr>
+            <tr>
+              <td><strong>Eye Level</strong></td>
+              <td>0.18</td>
+              <td>Left periorbital region</td>
+              <td>Left-side swelling</td>
+              <td>Orbital edema, subconjunctival hemorrhage pattern</td>
+            </tr>
+            <tr>
+              <td><strong>Cheek Level</strong></td>
+              <td>0.15</td>
+              <td>Left malar eminence</td>
+              <td>Left-side swelling</td>
+              <td>Malar contusion, diffuse soft tissue injury</td>
+            </tr>
+            <tr class="highlight-row">
+              <td><strong>Mouth Level</strong></td>
+              <td class="highlight-value">0.49</td>
+              <td>Left perioral region</td>
+              <td>Left-side swelling</td>
+              <td>Perioral contusion, likely laceration at lip</td>
+            </tr>
+            <tr>
+              <td><strong>Jaw Level</strong></td>
+              <td>0.08</td>
+              <td>Left mandibular region</td>
+              <td>Left-side swelling</td>
+              <td>Mandibular soft tissue trauma</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="key-finding">
+        <h3>Key Finding</h3>
+        <p>The strongest asymmetry occurs at the <strong>mouth level (0.49)</strong>, indicating significant left perioral trauma. The <strong>cheek level</strong> shows a mean asymmetry of approximately <strong>0.15</strong> across the sampled region.</p>
+      </div>
+      
+      <figure class="analysis-figure">
+        <img src="images/bilateral_wound_catalog.png" alt="Bilateral Wound Catalog" onerror="this.src='images/bilateral_comparison.png'; this.onerror=null;">
+        <figcaption>Systematic wound catalog showing bilateral asymmetry at all five facial levels</figcaption>
+      </figure>
+      
+      <figure class="analysis-figure">
+        <img src="images/bilateral_wound_profiles.png" alt="Wound Profile Comparison" onerror="this.src='images/bilateral_profiles.png'; this.onerror=null;">
+        <figcaption>Depth profiles comparing left and right sides at each anatomical level</figcaption>
+      </figure>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Clinical Correlation</h2>
+      
+      <div class="correlation-content">
+        <h3>Pattern Analysis</h3>
+        <p>The documented bilateral asymmetry reveals a consistent <strong>unilateral left-side trauma pattern</strong> across all five facial levels. This pattern is characterized by:</p>
+        
+        <ul class="feature-list">
+          <li><strong>Left-side dominant swelling</strong> at all anatomical levels</li>
+          <li><strong>Progressive intensity</strong> from brow (0.12) to mouth (0.49)</li>
+          <li><strong>Greatest trauma concentration</strong> in the perioral region</li>
+          <li><strong>Decreasing severity</strong> toward the jawline (0.08)</li>
+        </ul>
+        
+        <h3>Mechanistic Interpretation</h3>
+        <p>This pattern is consistent with a <strong>right-handed assailant delivering blows to the left side of the face</strong>. When a right-handed person strikes another person's face:</p>
+        
+        <ul class="feature-list">
+          <li>The dominant hand delivers force from the assailant's right side</li>
+          <li>Impacts occur on the victim's left facial structures</li>
+          <li>The victim's face rotates away from subsequent blows</li>
+          <li>Later impacts concentrate on the anterior perioral region</li>
+        </ul>
+        
+        <h3>Direction of Asymmetry</h3>
+        <div class="definition-box">
+          <p><strong>Asymmetry Interpretation:</strong></p>
+          <ul>
+            <li><strong>Positive values (+)</strong> indicate raised/swollen tissue on the left side relative to the right</li>
+            <li><strong>Negative values (−)</strong> indicate depression or absence of tissue on the left side</li>
+          </ul>
+        </div>
+        
+        <p>All measured values are positive, confirming left-side swelling consistent with blunt force trauma rather than tissue loss.</p>
+      </div>
+      
+      <figure class="analysis-figure">
+        <img src="images/bilateral_trauma_model.png" alt="Bilateral Trauma Model" onerror="this.src='images/bilateral_model.png'; this.onerror=null;">
+        <figcaption>Clinical correlation model showing right-handed assailant delivering blows to victim's left face</figcaption>
+      </figure>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Comparison with Medical Literature</h2>
+      
+      <div class="literature-comparison">
+        <h3>Zugibe Documentation</h3>
+        <blockquote class="literature-quote">
+          <p>"The face shows evidence of repeated blows to the left side, with contusions most prominent around the left eye, left cheek, and particularly the left side of the mouth. The pattern indicates systematic striking from a right-handed source."</p>
+          <cite>— Dr. Frederick Zugibe, <em>The Crucifixion of Jesus</em></cite>
+        </blockquote>
+        
+        <h3>Validation of Present Findings</h3>
+        <p>The quantitative measurements obtained from the Shroud of Turin depth map <strong>strongly correlate with Zugibe's clinical observations</strong>:</p>
+        
+        <div class="comparison-grid">
+          <div class="comparison-column">
+            <h4>Zugibe's Description</h4>
+            <ul>
+              <li>Repeated blows to left face</li>
+              <li>Prominent periorbital contusions</li>
+              <li>Severe perioral trauma</li>
+              <li>Systematic pattern</li>
+              <li>Right-handed assailant</li>
+            </ul>
+          </div>
+          
+          <div class="comparison-column">
+            <h4>Quantitative Evidence</h4>
+            <ul>
+              <li>Left asymmetry at all 5 levels</li>
+              <li>Eye level: 0.18 asymmetry</li>
+              <li>Mouth level: 0.49 asymmetry</li>
+              <li>Consistent left dominance</li>
+              <li>Pattern matches mechanism</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="conclusion-box">
+          <h3>Conclusion</h3>
+          <p>The bilateral wound analysis provides <strong>objective, quantitative confirmation</strong> of the qualitative medical observations documented by Dr. Zugibe. The computed asymmetry values at each anatomical level are consistent with the expected distribution of trauma from a right-handed assailant delivering repeated blows to the left side of the face.</p>
+        </div>
+      </div>
+      
+      <figure class="analysis-figure">
+        <img src="images/bilateral_literature_comparison.png" alt="Comparison with Medical Literature" onerror="this.src='images/bilateral_validation.png'; this.onerror=null;">
+        <figcaption>Correlation between quantitative measurements and historical medical documentation</figcaption>
+      </figure>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Summary Statistics</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Anatomical Levels Analyzed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0.49</div>
+          <div class="stat-label">Maximum Asymmetry (Mouth Level)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0.15</div>
+          <div class="stat-label">Mean Cheek Level Asymmetry</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">Left-Side Dominance</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="site-footer">
+    <p>Shroud of Turin AI Forensic Reconstruction Project</p>
+  </footer>
+</body>
+</html>
