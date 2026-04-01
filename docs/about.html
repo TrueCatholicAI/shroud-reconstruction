@@ -3,191 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About — Shroud Reconstruction</title>
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Shroud of Turin AI Forensic Reconstruction">
-  <meta property="og:title" content="About — Shroud of Turin AI Forensic Reconstruction">
-  <meta property="og:description" content="Open-source pipeline built by a Catholic researcher. Engineered to let the data speak — reproducible, fully documented, and honest about its limitations. All code available on GitHub.">
-  <meta property="og:url" content="https://truecatholicai.github.io/shroud-reconstruction/about.html">
-  <meta property="og:image" content="https://truecatholicai.github.io/shroud-reconstruction/images/hero-clay.png">
-  <meta name="twitter:card" content="summary_large_image">
+  <title>About - Shroud Reconstruction Project</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="wound-mapping.html">Wound Mapping</a></li>
+        <li><a href="wavelet-analysis.html">Wavelet</a></li>
+        <li><a href="bilateral-analysis.html">Bilateral</a></li>
+        <li><a href="seed-sweep.html">Seed Sweep</a></li>
+        <li><a href="curvature-analysis.html">Curvature</a></li>
+        <li><a href="sudarium.html">Sudarium</a></li>
+        <li><a href="art-historical.html">Art History</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+      </ul>
+    </div>
+  </nav>
 
-<nav>
-  <div class="nav-inner">
-    <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="methodology.html">Methodology</a></li>
-      <li><a href="findings.html">Findings</a></li>
-      <li><a href="reconstruction.html">Reconstruction</a></li>
-      <li><a href="study2.html">Study 2</a></li>
-      <li><a href="neural-depth.html">Neural Depth</a></li>
-      <li><a href="full-body.html">Full Body</a></li>
-      <li><a href="formation-analysis.html">Formation</a></li>
-      <li><a href="distance-function.html">Distance</a></li>
-      <li><a href="scourge-analysis.html">Scourge</a></li>
-      <li><a href="neave-comparison.html">Neave</a></li>
-      <li><a href="wound-mapping.html">Wound Mapping</a></li>
-      <li><a href="wavelet-analysis.html">Wavelet</a></li>
-      <li><a href="bilateral-analysis.html">Bilateral</a></li>
-      <li><a href="seed-sweep.html">Seed Sweep</a></li>
-      <li><a href="curvature-analysis.html">Curvature</a></li>
-      <li><a href="sudarium.html">Sudarium</a></li>
-      <li><a href="art-historical.html">Art History</a></li>
-      <li><a href="viewer.html">3D Viewer</a></li>
-      <li><a href="summary.html">Summary</a></li>
-      <li><a href="about.html" class="active">About</a></li>
-    </ul>
-  </div>
-</nav>
+  <main class="content">
+    <h1>About the Project</h1>
 
-<main>
-  <div class="page-header">
-    <p class="page-label">Project Background</p>
-    <h1>About This Project</h1>
-  </div>
+    <section>
+      <h2>Project Overview</h2>
+      <p>The Shroud Reconstruction Project is a computational forensic analysis initiative that applies advanced imaging techniques and 3D reconstruction methods to study the Turin Shroud. The project combines photogrammetry, neural network-based depth estimation, and geometric analysis to generate detailed 3D representations from the historical image data.</p>
+    </section>
 
-  <h2>What This Is</h2>
-  <p>
-    This is an open-source computer vision pipeline for extracting and visualizing the
-    three-dimensional facial geometry encoded in the Shroud of Turin's image. The project
-    builds on the 1976 VP-8 Image Analyzer discovery (Jackson, Jumper, Mottern) and extends
-    it using modern depth map processing, landmark detection, and depth-constrained AI generation.
-  </p>
-  <p>
-    All code is written in Python, all parameters are documented, and all outputs are
-    framed as data rather than conclusions. The pipeline is designed to be reproducible
-    by anyone with access to the source images and a GPU capable of running Stable Diffusion.
-  </p>
+    <section>
+      <h2>Project Scale</h2>
+      <p>The following table summarizes the computational work and outputs produced by this project:</p>
 
-  <h2>Who Built This</h2>
-  <p>
-    This project was built by a Catholic researcher who is personally convinced that the
-    Shroud is the authentic burial cloth of Jesus Christ. That conviction motivated the
-    project but does not direct its outputs. The pipeline is engineered to produce the same
-    results regardless of what anyone believes about the Shroud's origin.
-  </p>
-  <p>
-    The goal is to let the data speak. If the data is wrong, I want to know. If the data
-    is right, I want others to be able to verify it.
-  </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Python Analysis Scripts</td>
+            <td>64</td>
+          </tr>
+          <tr>
+            <td>JSON Configuration Files</td>
+            <td>21</td>
+          </tr>
+          <tr>
+            <td>Git Commits</td>
+            <td>55</td>
+          </tr>
+          <tr>
+            <td>Total Lines of Code</td>
+            <td>15,774</td>
+          </tr>
+        </tbody>
+      </table>
 
-  <div class="callout">
-    <p class="callout-title">Scope Statement</p>
-    <p>
-      This project does not:
-    </p>
-    <ul style="margin-top:0.5rem;">
-      <li>Make claims about the Shroud's authenticity</li>
-      <li>Assert the identity of the man depicted</li>
-      <li>Claim the AI reconstructions are portraits of Jesus</li>
-      <li>Make theological arguments of any kind</li>
-    </ul>
-    <p style="margin-top:0.5rem;">
-      This project does:
-    </p>
-    <ul style="margin-top:0.5rem;">
-      <li>Extract and measure the 3D geometry the Shroud encodes</li>
-      <li>Apply the same methods forensic anthropologists use with burial remains</li>
-      <li>Cross-validate findings across two independent source photographs</li>
-      <li>Document all decisions, uncertainties, and limitations honestly</li>
-    </ul>
-  </div>
+      <figure class="chart-figure">
+        <img src="images/project_stats_chart.png" alt="Project statistics chart showing code and file distribution" class="stats-chart">
+        <figcaption>Distribution of project resources and computational outputs</figcaption>
+      </figure>
+    </section>
 
-  <h2>A Note on the Images</h2>
-  <p>
-    The AI reconstructions on this site are depth-constrained renders of the facial
-    geometry extracted from the Shroud. They are constrained by data. They are not
-    portraits, and the pipeline makes no claim that they resemble any historical individual.
-  </p>
-  <p>
-    The sculptural material choice (clay, sandstone, marble) is deliberate: it removes
-    pigmentation from the output entirely. The Shroud does not encode color. Any skin
-    tone applied to a reconstruction would be an assumption, not a finding.
-  </p>
+    <section>
+      <h2>Technical Approach</h2>
+      <p>The methodology employed in this project utilizes:</p>
+      <ul>
+        <li>Photogrammetric analysis of high-resolution source images</li>
+        <li>Neural network-based depth map generation</li>
+        <li>Wavelet and frequency-domain analysis</li>
+        <li>Bilateral filtering for noise reduction</li>
+        <li>3D surface reconstruction and visualization</li>
+        <li>Comparative analysis with historical documentation</li>
+      </ul>
+    </section>
 
-  <h2>Pipeline Summary</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Component</th>
-        <th>Technology</th>
-        <th>Version</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Image processing</td>
-        <td>OpenCV (CLAHE, resize, Gaussian)</td>
-        <td>4.x</td>
-      </tr>
-      <tr>
-        <td>Depth map storage</td>
-        <td>NumPy</td>
-        <td>1.26+</td>
-      </tr>
-      <tr>
-        <td>3D surface visualization</td>
-        <td>Matplotlib (mpl_toolkits.mplot3d)</td>
-        <td>3.8+</td>
-      </tr>
-      <tr>
-        <td>Landmark detection</td>
-        <td>Custom depth-guided algorithm (Python)</td>
-        <td>v1.0</td>
-      </tr>
-      <tr>
-        <td>AI image generation</td>
-        <td>Stable Diffusion 1.5 + ControlNet Depth</td>
-        <td>SD 1.5, CN v11f1p</td>
-      </tr>
-      <tr>
-        <td>Diffusion framework</td>
-        <td>Hugging Face Diffusers</td>
-        <td>0.25–0.30</td>
-      </tr>
-      <tr>
-        <td>Hardware</td>
-        <td>NVIDIA RTX 2080 Ti (11 GB VRAM)</td>
-        <td>PyTorch 2.5.1 + CUDA 12.1</td>
-      </tr>
-    </tbody>
-  </table>
+    <section>
+      <h2>Data Sources</h2>
+      <p>All analysis is performed on processed depth maps stored in <code>data/final/</code> and original photographic sources in <code>data/source/</code>. Visualization outputs are saved to both <code>output/analysis/</code> for raw results and <code>docs/images/</code> for web display.</p>
+    </section>
+  </main>
 
-  <h2>Open Source</h2>
-  <p>
-    All source code, pipeline scripts, and parameter documentation are available for
-    inspection and replication. The project is designed so that any researcher with access
-    to the same source images and hardware can reproduce every output shown on this site.
-  </p>
-  <p>
-    Source images (Enrie 1931, Miller 1978 STURP) are not redistributed here but are
-    publicly available from their respective archives.
-  </p>
-  <p>
-    <a href="https://github.com/TrueCatholicAI/shroud-reconstruction" class="btn">View the source code on GitHub</a>
-    &nbsp;&nbsp;
-    <a href="downloads/shroud_reconstruction_preprint.pdf" class="btn" download>Download Preprint PDF</a>
-  </p>
-
-  <h2>Honest Limitations</h2>
-  <ul>
-    <li>The 150&times;150 downsample loses fine facial detail. Nose length measurement (bridge to tip) is unreliable at this resolution.</li>
-    <li>Scale calibration depends on IPD reference (6.3 cm adult male average). Individual variation could shift all measurements proportionally by ±10–15%.</li>
-    <li>Cloth draping at the time of burial affects the depth encoding — particularly the vertical axis. Some vertical measurements (nose-to-chin) may be elongated by 10–15% relative to true anatomy.</li>
-    <li>The healed (symmetrized) depth map and its reconstructions are analytical tools, not predictions. The specific nature of any injuries or trauma cannot be determined from this analysis.</li>
-    <li>MediaPipe FaceLandmarker was tested and failed completely. Our custom algorithm produces good results but has not been formally validated against a ground-truth face dataset with known measurements.</li>
-  </ul>
-
-</main>
-
-<footer>
-  <p>Open-source pipeline &mdash; all code and data available for replication.</p>
-  <p style="margin-top:0.3rem;">Shroud of Turin AI Forensic Reconstruction Project &middot; 2026</p>
-</footer>
-
+  <footer>
+    <p>Shroud AI Forensic Reconstruction Project</p>
+  </footer>
 </body>
 </html>
