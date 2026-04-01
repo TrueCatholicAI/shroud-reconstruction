@@ -34,6 +34,14 @@ Safeguards:
 - Missing pip packages are auto-installed before script execution.
 - Git push failures are caught and logged, never fatal.
 - Full run summary saved to output/runner_summary.json.
+
+Filename convention (so compute and write tasks agree on JSON paths):
+- Compute task descriptions should end with:  OUTPUT: my_results.json
+  → saves to output/task_results/my_results.json
+- Write task descriptions should start with:  READ: my_results.json
+  → reads from output/task_results/my_results.json
+- If these tags are absent, compute falls back to slug-based naming
+  and write falls back to the "data_source" field in the task JSON.
 """
 
 import json
@@ -418,10 +426,27 @@ def log_task_result(task: dict, success: bool, stdout: str = "", stderr: str = "
 # ---------------------------------------------------------------------------
 # Task handlers
 # ---------------------------------------------------------------------------
+def _extract_output_filename(task_desc: str) -> str | None:
+    """Extract explicit output filename from 'OUTPUT: filename.json' at end of task."""
+    match = re.search(r"OUTPUT:\s*(\S+\.json)\s*$", task_desc)
+    return match.group(1) if match else None
+
+
+def _extract_read_filename(task_desc: str) -> str | None:
+    """Extract explicit data source from 'READ: filename.json' at start of task."""
+    match = re.match(r"READ:\s*(\S+\.json)", task_desc)
+    return match.group(1) if match else None
+
+
 def handle_compute_task(task: dict, dry_run: bool = False) -> bool:
     """Generate a Python script via MiniMax, execute it, validate outputs."""
-    slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
-    results_json = RESULTS_DIR / f"{slug}_results.json"
+    # Determine JSON output path: explicit OUTPUT: tag or slug fallback
+    explicit_name = _extract_output_filename(task["task"])
+    if explicit_name:
+        results_json = RESULTS_DIR / explicit_name
+    else:
+        slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
+        results_json = RESULTS_DIR / f"{slug}_results.json"
     results_json_rel = results_json.relative_to(PROJECT_ROOT)
 
     prompt = (
@@ -516,11 +541,16 @@ def handle_compute_task(task: dict, dry_run: bool = False) -> bool:
 
 def handle_write_task(task: dict, dry_run: bool = False) -> bool:
     """Generate a file via MiniMax using ONLY verified JSON data."""
-    data_source = task.get("data_source")
+    # Resolve data source: READ: tag in task desc > data_source field
+    read_name = _extract_read_filename(task["task"])
+    data_source = (
+        str(RESULTS_DIR / read_name) if read_name
+        else task.get("data_source")
+    )
     if not data_source:
-        log("FAIL: Write task has no 'data_source' key.")
+        log("FAIL: Write task has no 'data_source' field and no READ: tag in description.")
         task["status"] = "failed"
-        task["error"] = "Missing data_source field"
+        task["error"] = "Missing data_source / READ: tag"
         log_task_result(task, False)
         return False
 
