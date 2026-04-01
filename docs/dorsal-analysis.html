@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dorsal Body Analysis - Shroud of Turin Forensic Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="wound-mapping.html">Wound Mapping</a></li>
+        <li><a href="wavelet-analysis.html">Wavelet</a></li>
+        <li><a href="bilateral-analysis.html">Bilateral</a></li>
+        <li><a href="seed-sweep.html">Seed Sweep</a></li>
+        <li><a href="curvature-analysis.html">Curvature</a></li>
+        <li><a href="sudarium.html">Sudarium</a></li>
+        <li><a href="art-historical.html">Art History</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>Dorsal Body Analysis</h1>
+      <p class="subtitle">Back-of-Body Depth Extraction and Candidate Surface Marking Detection</p>
+    </header>
+
+    <section class="analysis-section">
+      <h2>Overview</h2>
+      <p>
+        This analysis extends our forensic reconstruction to the dorsal (back) view of the body
+        image on the Shroud of Turin. While the frontal body image has received extensive study,
+        the dorsal surface provides additional evidence for systematic wound patterns that may
+        correlate with crucifixion and scourging trauma.
+      </p>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Image Processing Parameters</h2>
+      <div class="data-grid">
+        <div class="data-item">
+          <span class="data-label">Original Image Shape:</span>
+          <span class="data-value">2321 x 2370 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Dorsal Region Extracted:</span>
+          <span class="data-value">1161 x 2370 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Processed Dimensions:</span>
+          <span class="data-value">300 x 400 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">CLAHE Clip Limit:</span>
+          <span class="data-value">3.0</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Gaussian Kernel Size:</span>
+          <span class="data-value">15 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Residual Threshold:</span>
+          <span class="data-value">54.86</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Depth Map Visualization</h2>
+      <figure class="visualization">
+        <img src="docs/images/dorsal_heatmap.png" alt="Dorsal body heatmap showing depth variations" class="analysis-image">
+        <figcaption>
+          Figure 1: Depth heatmap of the dorsal body region. Color intensity represents
+          relative surface elevation derived from image intensity patterns.
+        </figcaption>
+      </figure>
+      <p>
+        The heatmap reveals the three-dimensional surface characteristics of the back of the body
+        image. Lighter/warmer colors indicate areas of greater apparent depth (or higher intensity
+        values in the original image), while cooler colors represent relatively flatter regions.
+      </p>
+    </section>
+
+    <section class="analysis-section">
+      <h2>3D Surface Reconstruction</h2>
+      <figure class="visualization">
+        <img src="docs/images/dorsal_3d_surface.png" alt="3D surface mesh of dorsal body" class="analysis-image">
+        <figcaption>
+          Figure 2: Three-dimensional surface mesh reconstruction of the dorsal body image.
+          The surface geometry highlights topographic features that may correspond to
+          superficial body contours and surface markings.
+        </figcaption>
+      </figure>
+      <p>
+        The 3D surface reconstruction provides an interpretive view of the dorsal body image,
+        emphasizing the topographic variation across the back surface. This visualization helps
+        identify potential marking patterns and assess their spatial distribution.
+      </p>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Candidate Mark Detection</h2>
+      <figure class="visualization">
+        <img src="docs/images/dorsal_mark_regions.png" alt="Detected candidate mark regions on dorsal surface" class="analysis-image">
+        <figcaption>
+          Figure 3: Candidate surface marking regions identified through residual analysis.
+          Detected regions are outlined in green with color intensity representing relative
+          region size.
+        </figcaption>
+      </figure>
+      <p>
+        Using the residual analysis method described in our methodology, we detected candidate
+        mark regions across the dorsal surface. The detection parameters were configured as follows:
+      </p>
+      <div class="data-grid">
+        <div class="data-item">
+          <span class="data-label">Minimum Region Area:</span>
+          <span class="data-value">10 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Maximum Region Area:</span>
+          <span class="data-value">2000 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Total Candidates Detected:</span>
+          <span class="data-value">115</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Minimum Detected Region:</span>
+          <span class="data-value">10 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Maximum Detected Region:</span>
+          <span class="data-value">1520 pixels</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Average Detected Region:</span>
+          <span class="data-value">76.25 pixels</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Comparison with Literature Estimates</h2>
+      <p>
+        Published literature on the Shroud of Turin has suggested approximately 120 scourge marks
+        on the dorsal surface based on visual examination and manual counting by researchers.
+        Our automated detection identified <strong>115 candidate regions</strong> that meet
+        the specified criteria.
+      </p>
+      <div class="comparison-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Literature Estimate (dorsal scourge marks)</td>
+              <td>~120</td>
+            </tr>
+            <tr>
+              <td>Automated Detection Count</td>
+              <td>115</td>
+            </tr>
+            <tr>
+              <td>Difference</td>
+              <td>5 (4.2% below estimate)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The numerical proximity between our automated detection count (115) and the published
+        literature estimate (~120) is noted. However, as discussed below, this similarity
+        should be interpreted with caution due to methodological limitations.
+      </p>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Residual Analysis</h2>
+      <figure class="visualization">
+        <img src="docs/images/dorsal_residual_map.png" alt="Residual intensity map for dorsal analysis" class="analysis-image">
+        <figcaption>
+          Figure 4: Residual intensity map showing deviations from the smoothed surface model.
+          Higher intensity values indicate regions that deviate significantly from the expected
+          body surface geometry.
+        </figcaption>
+      </figure>
+      <div class="data-grid">
+        <div class="data-item">
+          <span class="data-label">Mean Residual Intensity:</span>
+          <span class="data-value">24.64</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Maximum Residual Intensity:</span>
+          <span class="data-value">177.0</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Mean Processed Intensity:</span>
+          <span class="data-value">123.84</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">Standard Deviation:</span>
+          <span class="data-value">46.0</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Combined Analysis View</h2>
+      <figure class="visualization">
+        <img src="docs/images/dorsal_analysis.png" alt="Combined dorsal analysis visualization" class="analysis-image">
+        <figcaption>
+          Figure 5: Combined analysis visualization showing (top) the processed dorsal image,
+          (middle) the surface heatmap, and (bottom) the detected candidate mark regions.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="analysis-section limitations">
+      <h2>Limitations</h2>
+      <p>
+        This analysis should be evaluated with awareness of the following limitations:
+      </p>
+      <ul>
+        <li>
+          <strong>Over-Detection Concern:</strong> As noted in our frontal scourge analysis,
+          the residual-based detection method may be susceptible to over-detection. The 115
+          candidate regions detected represent regions that exceed the residual threshold
+          (54.86), but this threshold is based on image statistics rather than histological
+          or anatomical criteria. Some detected regions may represent natural body surface
+          variations, image artifacts, or textile weave impressions rather than actual
+          wound marks.
+        </li>
+        <li>
+          <strong>Similarity Does Not Equal Accuracy:</strong> While the detected count (115)
+          is numerically close to the literature estimate (~120), this numerical proximity
+          should not be interpreted as validation of either figure. Two numbers can agree
+          while both being systematically wrong due to shared methodological biases.
+        </li>
+        <li>
+          <strong>Parameter Dependence:</strong> The detection results are sensitive to the
+          chosen threshold values. The residual threshold of 54.86 was derived from the
+          processed image statistics, not from independent ground truth data about actual
+          scourge marks.
+        </li>
+        <li>
+          <strong>No Histological Validation:</strong> The analysis operates purely on
+          image-derived features without access to physical samples or forensic examination
+          of the actual cloth.
+        </li>
+        <li>
+          <strong>Image Quality Considerations:</strong> The original photographs have been
+          processed through multiple steps (photographic, digital conversion, alignment),
+          potentially introducing artifacts that may be falsely interpreted as body markings.
+        </li>
+        <li>
+          <strong>Region Size Variability:</strong> The detected regions range from 10 to
+          1520 pixels with an average of 76.25 pixels. This high variability suggests that
+          not all detected features represent similar types or scales of markings.
+        </li>
+      </ul>
+    </section>
+
+    <section class="analysis-section">
+      <h2>Conclusions</h2>
+      <p>
+        The dorsal body analysis detected 115 candidate mark regions using automated residual
+        analysis. This number is numerically similar to published literature estimates of
+        approximately 120 scourge marks. However, we cannot conclude from this analysis alone
+        that either figure accurately represents the true number of scourge marks on the
+        dorsal surface.
+      </p>
+      <p>
+        The detection methodology employed here suffers from the same over-detection concerns
+        identified in our frontal scourge analysis. Without ground truth validation against
+        known scourging injuries or independent expert assessment, we cannot distinguish
+        between genuine wound marks and image features that share similar statistical
+        properties.
+      </p>
+      <p>
+        Future work should focus on cross-validating these detections with independent
+        forensic methods and conducting systematic false positive rate analysis to better
+        understand the reliability of automated surface marking detection on Shroud images.
+      </p>
+    </section>
+
+    <footer class="page-footer">
+      <p>Analysis based on image data from dorsal body region extraction and residual-based surface marking detection.</p>
+      <p>Data derived from dorsal_analysis_results.json</p>
+    </footer>
+  </main>
+
+  <script>
+    // Mark current page as active
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = window.location.pathname.split('/').pop() || 'dorsal-analysis.html';
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPage) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
