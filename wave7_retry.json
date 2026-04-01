@@ -1,0 +1,44 @@
+[
+  {
+    "task": "Write a Python script that extracts the dorsal (back) body image from the full Enrie 1931 negative and performs wound/feature analysis on the back. Load the full-body source image (data/source/shroud_full_negatives.jpg), extract the dorsal half (bottom half of the image). Apply CLAHE + normalization. Downsample to 300x400 + Gaussian smoothing. Generate heatmap and 3D surface. Compute a high-frequency residual map (original minus smoothed) to identify surface markings on the back. Count candidate mark regions using connected component analysis on thresholded residual. Save images to output/dorsal/. OUTPUT: dorsal_analysis_results.json",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\dorsal_analysis_results.json"
+  },
+  {
+    "task": "READ: dorsal_analysis_results.json Write docs/dorsal-analysis.html. Title: Dorsal Body Analysis. Document the back-of-body depth extraction, 3D surface, and candidate surface marking detection. Compare the number of detected candidates against the published literature estimate of ~120 scourge marks. Be honest about whether the detection is reliable or suffers from the same over-detection problem as the earlier frontal scourge analysis. Include images from JSON. Include Limitations section. DO NOT fabricate data.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\dorsal-analysis.html"
+    ]
+  },
+  {
+    "task": "Write a Python script that computes facial proportions as ratios from Study 1 and Study 2 landmark data. Load data/measurements/landmarks.json (Study 1) and check for Study 2 landmarks in data/ or output/ directories. Compute 5 ratios: IPD/face_width, nose_width/face_width, mouth_width/face_width, nose_to_chin/face_height, jaw_width/face_width. These are scale-independent. If Study 2 landmarks exist, compare ratios between studies. Save images to output/ratios/. OUTPUT: ratio_analysis_results.json",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\ratio_analysis_results.json"
+  },
+  {
+    "task": "READ: ratio_analysis_results.json Write docs/ratio-analysis.html. Title: Scale-Independent Facial Proportions. Show a table of ratios. If two studies are available, show percentage difference. Ratios eliminate calibration uncertainty. Include Limitations section. DO NOT fabricate data.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\ratio-analysis.html"
+    ]
+  },
+  {
+    "task": "Write a Python script that generates a comprehensive project statistics summary. Count: total .py files in src/, total .html files in docs/, total image files in docs/images/, total .json files in output/task_results/, total lines of Python code (sum across all .py in src/), total git commits (run git rev-list --count HEAD). Save to output/task_results/. OUTPUT: project_stats.json",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\project_stats.json"
+  },
+  {
+    "task": "READ: project_stats.json Update docs/about.html by adding a Project Scale section showing the statistics in a clean table. This documents how much computational work has been done. DO NOT fabricate data.",
+    "type": "write",
+    "status": "done",
+    "output_files": [
+      "docs\\about.html"
+    ]
+  }
+]

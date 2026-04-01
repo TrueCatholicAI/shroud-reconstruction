@@ -1,0 +1,86 @@
+[
+  {
+    "task": "Write a Python script that performs a null-hypothesis test for the Sudarium overlap analysis. Load the Sudarium stain mask from output/sudarium/. Randomly shift and rotate the stain mask 1000 times (random x-offset ±50px, y-offset ±50px, rotation ±180 degrees). For each randomized placement, compute overlap with the Shroud facial landmarks using the same 8-pixel-radius ROI method from the original analysis. Save the distribution of random overlap percentages for each facial region. Compute p-values: what fraction of random placements achieve overlap >= the observed overlap at each landmark. Save results to output/task_results/sudarium_null_test_results.json with keys: observed_overlaps, random_distribution_stats (mean, std, min, max per region), p_values_per_region, overall_p_value, num_permutations. Save histogram plots to output/sudarium/null_test/.",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\write_a_python_script_that_performs_a_nu_results.json"
+  },
+  {
+    "task": "Read output/task_results/sudarium_null_test_results.json. Update docs/sudarium.html by adding a new section titled 'Null Hypothesis Test' after the existing Limitations section. Show the p-values per region in a table. Show the histogram of random overlap distributions with the observed value marked as a vertical line. If any p-values are below 0.05, note them as potentially significant but caution that multiple comparisons inflate false positive rates. If all p-values are above 0.05, state clearly that the observed overlap is not statistically distinguishable from chance. Use only values from the JSON. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/sudarium_null_test_results.json",
+    "status": "done",
+    "output_files": [
+      "docs\\sudarium.html"
+    ]
+  },
+  {
+    "task": "Write a Python script that exploits the Miller 1978 higher resolution. Load the FFT-filtered Miller face image. Instead of downsampling to 150x150, downsample to 500x500 with Gaussian kernel 31x31. Generate: depth heatmap, VP-8 3D surface (angled and front views), and a comparison panel showing 150x150 vs 300x300 vs 500x500 side by side. Run landmark detection using the same depth-guided algorithm adapted for 500x500 coordinates (scale all landmark search parameters proportionally). Compute measurements at 500x500 and compare to the 150x150 measurements. Save results to output/task_results/highres_500_results.json with keys: measurements_500 (same format as measurements.json), measurement_comparison (150 vs 300 vs 500 for each measurement), landmark_positions_500, image_paths. Save images to output/highres_miller/500x500/.",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\write_a_python_script_that_exploits_the_results.json"
+  },
+  {
+    "task": "Read output/task_results/highres_500_results.json. Write docs/highres-miller.html. Title: High-Resolution Miller Analysis. Show the resolution comparison panel. Show a measurement table comparing 150x150 vs 300x300 vs 500x500 values for each of the 9 measurements. Note which measurements converge (stable across resolutions = reliable) and which diverge (resolution-dependent = less reliable). Include the 500x500 3D surface and heatmap. The key question: does higher resolution reveal new facial features not visible at 150x150? Include a Limitations section. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/highres_500_results.json",
+    "status": "done",
+    "output_files": [
+      "docs\\highres-miller.html"
+    ]
+  },
+  {
+    "task": "Write a Python script that extracts the dorsal (back) body image from the full Enrie 1931 negative and performs wound/feature analysis on the back. Load the full-body source image, extract the dorsal half. Apply CLAHE + normalization. Downsample to 300x400 + Gaussian smoothing. Generate heatmap and 3D surface. Compute a high-frequency residual map (original minus smoothed) to identify surface markings on the back — these correspond to published scourge mark locations. Count candidate mark regions using connected component analysis on thresholded residual. Save results to output/task_results/dorsal_analysis_results.json with keys: num_candidate_marks, mark_locations, mark_size_stats, back_depth_stats, image_paths. Save images to output/dorsal/.",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\write_a_python_script_that_extracts_the_results.json"
+  },
+  {
+    "task": "Read output/task_results/dorsal_analysis_results.json. Write docs/dorsal-analysis.html. Title: Dorsal Body Analysis. Document the back-of-body depth extraction, 3D surface, and candidate surface marking detection. Compare the number of detected candidates against the published literature estimate of ~120 scourge marks. Be honest about whether the detection is reliable or suffers from the same over-detection problem as the earlier frontal scourge analysis. Include images from JSON. Include Limitations section. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/dorsal_analysis_results.json",
+    "status": "failed",
+    "error": "data_source not found: output/task_results/dorsal_analysis_results.json"
+  },
+  {
+    "task": "Write a Python script that computes facial proportions as ratios (not absolute measurements) from both Study 1 and Study 2 landmark data. Ratios: IPD/face_width, nose_width/face_width, mouth_width/face_width, nose_to_chin/face_height, jaw_width/face_width. Ratios are scale-independent so they eliminate calibration uncertainty. Compare Study 1 vs Study 2 ratios — if the same face is encoded, ratios should be more consistent across studies than absolute measurements. Also compute the same ratios from the Neave reconstruction reference data if available in output/task_results/. Save to output/task_results/ratio_analysis_results.json with keys: study1_ratios, study2_ratios, ratio_differences, ratio_correlation, neave_ratios_if_available.",
+    "type": "compute",
+    "status": "failed",
+    "error": "HTTPSConnectionPool(host='api.minimaxi.chat', port=443): Read timed out. (read timeout=300)"
+  },
+  {
+    "task": "Read output/task_results/ratio_analysis_results.json. Write docs/ratio-analysis.html. Title: Scale-Independent Facial Proportions. The key argument: absolute measurements vary between studies because of different calibration methods, but ratios should be stable if the underlying geometry is the same. Show a table of Study 1 vs Study 2 ratios with the percentage difference. If ratios converge better than absolute measurements, that strengthens the cross-validation. Include comparison to Neave if available. Include Limitations section. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/ratio_analysis_results.json",
+    "status": "failed",
+    "error": "data_source not found: output/task_results/ratio_analysis_results.json"
+  },
+  {
+    "task": "Write a Python script that generates an SSIM (Structural Similarity Index) scoring system for seed sweep reconstructions since Haar cascade scored 0/100. Load the ControlNet depth input image (512x512) and compare each reconstruction output against it using skimage.metrics.structural_similarity. Higher SSIM = reconstruction more faithfully follows the depth map geometry. Run on the existing seed 0-99 reconstruction outputs in output/seed_sweep/ (or regenerate seeds 0-49 if the originals were deleted). Save top 10 by SSIM score. Save results to output/task_results/ssim_sweep_results.json with keys: scoring_method, seeds_tested, top_10 (array of {seed, ssim_score, image_path}), mean_ssim, std_ssim. Save contact sheet of top 10 to output/seed_sweep/.",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\write_a_python_script_that_generates_an_results.json"
+  },
+  {
+    "task": "Read output/task_results/ssim_sweep_results.json. Update docs/seed-sweep.html by adding a new section titled 'SSIM Scoring — Alternative Metric' after the existing negative result section. Show the top 10 seeds by SSIM with scores. Include the contact sheet. Note that SSIM measures geometric fidelity to the depth map, not whether the output looks like a face to a human observer. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/ssim_sweep_results.json",
+    "status": "done",
+    "output_files": [
+      "docs\\seed-sweep.html"
+    ]
+  },
+  {
+    "task": "Write a Python script that generates a comprehensive project statistics summary. Count: total scripts in src/, total HTML pages in docs/, total images in docs/images/, total computation output files in output/, total JSON result files, total lines of Python code across all scripts, total commits in git log. Save to output/task_results/project_stats.json.",
+    "type": "compute",
+    "status": "done",
+    "results_json": "output\\task_results\\write_a_python_script_that_generates_a_c_results.json"
+  },
+  {
+    "task": "Read output/task_results/project_stats.json. Update docs/about.html by adding a 'Project Scale' section showing the statistics in a clean table. This documents how much computational work has been done. DO NOT fabricate data.",
+    "type": "write",
+    "data_source": "output/task_results/project_stats.json",
+    "status": "failed",
+    "error": "data_source not found: output/task_results/project_stats.json"
+  }
+]
