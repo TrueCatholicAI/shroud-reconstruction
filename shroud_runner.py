@@ -441,11 +441,11 @@ def _extract_read_filename(task_desc: str) -> str | None:
 def handle_compute_task(task: dict, dry_run: bool = False) -> bool:
     """Generate a Python script via MiniMax, execute it, validate outputs."""
     # Determine JSON output path: explicit OUTPUT: tag or slug fallback
+    slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
     explicit_name = _extract_output_filename(task["task"])
     if explicit_name:
         results_json = RESULTS_DIR / explicit_name
     else:
-        slug = re.sub(r"[^a-z0-9]+", "_", task["task"][:40].lower()).strip("_")
         results_json = RESULTS_DIR / f"{slug}_results.json"
     results_json_rel = results_json.relative_to(PROJECT_ROOT)
 
