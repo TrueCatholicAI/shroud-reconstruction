@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scale-Independent Facial Proportions - Shroud Reconstruction</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .data-unavailable {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .data-unavailable p {
+      margin: 0;
+      color: #ffc107;
+    }
+    .ratio-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .ratio-table th,
+    .ratio-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    .ratio-table th {
+      background: rgba(196, 163, 90, 0.2);
+      color: #c4a35a;
+    }
+    .ratio-table tr:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .ratio-table .metric-name {
+      font-weight: bold;
+      color: #fff;
+    }
+    .ratio-table .metric-def {
+      color: #888;
+      font-size: 0.9em;
+    }
+    .ratio-table .value-cell {
+      font-family: monospace;
+      color: #c4a35a;
+    }
+    .ratio-table .pending {
+      color: #666;
+      font-style: italic;
+    }
+    .image-container {
+      margin: 30px 0;
+    }
+    .image-container img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    .image-caption {
+      text-align: center;
+      color: #888;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Shroud Reconstruction</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="findings.html">Findings</a></li>
+        <li><a href="reconstruction.html">Reconstruction</a></li>
+        <li><a href="study2.html">Study 2</a></li>
+        <li><a href="neural-depth.html">Neural Depth</a></li>
+        <li><a href="full-body.html">Full Body</a></li>
+        <li><a href="formation-analysis.html">Formation</a></li>
+        <li><a href="distance-function.html">Distance</a></li>
+        <li><a href="scourge-analysis.html">Scourge</a></li>
+        <li><a href="neave-comparison.html">Neave</a></li>
+        <li><a href="wound-mapping.html">Wound Mapping</a></li>
+        <li><a href="wavelet-analysis.html">Wavelet</a></li>
+        <li><a href="bilateral-analysis.html">Bilateral</a></li>
+        <li><a href="seed-sweep.html">Seed Sweep</a></li>
+        <li><a href="curvature-analysis.html">Curvature</a></li>
+        <li><a href="sudarium.html">Sudarium</a></li>
+        <li><a href="art-historical.html">Art History</a></li>
+        <li><a href="viewer.html">3D Viewer</a></li>
+        <li><a href="summary.html">Summary</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>Scale-Independent Facial Proportions</h1>
+      <p class="subtitle">Ratio Analysis for Calibration-Free Comparison</p>
+    </header>
+
+    <section class="intro-section">
+      <h2>Overview</h2>
+      <p>
+        Ratio analysis provides a method to compare facial proportions independent of absolute scale,
+        image resolution, or calibration uncertainties. By expressing measurements as ratios of
+        related facial dimensions, we can compare the Shroud face image against established
+        anthropometric standards without requiring precise knowledge of the original distance to
+        the cloth.
+      </p>
+      <p>
+        This approach is particularly valuable for Shroud research because the exact distance between
+        the body and cloth surface during image formation is unknown and may have varied across
+        different body regions.
+      </p>
+    </section>
+
+    <section class="ratios-section">
+      <h2>Facial Proportion Ratios</h2>
+      
+      <div class="data-unavailable">
+        <p>Measurement data pending. All ratio values currently set to 0 pending analysis completion.</p>
+      </div>
+
+      <table class="ratio-table">
+        <thead>
+          <tr>
+            <th>Ratio</th>
+            <th>Definition</th>
+            <th>Study 1</th>
+            <th>Study 2</th>
+            <th>% Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric-name">IPD / Face Width</td>
+            <td class="metric-def">Interpupillary distance divided by face width</td>
+            <td class="value-cell pending">0.000</td>
+            <td class="pending">N/A</td>
+            <td class="pending">—</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Nose Width / Face Width</td>
+            <td class="metric-def">Nose width divided by face width</td>
+            <td class="value-cell pending">0.000</td>
+            <td class="pending">N/A</td>
+            <td class="pending">—</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Mouth Width / Face Width</td>
+            <td class="metric-def">Mouth width divided by face width</td>
+            <td class="value-cell pending">0.000</td>
+            <td class="pending">N/A</td>
+            <td class="pending">—</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Nose-to-Chin / Face Height</td>
+            <td class="metric-def">Nose to chin distance divided by face height</td>
+            <td class="value-cell pending">0.000</td>
+            <td class="pending">N/A</td>
+            <td class="pending">—</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Jaw Width / Face Width</td>
+            <td class="metric-def">Jaw width divided by face width</td>
+            <td class="value-cell pending">0.000</td>
+            <td class="pending">N/A</td>
+            <td class="pending">—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="table-note">
+        <strong>Note:</strong> Percentage differences are calculated only when both studies have
+        available data. A dash (—) indicates comparison not applicable.
+      </p>
+    </section>
+
+    <section class="images-section">
+      <h2>Visualizations</h2>
+      
+      <div class="image-container">
+        <img src="images/ratio_comparison.png" 
+             alt="Ratio Comparison Chart"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <p class="image-caption" style="display:none;">Image pending generation: ratio_comparison.png</p>
+        <p class="image-caption">Ratio comparison between studies</p>
+      </div>
+
+      <div class="image-container">
+        <img src="images/ratio_radar.png" 
+             alt="Ratio Radar Chart"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <p class="image-caption" style="display:none;">Image pending generation: ratio_radar.png</p>
+        <p class="image-caption">Radar chart showing all facial proportions</p>
+      </div>
+    </section>
+
+    <section class="methodology-section">
+      <h2>Methodology</h2>
+      <p>
+        The ratio analysis workflow involves the following steps:
+      </p>
+      <ol>
+        <li><strong>Landmark Detection:</strong> Identify key facial landmarks (eyes, nose, mouth, jawline) on the Shroud face image</li>
+        <li><strong>Distance Computation:</strong> Calculate distances between landmark pairs</li>
+        <li><strong>Ratio Calculation:</strong> Divide related distances to create scale-independent metrics</li>
+        <li><strong>Comparative Analysis:</strong> Compare calculated ratios against established anthropometric databases</li>
+      </ol>
+    </section>
+
+    <section class="limitations-section">
+      <h2>Limitations</h2>
+      <ul>
+        <li>
+          <strong>Image Quality:</strong> The Shroud image has relatively low spatial resolution compared
+          to modern facial photography, limiting the precision of landmark placement.
+        </li>
+        <li>
+          <strong>Distortion Effects:</strong> Contact distortion from the cloth against the body surface
+          may affect apparent facial proportions, particularly in areas where the cloth made close contact.
+        </li>
+        <li>
+          <strong>Reference Standards:</strong> Anthropometric databases typically represent living,
+          upright individuals. The supine position during burial may alter apparent facial proportions.
+        </li>
+        <li>
+          <strong>Partial Data Availability:</strong> Not all landmarks may be equally visible or
+          measurable across different imaging sessions or processing methods.
+        </li>
+        <li>
+          <strong>Inter-observer Variability:</strong> Manual landmark placement introduces subjectivity
+          that may affect ratio calculations.
+        </li>
+        <li>
+          <strong>Image Orientation:</strong> The projection of a 3D face onto a 2D cloth surface may
+          introduce perspective-related distortions that affect measured ratios.
+        </li>
+      </ul>
+    </section>
+
+    <section class="conclusion-section">
+      <h2>Conclusion</h2>
+      <p>
+        Ratio analysis provides a valuable complementary approach to absolute measurement comparisons
+        by eliminating calibration uncertainty. However, interpretation of results must account for
+        the inherent limitations of historical image analysis and the unique formation conditions
+        of the Shroud image.
+      </p>
+    </section>
+
+    <footer class="page-footer">
+      <p>Data source: <code>ratio_analysis_results.json</code></p>
+      <p>Generated: Automated Analysis Pipeline</p>
+    </footer>
+  </main>
+</body>
+</html>
