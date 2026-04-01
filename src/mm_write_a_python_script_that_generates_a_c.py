@@ -2,178 +2,193 @@ import matplotlib
 matplotlib.use('Agg')
 import os
 import json
-import subprocess
 import glob
+import subprocess
 from pathlib import Path
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 PROJECT_ROOT = r'C:\Users\nickh\Documents\claude-sandbox\shroud-reconstruction'
 
-results = {}
+def count_files(directory, pattern):
+    try:
+        search_path = os.path.join(directory, pattern)
+        files = glob.glob(search_path)
+        return len(files)
+    except Exception as e:
+        print(f"Error counting files in {directory} with pattern {pattern}: {e}")
+        return 0
 
-try:
-    src_path = os.path.join(PROJECT_ROOT, 'src')
-    docs_path = os.path.join(PROJECT_ROOT, 'docs')
-    docs_images_path = os.path.join(PROJECT_ROOT, 'docs', 'images')
-    output_path = os.path.join(PROJECT_ROOT, 'output')
-    task_results_path = os.path.join(PROJECT_ROOT, 'output', 'task_results')
-
-    os.makedirs(task_results_path, exist_ok=True)
-    os.makedirs(os.path.join(output_path, 'analysis'), exist_ok=True)
-    os.makedirs(docs_images_path, exist_ok=True)
-
-    scripts = glob.glob(os.path.join(src_path, '*.py'))
-    results['total_scripts'] = len(scripts)
-
-    html_pages = glob.glob(os.path.join(docs_path, '*.html'))
-    results['total_html_pages'] = len(html_pages)
-
-    images = glob.glob(os.path.join(docs_images_path, '*'))
-    images = [f for f in images if os.path.isfile(f)]
-    results['total_images'] = len(images)
-
-    output_files = []
-    for root, dirs, files in os.walk(output_path):
-        output_files.extend([os.path.join(root, f) for f in files])
-    results['total_output_files'] = len(output_files)
-
-    json_files = [f for f in output_files if f.endswith('.json')]
-    results['total_json_files'] = len(json_files)
-
+def count_lines_of_code(directory):
     total_lines = 0
-    for script in scripts:
-        try:
-            with open(script, 'r', encoding='utf-8') as f:
-                total_lines += len(f.readlines())
-        except:
-            pass
-    results['total_lines_python'] = total_lines
+    try:
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = os.path.join(root, file)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            total_lines += sum(1 for line in f)
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {e}")
+    except Exception as e:
+        print(f"Error walking directory {directory}: {e}")
+    return total_lines
 
+def count_git_commits():
     try:
         result = subprocess.run(
-            ['git', 'rev-list', '--all', '--count'],
+            ['git', 'rev-list', '--count', 'HEAD'],
             cwd=PROJECT_ROOT,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=10
         )
         if result.returncode == 0:
-            results['total_commits'] = int(result.stdout.strip())
+            return int(result.stdout.strip())
         else:
-            results['total_commits'] = 0
-    except:
-        results['total_commits'] = 0
+            print(f"Git command failed: {result.stderr}")
+            return 0
+    except FileNotFoundError:
+        print("Git not found in PATH")
+        return 0
+    except Exception as e:
+        print(f"Error counting git commits: {e}")
+        return 0
+
+def create_stats_visualization(stats):
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.patch.set_facecolor('#1a1a1a')
     ax.set_facecolor('#1a1a1a')
 
-    categories = ['Scripts', 'HTML Pages', 'Images', 'Output Files', 'JSON Files', 'Commits']
+    categories = ['Python Files', 'HTML Files', 'Images', 'JSON Files', 'Lines of Code', 'Git Commits']
     values = [
-        results.get('total_scripts', 0),
-        results.get('total_html_pages', 0),
-        results.get('total_images', 0),
-        results.get('total_output_files', 0),
-        results.get('total_json_files', 0),
-        results.get('total_commits', 0)
+        stats.get('py_files', 0),
+        stats.get('html_files', 0),
+        stats.get('image_files', 0),
+        stats.get('json_files', 0),
+        stats.get('lines_of_code', 0),
+        stats.get('git_commits', 0)
     ]
 
-    colors = ['#c4a35a' if v > 0 else '#555555' for v in values]
-    bars = ax.bar(categories, values, color=colors, edgecolor='#c4a35a', linewidth=1.5)
+    x_pos = np.arange(len(categories))
+    bars = ax.bar(x_pos, values, color='#c4a35a', edgecolor='white', linewidth=0.5)
 
-    for bar, val in zip(bars, values):
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(categories, color='white', rotation=45, ha='right', fontsize=10)
+    ax.set_ylabel('Count', color='white', fontsize=12)
+    ax.set_title('Project Statistics Summary', color='white', fontsize=14, fontweight='bold')
+    ax.tick_params(colors='white')
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    for bar in bars:
         height = bar.get_height()
-        ax.annotate(f'{val}',
+        ax.annotate(f'{int(height):,}',
                     xy=(bar.get_x() + bar.get_width() / 2, height),
                     xytext=(0, 3),
                     textcoords="offset points",
-                    ha='center', va='bottom',
-                    fontsize=12, fontweight='bold',
-                    color='white')
+                    ha='center', va='bottom', color='white', fontsize=9)
 
-    ax.set_ylabel('Count', color='white', fontsize=12)
-    ax.set_title('Shroud Reconstruction Project Statistics', color='white', fontsize=14, fontweight='bold')
-    ax.tick_params(axis='x', colors='white', rotation=45)
-    ax.tick_params(axis='y', colors='white')
-
-    for spine in ax.spines.values():
-        spine.set_color('#c4a35a')
-
-    ax.xaxis.label.set_color('white')
     plt.tight_layout()
+    return fig
 
-    chart_path_1 = os.path.join(output_path, 'analysis', 'project_stats.png')
-    chart_path_2 = os.path.join(docs_images_path, 'project_stats.png')
-    plt.savefig(chart_path_1, facecolor='#1a1a1a', edgecolor='none', dpi=150)
-    plt.savefig(chart_path_2, facecolor='#1a1a1a', edgecolor='none', dpi=150)
-    plt.close()
+def main():
+    print("=" * 60)
+    print("GENERATING PROJECT STATISTICS SUMMARY")
+    print("=" * 60)
 
-    results['image_files'] = [
-        os.path.relpath(chart_path_1, PROJECT_ROOT),
-        os.path.relpath(chart_path_2, PROJECT_ROOT)
+    src_dir = os.path.join(PROJECT_ROOT, 'src')
+    docs_dir = os.path.join(PROJECT_ROOT, 'docs')
+    docs_images_dir = os.path.join(PROJECT_ROOT, 'docs', 'images')
+    output_analysis_dir = os.path.join(PROJECT_ROOT, 'output', 'analysis')
+    task_results_dir = os.path.join(PROJECT_ROOT, 'output', 'task_results')
+
+    os.makedirs(output_analysis_dir, exist_ok=True)
+    os.makedirs(task_results_dir, exist_ok=True)
+    os.makedirs(docs_images_dir, exist_ok=True)
+
+    print("\nCounting files...")
+
+    py_files_count = count_files(src_dir, '*.py')
+    print(f"  Python files in src/: {py_files_count}")
+
+    html_files_count = count_files(docs_dir, '**/*.html')
+    print(f"  HTML files in docs/: {html_files_count}")
+
+    image_extensions = ['*.png', '*.jpg', '*.jpeg', '*.gif', '*.svg', '*.bmp', '*.webp']
+    image_files_count = 0
+    for ext in image_extensions:
+        image_files_count += count_files(docs_images_dir, ext)
+    print(f"  Image files in docs/images/: {image_files_count}")
+
+    json_files_count = count_files(task_results_dir, '*.json')
+    print(f"  JSON files in output/task_results/: {json_files_count}")
+
+    print("\nCounting lines of code...")
+    lines_of_code = count_lines_of_code(src_dir)
+    print(f"  Total lines of Python code: {lines_of_code:,}")
+
+    print("\nCounting git commits...")
+    git_commits = count_git_commits()
+    print(f"  Total git commits: {git_commits}")
+
+    print("\nCreating visualization...")
+    stats = {
+        'py_files': py_files_count,
+        'html_files': html_files_count,
+        'image_files': image_files_count,
+        'json_files': json_files_count,
+        'lines_of_code': lines_of_code,
+        'git_commits': git_commits
+    }
+
+    fig = create_stats_visualization(stats)
+
+    stats_chart_path = os.path.join(output_analysis_dir, 'project_stats_chart.png')
+    docs_chart_path = os.path.join(docs_images_dir, 'project_stats_chart.png')
+
+    fig.savefig(stats_chart_path, facecolor='#1a1a1a', edgecolor='none', dpi=150)
+    print(f"  Saved chart to: {stats_chart_path}")
+
+    fig.savefig(docs_chart_path, facecolor='#1a1a1a', edgecolor='none', dpi=150)
+    print(f"  Saved chart to: {docs_chart_path}")
+
+    import matplotlib.pyplot as plt
+    plt.close(fig)
+
+    image_files = [
+        os.path.relpath(stats_chart_path, PROJECT_ROOT),
+        os.path.relpath(docs_chart_path, PROJECT_ROOT)
     ]
 
-    fig2, ax2 = plt.subplots(figsize=(8, 4))
-    fig2.patch.set_facecolor('#1a1a1a')
-    ax2.set_facecolor('#1a1a1a')
-
-    stats_text = f"Total Python Lines: {results.get('total_lines_python', 0)}\n"
-    stats_text += f"Total Scripts: {results.get('total_scripts', 0)}\n"
-    stats_text += f"Total Commits: {results.get('total_commits', 0)}"
-
-    ax2.text(0.5, 0.5, stats_text,
-             transform=ax2.transAxes,
-             fontsize=16,
-             verticalalignment='center',
-             horizontalalignment='center',
-             color='#c4a35a',
-             fontweight='bold',
-             bbox=dict(boxstyle='round', facecolor='#2a2a2a', edgecolor='#c4a35a', linewidth=2))
-
-    ax2.axis('off')
-    ax2.set_title('Code Metrics Summary', color='white', fontsize=14, fontweight='bold')
-
-    summary_path_1 = os.path.join(output_path, 'analysis', 'code_metrics.png')
-    summary_path_2 = os.path.join(docs_images_path, 'code_metrics.png')
-    plt.savefig(summary_path_1, facecolor='#1a1a1a', edgecolor='none', dpi=150)
-    plt.savefig(summary_path_2, facecolor='#1a1a1a', edgecolor='none', dpi=150)
-    plt.close()
-
-    results['image_files'].extend([
-        os.path.relpath(summary_path_1, PROJECT_ROOT),
-        os.path.relpath(summary_path_2, PROJECT_ROOT)
-    ])
-
-    print("=" * 50)
-    print("PROJECT STATISTICS SUMMARY")
-    print("=" * 50)
-    for key, value in results.items():
-        if key != 'image_files':
-            print(f"{key}: {value}")
-    print("-" * 50)
-    print(f"Charts saved to: {chart_path_1}")
-    print(f"Charts saved to: {chart_path_2}")
-    print("=" * 50)
-
-    json_output_path = r'C:\Users\nickh\Documents\claude-sandbox\shroud-reconstruction\output\task_results\write_a_python_script_that_generates_a_c_results.json'
-    print("\nJSON OUTPUT:")
-    print(json.dumps(results, indent=2))
-    json.dump(results, open(json_output_path, 'w'), indent=2)
-    print(f"\nJSON saved to: {json_output_path}")
-
-except Exception as e:
-    print(f"ERROR: {str(e)}")
-    error_results = {
-        'error': str(e),
-        'total_scripts': 0,
-        'total_html_pages': 0,
-        'total_images': 0,
-        'total_output_files': 0,
-        'total_json_files': 0,
-        'total_lines_python': 0,
-        'total_commits': 0,
-        'image_files': []
+    results = {
+        'py_files': py_files_count,
+        'html_files': html_files_count,
+        'image_files': image_files_count,
+        'json_files': json_files_count,
+        'lines_of_code': lines_of_code,
+        'git_commits': git_commits,
+        'image_files': image_files
     }
-    print(json.dumps(error_results, indent=2))
-    json.dump(error_results, open(r'C:\Users\nickh\Documents\claude-sandbox\shroud-reconstruction\output\task_results\write_a_python_script_that_generates_a_c_results.json', 'w'), indent=2)
+
+    output_json_path = os.path.join(task_results_dir, 'project_stats.json')
+    with open(output_json_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    print(f"\nSaved results to: {output_json_path}")
+
+    print("\n" + "=" * 60)
+    print("FINAL RESULTS (JSON):")
+    print("=" * 60)
+    print(json.dumps(results, indent=2))
+    print("=" * 60)
+    print("PROJECT STATISTICS SUMMARY COMPLETE")
+    print("=" * 60)
+
+    return results
+
+if __name__ == '__main__':
+    main()
