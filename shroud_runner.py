@@ -18,7 +18,7 @@ Task queue format:
 [
   {
     "task": "Description of what to do",
-    "type": "compute|write",
+    "type": "compute|write|update",
     "status": "pending|running|done|failed",
     "output_files": [],
     "results_json": null,        // compute tasks: path to structured JSON output
@@ -41,7 +41,14 @@ Filename convention (so compute and write tasks agree on JSON paths):
 - Write task descriptions should start with:  READ: my_results.json
   → reads from output/task_results/my_results.json
 - If these tags are absent, compute falls back to slug-based naming
-  and write falls back to the "data_source" field in the task JSON.
+  and write/update fall back to the "data_source" field in the task JSON.
+
+Task types:
+- "compute": Generate + execute Python script, must produce JSON results.
+- "write":   Generate an entire new file from JSON data. Replaces any existing file.
+- "update":  Add content to an EXISTING file. Sends the current file + new JSON to
+             MiniMax with instructions to preserve all existing content. Use this
+             when adding sections to pages that already have manually authored content.
 """
 
 import json
@@ -638,9 +645,130 @@ def handle_write_task(task: dict, dry_run: bool = False) -> bool:
     return True
 
 
+def handle_update_task(task: dict, dry_run: bool = False) -> bool:
+    """Update an EXISTING file by adding new content from verified JSON.
+
+    Unlike 'write' tasks which generate entire files from scratch, 'update'
+    tasks send both the existing file content AND the new data to MiniMax,
+    with explicit instructions to preserve all existing content and only
+    add the new section.  This prevents MiniMax from destroying carefully
+    authored pages.
+    """
+    # Resolve data source
+    read_name = _extract_read_filename(task["task"])
+    data_source = (
+        str(RESULTS_DIR / read_name) if read_name
+        else task.get("data_source")
+    )
+    if not data_source:
+        log("FAIL: Update task has no data source.")
+        task["status"] = "failed"
+        task["error"] = "Missing data_source / READ: tag"
+        log_task_result(task, False)
+        return False
+
+    json_path = Path(data_source) if os.path.isabs(data_source) else PROJECT_ROOT / data_source
+    if not json_path.exists():
+        log(f"FAIL: Data source not found: {data_source}")
+        task["status"] = "failed"
+        task["error"] = f"data_source not found: {data_source}"
+        log_task_result(task, False)
+        return False
+
+    try:
+        results_data = json.loads(json_path.read_text(encoding="utf-8"))
+        if not isinstance(results_data, dict):
+            raise ValueError("Top-level value must be a JSON object")
+    except (json.JSONDecodeError, ValueError) as e:
+        log(f"FAIL: Data source malformed: {e}")
+        task["status"] = "failed"
+        task["error"] = f"Malformed data_source: {e}"
+        log_task_result(task, False)
+        return False
+
+    log(f"Data source validated: {data_source} ({len(results_data)} keys)")
+
+    # Determine which file to update
+    path_match = re.search(r"(docs/\S+\.html|docs/\S+\.md)", task["task"])
+    if not path_match:
+        log("FAIL: Update task must reference a specific file path (e.g. docs/foo.html)")
+        task["status"] = "failed"
+        task["error"] = "No target file path found in task description"
+        log_task_result(task, False)
+        return False
+
+    target_path = PROJECT_ROOT / path_match.group(1)
+    if not target_path.exists():
+        log(f"FAIL: Target file does not exist: {target_path.relative_to(PROJECT_ROOT)}")
+        task["status"] = "failed"
+        task["error"] = f"Target file not found: {path_match.group(1)}"
+        log_task_result(task, False)
+        return False
+
+    existing_content = target_path.read_text(encoding="utf-8")
+    log(f"Loaded existing file: {target_path.relative_to(PROJECT_ROOT)} "
+        f"({len(existing_content)} chars, {existing_content.count(chr(10))} lines)")
+
+    # Truncate data JSON for token limits
+    data_str = json.dumps(results_data, indent=2)
+    if len(data_str) > 6000:
+        data_str = data_str[:6000] + "\n... (truncated)"
+
+    prompt = (
+        f"You are updating an EXISTING HTML page. Your job is to ADD a new section "
+        f"using the provided data. You MUST preserve ALL existing content exactly as-is.\n\n"
+        f"TASK: {task['task']}\n\n"
+        f"EXISTING FILE CONTENT (preserve this EXACTLY — do not remove, rewrite, or "
+        f"reorganize any of it):\n"
+        f"```html\n{existing_content}\n```\n\n"
+        f"NEW DATA TO ADD (use ONLY these numbers and paths):\n"
+        f"```json\n{data_str}\n```\n\n"
+        f"STRICT RULES:\n"
+        f"- Return the COMPLETE updated HTML file.\n"
+        f"- ALL existing content must be preserved verbatim.\n"
+        f"- Add the new section at the location described in the task.\n"
+        f"- Do NOT change the page title, nav, footer, or any existing sections.\n"
+        f"- Do NOT fabricate quotes, data, or authenticity claims.\n"
+        f"- Do NOT reorganize or restyle existing content.\n"
+        f"- Use ONLY values from the JSON data above.\n"
+    )
+
+    log(f"Sending update task to MiniMax: {task['task'][:60]}...")
+    response = call_minimax(prompt, max_tokens=16384)
+    updated_content = extract_code(response, lang="html")
+
+    # Sanity check: the updated content should be at least as long as the original
+    if len(updated_content) < len(existing_content) * 0.8:
+        log(f"WARNING: Updated content ({len(updated_content)} chars) is significantly "
+            f"shorter than original ({len(existing_content)} chars). MiniMax may have "
+            f"dropped content. Saving anyway but flagging for review.")
+
+    if dry_run:
+        log(f"  (dry-run: would update {target_path.relative_to(PROJECT_ROOT)})")
+        task["status"] = "done"
+        return True
+
+    target_path.write_text(updated_content, encoding="utf-8")
+    rel = str(target_path.relative_to(PROJECT_ROOT))
+    log(f"Updated: {rel}")
+    _files_created.append(rel)
+
+    task["status"] = "done"
+    task["output_files"] = [rel]
+    log_task_result(task, True)
+
+    git_add_commit(
+        f"[runner] update: {task['task'][:50]}",
+        [str(target_path)],
+    )
+
+    return True
+
+
 HANDLERS = {
     "compute": handle_compute_task,
     "write": handle_write_task,
+    "update": handle_update_task,
 }
 
 
